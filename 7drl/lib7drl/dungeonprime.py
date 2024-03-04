@@ -279,7 +279,67 @@ class DungeonPrime():
             a,b = _checkAreas()
 
 
+
     def genWalls(self):
+        # find the walkable places
+        dw,dh = self._tmpData['dsize']
+        data    = self._tmpData['data']
+        # Create a map with
+        # 1 for Roomable tiles,
+        # 0 for not walkable tiles
+        # I will use it to check if thre are not reachable areas
+        dataMap = [[1 if ch ==' ' else 0 for ch in row] for row in data]
+
+        def _findRandomInArea(_num,_w,_h):
+            _ll = []
+            for _y,_row in enumerate(dataMap):
+                if _y+_h >= dh: break
+                for _x,_ch in enumerate(_row):
+                    if _x+_w >= dw: break
+                    if _ch == _num:
+                        # Check if all the tiles in this area have the same _num
+                        # I know, it's a bit convoluted
+                        if all([
+                            all([__ch == _num for __ch in dataMapY[_x:_x+_w]])
+                            for dataMapY in dataMap[_y:_y+_h]]):
+                            _ll.append((_x,_y))
+            if not _ll: return None
+            return _ll[random.randint(0,len(_ll)-1)]
+
+        def _placeRoom(_pos,_size,_corner):
+            # Draw Walls
+            _x,_y = _pos
+            _w,_h = _size
+            # Draw Walls
+            for _yy in range(_y+_corner,_y+_h-_corner+1):
+                if data[_yy][_x-1]==' ':
+                    data[_yy][_x ]     = '#'
+                if data[_yy][_x+_w+1]==' ':
+                    data[_yy  ][_x+_w] = '#'
+            for _xx in range(_x+_corner,_x+_w-_corner+1):
+                if data[_y-1][_xx]==' ':
+                    data[_y ][_xx]     = '#'
+                if data[_y+_h+1][_xx]==' ':
+                    data[_y+_h][_xx] = '#'
+            # Draw Walkable Floor
+            for _yy in range(_y+1,_y+_h):
+                for _xx in range(_x+1,_x+_w):
+                    data[_yy][_xx] = ' '
+            _rw = random.randint(0,_w//4)
+            _rh = random.randint(0,_h//4)
+            for _yy in range(_y+_rh,_y+_h-_rh+1):
+                for _xx in range(_x+_rw,_x+_w-_rw+1):
+                    dataMap[_yy][_xx] = 0
+
+        # Add a room
+        for i in range(random.randint(3,15)):
+            rw = random.randint(4,15)
+            rh = random.randint(4,6)
+            if not (rpos:= _findRandomInArea(1,rw,rh)):
+                break
+            _placeRoom(rpos,(rw,rh),0)
+
+    def genDoors(self):
         # find the walkable places
         dw,dh = self._tmpData['dsize']
         data    = self._tmpData['data']
@@ -289,27 +349,92 @@ class DungeonPrime():
         # I will use it to check if thre are not reachable areas
         dataMap = [[1 if ch ==' ' else 0 for ch in row] for row in data]
 
-        def _findRandomInArea(_num,_w,_h):
-            _ll = []
-            _num = dataMap[_y][_x]
-            for _y,_row in enumerate(dataMap):
-                if _y+_h >= dh: break
-                for _x,_ch in enumerate(_row):
-                    if _x+_w >= dw: break
-                    if _ch == _num:
-                        # Check if all the tiles in this area have the same _num
-                        # I know, it's a bit convoluted
-                        all([
-                            all([__ch == _num for __ch in dataMapY[_x:_x+_w]])
-                            for dataMapY in dataMap[_y:_y+_h]])
-                        _ll.append((_x,_y))
-            if not _ll: return None
-            return _ll[random.randint(0,len(_ll)-1)]
+        # Divide the dungeons in walkable areas
 
-        # Add a room
-        for i in random.randint(5,20):
-            rw = random.randint(5,30)
-            rh = random.randint(3,10)
+        # find the first walcable tile with _num
+        def _getFirst(_num):
+            for y,row in enumerate(dataMap):
+                for x,ch in enumerate(row):
+                    if ch == _num:
+                        return (x,y)
+            return None
+
+        # Process all the tiles and mark the connected ones
+        def _recurseMark(_pos,_num):
+            _x,_y = _pos
+            if  not  dataMap[_y][_x]: return
+            if _num==dataMap[_y][_x]: return
+            dataMap[_y][_x] = _num
+            # data[_y][_x] = 'D'
+            if _y > 0   : _recurseMark((_x,_y-1),_num)
+            if _y < dh-2: _recurseMark((_x,_y+1),_num)
+            if _x > 0   : _recurseMark((_x-1,_y),_num)
+            if _x < dw-2: _recurseMark((_x+1,_y),_num)
+
+        # Assign an Area Id for all the connected tiles
+        markId = 1
+        while fpos := _getFirst(1):
+            markId+=1
+            _recurseMark(fpos,markId)
+
+        def _getWalls(_area):
+            _walls = {}
+            def __checkWall(__x,__y,_walls=_walls):
+                if data[__y][__x] == '#' and (__x,__y) not in _walls:
+                    # List the areas connected to this wall
+                    _conn = set()
+                    if __x>0    and (__a:=dataMap[__y][__x-1]): _conn.add(__a)
+                    if __x<dw-1 and (__a:=dataMap[__y][__x+1]): _conn.add(__a)
+                    if __y>0    and (__a:=dataMap[__y-1][__x]): _conn.add(__a)
+                    if __y<dh-1 and (__a:=dataMap[__y+1][__x]): _conn.add(__a)
+                    if _area in _conn and len(_conn)==2:
+                        _walls[(__x,__y)]=_conn
+            for _y,_row in enumerate(dataMap[1:dh-1],1):
+                for _x,_ch in enumerate(_row[1:dw-1],1):
+                    if _ch == _area:
+                        __checkWall(_x+1,_y)
+                        __checkWall(_x-1,_y)
+                        __checkWall(_x,_y+1)
+                        __checkWall(_x,_y-1)
+            return _walls
+        # create an Area Tree
+
+        processedAreas = [False]*(markId+1)
+        def _treeFromArea(_area):
+            if processedAreas[_area]: return None
+            processedAreas[_area] = True
+            _walls = _getWalls(_area)
+            ttk.TTkLog.debug(f"Tree: {_area} - {_walls} ")
+            _connections = []
+            for _w in _walls:
+                for _ca in _walls[_w]:
+                    ttk.TTkLog.debug(f"try: {_area} -> {_ca}")
+                    if _cont := _treeFromArea(_ca):
+                        ttk.TTkLog.debug(f"{_area} -> {_ca}")
+                        _connections.append(_cont)
+            return {'area':_area, 'connections':_connections, 'walls':_walls}
+
+        fullTree = _treeFromArea(random.randint(2,markId))
+
+        def _placeDoors(_tree):
+            _tw = _tree['walls']
+            for _c in _tree['connections']:
+                _wlls = [_w for _w in _tw if _c['area'] in _tw[_w]]
+                _wx,_wy = _wlls[random.randint(0,len(_wlls)-1)]
+                data[_wy][_wx] = 'D'
+                _placeDoors(_c)
+
+        _placeDoors(fullTree)
+
+        for y,row in enumerate(dataMap):
+            out = f"{y:02} - "
+            for v in row:
+                if v: out += f"{v:2} "
+                else:out += f"   "
+            ttk.TTkLog.debug(out)
+
+
+
 
 
 
@@ -325,6 +450,7 @@ class DungeonPrime():
         self.genMainArea()
         self.ensureConnection()
         self.genWalls()
+        self.genDoors()
 
 
 
