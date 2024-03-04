@@ -41,6 +41,12 @@ Tiles = {
     '@' : ttk.TTkString('😎'),
     'X' : None,
     'D' : ttk.TTkString('🚪'),
+    'DR' : ttk.TTkString('🚪',ttk.TTkColor.bg('#FF0000')),
+    'DG' : ttk.TTkString('🚪',ttk.TTkColor.bg('#00FF00')),
+    'DB' : ttk.TTkString('🚪',ttk.TTkColor.bg('#0000FF')),
+    'KR' : ttk.TTkString('📕'),
+    'KG' : ttk.TTkString('📗'),
+    'KB' : ttk.TTkString('📘'),
     'd' : ttk.TTkString('| ',ttk.TTkColor.fg('#803000')),
     'z' : ttk.TTkString('🧟'),
     '>' : ttk.TTkString('🪜'),
@@ -56,18 +62,14 @@ class Dungeon(DungeonPrime):
     def __init__(self) -> None:
         super().__init__()
         self._heroPos = (5,3)
-        self._floor = [ttk.TTkColor.bg('#ffeeff'),
-                       ttk.TTkColor.bg('#eeeeff')]
+        self._floor = [
+                [ttk.TTkColor.bg('#ffffdd'),ttk.TTkColor.bg('#ddddaa')], # Base
+                [ttk.TTkColor.bg('#ddffdd'),ttk.TTkColor.bg('#aaddaa')], # Green
+                [ttk.TTkColor.bg('#ddddff'),ttk.TTkColor.bg('#aaaadd')], # Blue
+                [ttk.TTkColor.bg('#ffdddd'),ttk.TTkColor.bg('#ddaaaa')]] # Red
 
     def genDungeon(self):
-        super().genDungeon()
-        # Find the first walcable slot
-        for y,row in enumerate(self._data):
-            for x,ch in enumerate(row):
-                if ch == ' ':
-                    self._heroPos=(x,y)
-                    break
-            if ch == ' ':break # What a piece of crap
+        self._heroPos=super().genDungeon()
 
     def heroPos(self):
         return self._heroPos
@@ -113,16 +115,18 @@ class Dungeon(DungeonPrime):
     def drawDungeon(self, pos, canvas:ttk.TTkCanvas):
         x,y = pos
         w,h = canvas.size()
+        data     = self._data
+        dataType = self._dataType
         # Draw the plane:
         self._drawLayer(self._layerPlane, pos, canvas)
         # Draw the Dungeon:
         fd = self._fading
-        dw = int(math.ceil(fd*len(self._data[0])))
-        dh = int(math.ceil(fd*len(self._data)))
-        for cy,row in enumerate(self._data[0:dh],y):
+        dw = int(math.ceil(fd*len(data[0])))
+        dh = int(math.ceil(fd*len(data)))
+        for cy,row in enumerate(data[0:dh],y):
             for cx,tile in enumerate(row[:dw]):
                 ch = Tiles.get(tile)
-                color = self._floor[(cx+cy)%2]
+                color = self._floor[dataType[cy-y][cx]][(cx+cy)%2]
                 if ch:
                     canvas.drawTTkString(pos=(x+cx*2,cy),text=ch,color=color)
                 # else:
@@ -130,7 +134,7 @@ class Dungeon(DungeonPrime):
         # Place Hero:
         he = Tiles.get('@')
         hx,hy = self._heroPos
-        color = self._floor[(hx+hy)%2]
+        color = self._floor[dataType[hy][hx]][(hx+hy)%2]
         canvas.drawTTkString(pos=(x+hx*2,y+hy),text=he,color=color)
 
 

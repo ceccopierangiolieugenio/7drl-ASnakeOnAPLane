@@ -35,14 +35,14 @@ TEST = [
     # ['X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X',],
     # ['X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X',],
     # ['X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X',],
-    ['X','X','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','X','X','X','#','#','#','X','X','X','#','#','#','#','#','X','X',],
-    ['X','#',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','#','X','X','#',' ',' ',' ','#','X','#',' ',' ',' ',' ',' ','#','X',],
-    ['#',' ',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','#','#','#',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ','#',],
-    ['#',' ',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ','D',' ',' ',' ',' ',' ','b',' ','#',],
-    ['#',' ',' ',' ',' ',' ',' ','D',' ',' ',' ','z',' ',' ',' ',' ',' ',' ',' ','>',' ',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ','#',],
-    ['#',' ',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','D',' ',' ',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ','#',],
-    ['X','#',' ',' ',' ',' ','#','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ','#','X','#',' ',' ',' ',' ',' ','#','X',],
-    ['X','X','#','#','#','#','X','X','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','X','X','X','#','#','#','#','#','X','X',],
+    ['X','X','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#' ,'#','#' ,'X','X','X','#','#','#','X' ,'X' ,'X','#','#','#','#','#','X','X',],
+    ['X','#',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ' ,' ','#' ,'X','X','#',' ',' ',' ','#' ,'X' ,'#',' ',' ',' ',' ',' ','#','X',],
+    ['#',' ',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','KG',' ','#' ,'#','#',' ',' ',' ',' ',' ' ,'#' ,' ',' ',' ',' ',' ',' ',' ','#',],
+    ['#',' ',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ' ,' ','#' ,' ',' ',' ',' ',' ',' ',' ' ,'DB',' ',' ',' ',' ',' ','b',' ','#',],
+    ['#',' ',' ',' ',' ',' ',' ','D',' ',' ',' ','z',' ',' ',' ',' ',' ',' ',' ','>',' ',' ',' ',' ',' ' ,' ','#' ,' ',' ',' ',' ',' ','#','#' ,'#' ,' ',' ',' ',' ',' ',' ',' ','#',],
+    ['#',' ',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ' ,' ','DG',' ',' ',' ',' ','#','z','KB','#' ,' ',' ',' ',' ',' ',' ',' ','#',],
+    ['X','#',' ',' ',' ',' ','#','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ' ,' ','#' ,' ',' ',' ',' ','D','z','#' ,'X' ,'#',' ',' ',' ',' ',' ','#','X',],
+    ['X','X','#','#','#','#','X','X','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#' ,'#','#' ,'#','#','#','#','#','#','X' ,'X' ,'X','#','#','#','#','#','X','X',],
     ]
 
 class DungeonPrime():
@@ -61,6 +61,7 @@ class DungeonPrime():
         self._layerPlane = {'layers':[plb,plf]    ,'pos':[(-18,-7),(wplb-27,-1)]}
 
         self._data = TEST
+        self._dataType = [[0 if ch ==' ' else 0 for ch in row] for row in self._data]
         self._tmpData = {}
 
 
@@ -343,11 +344,14 @@ class DungeonPrime():
         # find the walkable places
         dw,dh = self._tmpData['dsize']
         data    = self._tmpData['data']
+        dataType = self._tmpData['dataType'] = [[5 if ch ==' ' else 0 for ch in row] for row in data]
+
         # Create a map with
         # 1 for walkable tiles,
         # 0 for not walkable tiles
         # I will use it to check if thre are not reachable areas
-        dataMap = [[1 if ch ==' ' else 0 for ch in row] for row in data]
+        dataMap     = [[1 if ch ==' ' else 0 for ch in row] for row in data]
+        # dataMapType = [[1 if ch ==' ' else 0 for ch in row] for row in data]
 
         # Divide the dungeons in walkable areas
 
@@ -360,22 +364,22 @@ class DungeonPrime():
             return None
 
         # Process all the tiles and mark the connected ones
-        def _recurseMark(_pos,_num):
+        def _recurseMark(_data,_pos,_num):
             _x,_y = _pos
-            if  not  dataMap[_y][_x]: return
-            if _num==dataMap[_y][_x]: return
-            dataMap[_y][_x] = _num
+            if  not  _data[_y][_x]: return
+            if _num==_data[_y][_x]: return
+            _data[_y][_x] = _num
             # data[_y][_x] = 'D'
-            if _y > 0   : _recurseMark((_x,_y-1),_num)
-            if _y < dh-2: _recurseMark((_x,_y+1),_num)
-            if _x > 0   : _recurseMark((_x-1,_y),_num)
-            if _x < dw-2: _recurseMark((_x+1,_y),_num)
+            if _y > 0   : _recurseMark(_data,(_x,_y-1),_num)
+            if _y < dh-2: _recurseMark(_data,(_x,_y+1),_num)
+            if _x > 0   : _recurseMark(_data,(_x-1,_y),_num)
+            if _x < dw-2: _recurseMark(_data,(_x+1,_y),_num)
 
         # Assign an Area Id for all the connected tiles
         markId = 1
         while fpos := _getFirst(1):
             markId+=1
-            _recurseMark(fpos,markId)
+            _recurseMark(dataMap,fpos,markId)
 
         def _getWalls(_area):
             _walls = {}
@@ -388,7 +392,7 @@ class DungeonPrime():
                     if __y>0    and (__a:=dataMap[__y-1][__x]): _conn.add(__a)
                     if __y<dh-1 and (__a:=dataMap[__y+1][__x]): _conn.add(__a)
                     if _area in _conn and len(_conn)==2:
-                        _walls[(__x,__y)]=_conn
+                        _walls[(__x,__y)]=list(_conn)
             for _y,_row in enumerate(dataMap[1:dh-1],1):
                 for _x,_ch in enumerate(_row[1:dw-1],1):
                     if _ch == _area:
@@ -397,45 +401,107 @@ class DungeonPrime():
                         __checkWall(_x,_y+1)
                         __checkWall(_x,_y-1)
             return _walls
-        # create an Area Tree
 
+        # create an Area Tree
         processedAreas = [False]*(markId+1)
-        def _treeFromArea(_area):
+        def _treeFromArea(_area, _type, _depth):
             if processedAreas[_area]: return None
             processedAreas[_area] = True
+            if _pos := _getFirst(_area):
+                _recurseMark(dataType,_pos,_type)
             _walls = _getWalls(_area)
-            ttk.TTkLog.debug(f"Tree: {_area} - {_walls} ")
+            # ttk.TTkLog.debug(f"Tree: {_area} - {_walls} ")
             _connections = []
             for _w in _walls:
                 for _ca in _walls[_w]:
-                    ttk.TTkLog.debug(f"try: {_area} -> {_ca}")
-                    if _cont := _treeFromArea(_ca):
-                        ttk.TTkLog.debug(f"{_area} -> {_ca}")
+                    # ttk.TTkLog.debug(f"try: {_area} -> {_ca}")
+                    _newType = _type if _depth<3 or _type>=3 or random.randint(0,2) else _type+1
+                    if _cont := _treeFromArea(_ca, _newType, _depth+1):
+                        # ttk.TTkLog.debug(f"{_area} -> {_ca}")
                         _connections.append(_cont)
-            return {'area':_area, 'connections':_connections, 'walls':_walls}
+            return {'area':_area, 'connections':_connections, 'walls':_walls, 'type':_type}
 
-        fullTree = _treeFromArea(random.randint(2,markId))
+        fullTree = _treeFromArea(_startingArea:=random.randint(2,markId), 0, 0)
+
+        # # parse the tree and find the longest branch
+        # # use the longest path to decide which
+        # # card protected areas need to be defined
+        # def _parseTree(_tree):
+        #     _longest = []
+        #     for _c in _tree['connections']:
+        #         _cc = _parseTree(_c)
+        #         if len(_cc) > len(_longest):
+        #             _longest = _cc
+        #     return [_tree] + _longest
+        # longPath = _parseTree(fullTree)
+        # if _rr:=random.randint(0,max(3,len(longPath)//2)):
+
+        # # Extract all the trees of any single area type
+        # def _extractTypeTree(_tree):
+        #     _type  = _tree['type']
+        #     _area  = _tree['area']
+        #     _walls = _tree['walls']
+        #     _self  = {'area':_area, 'connections':[], 'walls':_walls, 'type':_type}
+        #     _other = []
+        #     for _c in _tree['connections']:
+        #         _cca = _extractTypeTree(_c)
+        #         if _cca and _cca[0]['type'] == _type:
+        #             _self['connections'].append(_cca[0])
+        #             _other += _cca[1:]
+        #         else:
+        #             _other += _cca
+        #     return [_self] + _other
+        # areasTrees = _extractTypeTree(fullTree)
+
+        def _getAreaType(_tree, _area):
+            if _tree['area'] == _area:
+                return _tree['type']
+            for _c in _tree['connections']:
+                if _ret:=_getAreaType(_c,_area):
+                    return _ret
+            return 0
 
         def _placeDoors(_tree):
             _tw = _tree['walls']
             for _c in _tree['connections']:
+                _wllsAll = list(_tw.keys())
                 _wlls = [_w for _w in _tw if _c['area'] in _tw[_w]]
-                _wx,_wy = _wlls[random.randint(0,len(_wlls)-1)]
-                data[_wy][_wx] = 'D'
+                def __addDoor(__wll):
+                    __x,__y = __wll
+                    _type1 = _getAreaType(fullTree,_tw[__wll][0])
+                    _type2 = _getAreaType(fullTree,_tw[__wll][1])
+                    if _type1 != _type2 :
+                        data[__y][__x] = ['D','DG','DB','DR'][max(_type1,_type2)]
+                    else:
+                        data[__y][__x] = 'D'
+                __addDoor(_wlls[random.randint(0,len(_wlls)-1)])
+                # Add extra door randomly
+                if not random.randint(0,2):
+                    __addDoor(_wllsAll[random.randint(0,len(_wllsAll)-1)])
                 _placeDoors(_c)
 
+        # for _c in areasTrees:
+        #     _placeDoors(_c)
         _placeDoors(fullTree)
+
+
+        # connect all different area types with locked doors
 
         for y,row in enumerate(dataMap):
             out = f"{y:02} - "
             for v in row:
                 if v: out += f"{v:2} "
                 else:out += f"   "
-            ttk.TTkLog.debug(out)
+            # ttk.TTkLog.debug(out)
 
-
-
-
+        def _findRandomInArea(_num):
+            _ll = []
+            for _y,_row in enumerate(dataMap):
+                for _x,_ch in enumerate(_row):
+                    if _ch == _num:
+                        _ll.append((_x,_y))
+            return _ll[random.randint(0,len(_ll)-1)]
+        return _findRandomInArea(_startingArea)
 
 
 
@@ -443,6 +509,7 @@ class DungeonPrime():
         self._tmpData = {
             'layer' : {'layers':[], 'pos':[]},
             'data'  : [],
+            'dataType' : [],
             'dsize' : (0,0)
         }
 
@@ -450,10 +517,13 @@ class DungeonPrime():
         self.genMainArea()
         self.ensureConnection()
         self.genWalls()
-        self.genDoors()
-
-
+        x,y = self.genDoors()
 
         self._data = self._tmpData['data']
+        self._dataType = self._tmpData['dataType']
         self._layerPlane = self._tmpData['layer']
+
+        return (x,y)
+
+
 
