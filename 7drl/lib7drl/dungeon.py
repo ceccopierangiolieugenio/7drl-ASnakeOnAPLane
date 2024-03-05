@@ -63,7 +63,7 @@ class Dungeon(DungeonPrime):
         super().__init__()
         self._heroPos = (5,3)
         self._floor = [
-                [ttk.TTkColor.bg('#ffffdd'),ttk.TTkColor.bg('#ddddaa')], # Base
+                [ttk.TTkColor.bg('#eeddee'),ttk.TTkColor.bg('#ccccee')], # Base
                 [ttk.TTkColor.bg('#ddffdd'),ttk.TTkColor.bg('#aaddaa')], # Green
                 [ttk.TTkColor.bg('#ddddff'),ttk.TTkColor.bg('#aaaadd')], # Blue
                 [ttk.TTkColor.bg('#ffdddd'),ttk.TTkColor.bg('#ddaaaa')]] # Red

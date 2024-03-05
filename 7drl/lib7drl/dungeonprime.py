@@ -350,14 +350,14 @@ class DungeonPrime():
         # 1 for walkable tiles,
         # 0 for not walkable tiles
         # I will use it to check if thre are not reachable areas
-        dataMap     = [[1 if ch ==' ' else 0 for ch in row] for row in data]
+        areaMap = self._tmpData['areaMap'] = [[1 if ch ==' ' else 0 for ch in row] for row in data]
         # dataMapType = [[1 if ch ==' ' else 0 for ch in row] for row in data]
 
         # Divide the dungeons in walkable areas
 
         # find the first walcable tile with _num
         def _getFirst(_num):
-            for y,row in enumerate(dataMap):
+            for y,row in enumerate(areaMap):
                 for x,ch in enumerate(row):
                     if ch == _num:
                         return (x,y)
@@ -379,7 +379,7 @@ class DungeonPrime():
         markId = 1
         while fpos := _getFirst(1):
             markId+=1
-            _recurseMark(dataMap,fpos,markId)
+            _recurseMark(areaMap,fpos,markId)
 
         def _getWalls(_area):
             _walls = {}
@@ -387,13 +387,13 @@ class DungeonPrime():
                 if data[__y][__x] == '#' and (__x,__y) not in _walls:
                     # List the areas connected to this wall
                     _conn = set()
-                    if __x>0    and (__a:=dataMap[__y][__x-1]): _conn.add(__a)
-                    if __x<dw-1 and (__a:=dataMap[__y][__x+1]): _conn.add(__a)
-                    if __y>0    and (__a:=dataMap[__y-1][__x]): _conn.add(__a)
-                    if __y<dh-1 and (__a:=dataMap[__y+1][__x]): _conn.add(__a)
+                    if __x>0    and (__a:=areaMap[__y][__x-1]): _conn.add(__a)
+                    if __x<dw-1 and (__a:=areaMap[__y][__x+1]): _conn.add(__a)
+                    if __y>0    and (__a:=areaMap[__y-1][__x]): _conn.add(__a)
+                    if __y<dh-1 and (__a:=areaMap[__y+1][__x]): _conn.add(__a)
                     if _area in _conn and len(_conn)==2:
                         _walls[(__x,__y)]=list(_conn)
-            for _y,_row in enumerate(dataMap[1:dh-1],1):
+            for _y,_row in enumerate(areaMap[1:dh-1],1):
                 for _x,_ch in enumerate(_row[1:dw-1],1):
                     if _ch == _area:
                         __checkWall(_x+1,_y)
@@ -472,8 +472,10 @@ class DungeonPrime():
                     _type2 = _getAreaType(fullTree,_tw[__wll][1])
                     if _type1 != _type2 :
                         data[__y][__x] = ['D','DG','DB','DR'][max(_type1,_type2)]
+                        dataType[__y][__x] = max(_type1,_type2)
                     else:
                         data[__y][__x] = 'D'
+                        dataType[__y][__x] = _type1
                 __addDoor(_wlls[random.randint(0,len(_wlls)-1)])
                 # Add extra door randomly
                 if not random.randint(0,2):
@@ -484,24 +486,74 @@ class DungeonPrime():
         #     _placeDoors(_c)
         _placeDoors(fullTree)
 
-
         # connect all different area types with locked doors
+        #for y,row in enumerate(areaMap):
+        #    out = f"{y:02} - "
+        #    for v in row:
+        #        if v: out += f"{v:2} "
+        #        else:out += f"   "
+        #    ttk.TTkLog.debug(out)
 
-        for y,row in enumerate(dataMap):
-            out = f"{y:02} - "
-            for v in row:
-                if v: out += f"{v:2} "
-                else:out += f"   "
-            # ttk.TTkLog.debug(out)
+        # Remove unreachable tiles
+        self._tmpData['dataType'] = [[0 if ch ==5 else ch for ch in row] for row in dataType]
 
         def _findRandomInArea(_num):
             _ll = []
-            for _y,_row in enumerate(dataMap):
+            for _y,_row in enumerate(areaMap):
                 for _x,_ch in enumerate(_row):
                     if _ch == _num:
                         _ll.append((_x,_y))
             return _ll[random.randint(0,len(_ll)-1)]
         return _findRandomInArea(_startingArea)
+
+    def placeKeys(self, heroPos):
+        # find the walkable places
+        dw,dh = self._tmpData['dsize']
+        data    = self._tmpData['data']
+        dataType = self._tmpData['dataType']
+        areaMap = self._tmpData['areaMap'] = [[1 if ch ==' ' else 0 for ch in row] for row in data]
+
+        heatMap  = [[0x10000 if ch in (' ','D','DR','DG','DB') else 0 for ch in row] for row in data]
+
+        # Build a Heat Map of the distances from the hero
+        def _updateDistance(_pos,_d):
+            _x,_y = _pos
+            if heatMap[_y][_x] <= _d: return
+            heatMap[_y][_x] = _d
+            if _x>0   :_updateDistance((_x-1,_y),_d+1)
+            if _x<dw-1:_updateDistance((_x+1,_y),_d+1)
+            if _y>0   :_updateDistance((_x,_y-1),_d+1)
+            if _y<dh-1:_updateDistance((_x,_y+1),_d+1)
+        _updateDistance(heroPos,1)
+
+        distancesByType = {}
+        for _y,(_rh,_rt) in enumerate(zip(heatMap,dataType)):
+            for _x,(_d,_t) in enumerate(zip(_rh,_rt)):
+                if not _t in distancesByType:
+                  distancesByType[_t] = {'pos':(_x,_y),'max':_d,'min':_d}
+                elif distancesByType[_t]['max'] < _d:
+                    distancesByType[_t]['max'] = _d
+                elif distancesByType[_t]['min'] > _d:
+                    distancesByType[_t]['min'] = _d
+
+        def _randomDistanceInType(_dist,_type):
+            _distances = []
+            for _y,(_rh,_rt) in enumerate(zip(heatMap,dataType)):
+                for _x,(_d,_t) in enumerate(zip(_rh,_rt)):
+                      if _d ==_dist and _t<=_type:
+                        _distances.append((_x,_y))
+            return _distances[random.randint(0,len(_distances)-1)]
+
+        # Place the keys in the farthest position based on the previous areaType
+        for _a in distancesByType:
+            if not _a: continue
+            _dmax = distancesByType[_a-1]['max']
+            _dmin = distancesByType[_a-1]['min']
+            _x,_y = _randomDistanceInType(_dmax-random.randint(0,(_dmax-_dmin)//4),_a-1)
+            data[_y][_x] = ['KG','KB','KR'][_a-1]
+
+
+
 
 
 
@@ -517,13 +569,14 @@ class DungeonPrime():
         self.genMainArea()
         self.ensureConnection()
         self.genWalls()
-        x,y = self.genDoors()
+        heroPos = self.genDoors()
+        self.placeKeys(heroPos)
 
         self._data = self._tmpData['data']
         self._dataType = self._tmpData['dataType']
         self._layerPlane = self._tmpData['layer']
 
-        return (x,y)
+        return heroPos
 
 
 
