@@ -27,22 +27,49 @@ import sys, os, math, random
 sys.path.append(os.path.join(sys.path[0],'../..'))
 import TermTk as ttk
 
-from .assets import *
-from .layer  import *
+from .assets  import *
+from .layer   import *
+from .globals import *
 
-TEST = [
-    # ['X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X',],
-    # ['X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X',],
-    # ['X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X',],
-    # ['X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X',],
-    ['X','X','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#' ,'#','#' ,'X','X','X','#','#','#','X' ,'X' ,'X','#','#','#','#','#','X','X',],
-    ['X','#',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ' ,' ','#' ,'X','X','#',' ',' ',' ','#' ,'X' ,'#',' ',' ',' ',' ',' ','#','X',],
-    ['#',' ',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','KG',' ','#' ,'#','#',' ',' ',' ',' ',' ' ,'#' ,' ',' ',' ',' ',' ',' ',' ','#',],
-    ['#',' ',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ' ,' ','#' ,' ',' ',' ',' ',' ',' ',' ' ,'DB',' ',' ',' ',' ',' ','b',' ','#',],
-    ['#',' ',' ',' ',' ',' ',' ','D',' ',' ',' ','z',' ',' ',' ',' ',' ',' ',' ','>',' ',' ',' ',' ',' ' ,' ','#' ,' ',' ',' ',' ',' ','#','#' ,'#' ,' ',' ',' ',' ',' ',' ',' ','#',],
-    ['#',' ',' ',' ',' ',' ',' ','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ' ,' ','DG',' ',' ',' ',' ','#','z','KB','#' ,' ',' ',' ',' ',' ',' ',' ','#',],
-    ['X','#',' ',' ',' ',' ','#','#',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ' ,' ','#' ,' ',' ',' ',' ','D','z','#' ,'X' ,'#',' ',' ',' ',' ',' ','#','X',],
-    ['X','X','#','#','#','#','X','X','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#','#' ,'#','#' ,'#','#','#','#','#','#','X' ,'X' ,'X','#','#','#','#','#','X','X',],
+STARTING_FLOOR = [
+    [''  ,''  ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,''  ,''  ,''  ,'#' ,'#' ,'#' ,''  ,''  ,''  ,'#' ,'#' ,'#' ,'#' ,'#' ,''  ,'' ,],
+    [''  ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,''  ,''  ,'#' ,' ' ,' ' ,' ' ,'#' ,''  ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,'' ,],
+    ['#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,'#' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#',],
+    ['#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'DB',' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#',],
+    ['#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'D' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'>' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,'#' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#',],
+    ['#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'DG',' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#',],
+    [''  ,'#' ,' ' ,' ' ,' ' ,' ' ,'#' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,'D' ,' ' ,'#' ,''  ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,'' ,],
+    [''  ,''  ,'#' ,'#' ,'#' ,'#' ,''  ,''  ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,''  ,''  ,''  ,'#' ,'#' ,'#' ,'#' ,'#' ,''  ,'' ,],
+    ]
+STARTING_TYPE = [
+    [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 1  , 1  , 1  , 1  , 1  , 1  , 0  , 2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ],
+    [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 1  , 1  , 1  , 1  , 1  , 1  , 0  , 2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ],
+    [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 1  , 1  , 1  , 1  , 1  , 1  , 0  , 2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ],
+    [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 1  , 1  , 1  , 1  , 1  , 1  , 0  , 2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ],
+    [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 1  , 1  , 1  , 1  , 1  , 1  , 0  , 2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ],
+    [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 1  , 1  , 1  , 1  , 1  , 1  , 0  , 2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ],
+    [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 1  , 1  , 1  , 1  , 1  , 1  , 0  , 2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ],
+    [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 1  , 1  , 1  , 1  , 1  , 1  , 0  , 2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ],
+    ]
+STARTING_OBJS = [
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ],
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,'KG',''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ],
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,'b' ,''  ,''  ],
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ],
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ],
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,'KB',''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ],
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ],
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ],
+    ]
+STARTING_FOES = [
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ],
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ],
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ],
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ],
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,'z' ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ],
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,'z' ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ],
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,'z' ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ],
+    [''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ,''  ],
     ]
 
 class DungeonPrime():
@@ -60,13 +87,18 @@ class DungeonPrime():
         wplb,hplb = plb.size()
         self._layerPlane = {'layers':[plb,plf]    ,'pos':[(-18,-7),(wplb-27,-1)]}
 
-        self._data = TEST
-        self._dataType = [[0 if ch ==' ' else 0 for ch in row] for row in self._data]
+        self._dataFloor = STARTING_FLOOR
+        self._dataType  = STARTING_TYPE
+        self._dataObjs  = STARTING_OBJS
+        self._dataFoes  = STARTING_FOES
         self._tmpData = {}
 
 
+    ####################################################
+    ####################################################
+    ####################################################
     def genPlane(self):
-
+        level = globals.level
         plf  = self._plf
         plb  = self._plb
         plb1 = self._plb1
@@ -74,63 +106,94 @@ class DungeonPrime():
         wplb,hplb   = plb.size()
         wplb1,hplb1 = plb1.size()
 
-        # Phase 1 - Define the walkable Area
-        #       1.1 - place n plane things on a tictactoe checkboard:
-        cb = [
-            [False, False, False],
-            [False, False, False],
-            [False, False, False]]
-        cb[random.randint(0,2)][0] = True
-        cb[random.randint(0,2)][1] = True
-        cb[random.randint(0,2)][2] = True
+        # Based on the level [1,5] define the planes placement area
+        planesArea = {
+            1 : (30,10),
+            2 : (40,15),
+            3 : (10,50),
+            4 : (30,20),
+            5 : (40,20),
+        }.get(level)
 
-        # Add a random Front/Back
-        if random.randint(0,1):
-            # Add random Front
-            cb[random.randint(0,2)][2] = True
-        if random.randint(0,1):
-            # Add random Back
-            cb[random.randint(0,2)][0] = True
-        if random.randint(0,1):
-            # Add random Center
-            cb[random.randint(0,2)][1] = True
-
-        # Add missing pieces to allow a full traverse
-        if ((cb[0][0] and cb[2][2]) or
-            (cb[2][0] and cb[0][2]) or
-            (cb[0][1] and cb[2][0]) or
-            (cb[0][1] and cb[2][2]) or
-            (cb[2][1] and cb[0][2]) or
-            (cb[2][1] and cb[0][2]) ):
-            cb[1][1]=True
-
-
-        # force the required central pieces
+        # place the parts on a random position in their areas
         newLayer = self._tmpData['layer']
-        for y,row in enumerate(cb):
-            y-=1
-            if row[0]:
-                px = random.randint(0,40)
-                py = random.randint(0,5)+y*(hplf-5)
-                newLayer['layers'].append(plb)
-                newLayer['pos'].append((px,py))
-            if row[2]:
-                px = random.randint(0,40)+wplb+wplb1-50
-                py = random.randint(0,7)+y*(hplf-5)
-                newLayer['layers'].append(plf)
-                newLayer['pos'].append((px,py))
-            if row[1]:
-                px = random.randint(0,40)+wplb-30
-                py = random.randint(0,5)+y*(hplb1-8)-2
-                newLayer['layers'].append(plb1)
-                newLayer['pos'].append((px,py))
+
+        # Place n central body based on the available space
+        bodies = []
+        def _freeBodySpace():
+            _availableSpaces = []
+            for _x in range(planesArea[0]):
+                for _y in range(planesArea[1]):
+                    isItOk = True
+                    for _bx,_by in bodies:
+                        if abs(_bx-_x) < wplb1-15 and abs(_by-_y) < hplb1-6:
+                            isItOk = False
+                            break
+                    if isItOk:
+                        _availableSpaces.append((_x,_y))
+            if _availableSpaces:
+                return _availableSpaces[random.randint(0,len(_availableSpaces)-1)]
+            return None
+
+        while _pos:=_freeBodySpace():
+            bodies.append(_pos)
+            newLayer['layers'].append(plb1)
+            newLayer['pos'].append(_pos)
+
+
+        # get the leftmost bodies:
+        rightmostBodies = []
+        leftmostBodies = []
+        for _x,_y in bodies:
+            hasSomeOnTheRight = False
+            hasSomeOnTheLeft = False
+            for _cx,_cy in bodies:
+                if (_cx,_cy)==(_x,_y): continue
+                if _cx>_x and abs(_cy-_y)<hplb1-2:
+                    hasSomeOnTheRight=True
+                if _cx<_x and abs(_cy-_y)<hplb1-2:
+                    hasSomeOnTheLeft=True
+            if not hasSomeOnTheRight:
+                rightmostBodies.append((_x,_y))
+            if not hasSomeOnTheLeft:
+                leftmostBodies.append((_x,_y))
+
+        # place the fronts
+        for _x,_y in random.sample(rightmostBodies,random.randint(1,len(rightmostBodies))):
+            _x += wplb1+random.randint(-25,-5)
+            _y += random.randint(4,8)
+            newLayer['layers'].append(plf)
+            newLayer['pos'].append((_x,_y))
+        # place the backs
+        for _x,_y in random.sample(leftmostBodies,random.randint(1,len(leftmostBodies))):
+            _x -= wplb+random.randint(-35,-5)
+            _y += random.randint(-8,2)
+            newLayer['layers'].append(plb)
+            newLayer['pos'].append((_x,_y))
+
+        # for y,row in enumerate(cb):
+        #     y-=1
+        #     if row[0]:
+        #         px = random.randint(0,40)
+        #         py = random.randint(0,5)+y*(hplf-5)
+        #         newLayer['layers'].append(plb)
+        #         newLayer['pos'].append((px,py))
+        #     if row[2]:
+        #         px = random.randint(0,40)+wplb+wplb1-50
+        #         py = random.randint(0,7)+y*(hplf-5)
+        #         newLayer['layers'].append(plf)
+        #         newLayer['pos'].append((px,py))
+        #     if row[1]:
+        #         px = random.randint(0,40)+wplb-30
+        #         py = random.randint(0,5)+y*(hplb1-8)-2
+        #         newLayer['layers'].append(plb1)
+        #         newLayer['pos'].append((px,py))
 
         # newLayer['layers'].append(plb)
         # newLayer['pos'].append((-20,-20))
 
         # newLayer['layers'].append(plf)
         # newLayer['pos'].append((100,-20))
-
 
         minx=0x1000
         miny=0x1000
@@ -146,11 +209,17 @@ class DungeonPrime():
         newLayer['pos'] = [(x-minx,y-miny) for (x,y) in newLayer['pos']]
         self._tmpData['dsize'] = ((maxx-minx)//2, maxy-miny)
 
+
+
+    ####################################################
+    ####################################################
+    ####################################################
     def genMainArea(self):
+        level = globals.level
         # find the walkable places
         newLayer = self._tmpData['layer']
         dw,dh = self._tmpData['dsize']
-        data0 = [['X']*(dw) for _ in range(dh)]
+        data0 = [['']*(dw) for _ in range(dh)]
         for l,pos in zip(newLayer['layers'],newLayer['pos']):
             lw,lh=l.size()
             x,y=pos
@@ -162,44 +231,50 @@ class DungeonPrime():
                         data0[ly+y][(lx+x)//2]=' '
 
 
-        data1 = self._tmpData['data'] = [[' ']*(dw) for _ in range(dh)]
+        data1 = self._tmpData['dataFloor'] = [[' ']*(dw) for _ in range(dh)]
+        self._tmpData['dataType'] = [[0]*(dw) for _ in range(dh)]
+        self._tmpData['dataObjs'] = [['']*(dw) for _ in range(dh)]
+        self._tmpData['dataFoes'] = [['']*(dw) for _ in range(dh)]
         # reduce the area by 1
         for y,row in enumerate(data0):
             for x,ch in enumerate(row):
                 if x==0 or x==dw-1 or y==0 or y==dh-1:
-                    data1[y][x] = 'X'
-                if ch == 'X':
-                    data1[max(   0,y-1)][max(   0,x-1)] = 'X'
-                    data1[max(   0,y-1)][max(   0,x  )] = 'X'
-                    data1[max(   0,y-1)][min(dw-1,x+1)] = 'X'
-                    data1[max(   0,y  )][max(   0,x-1)] = 'X'
-                    data1[max(   0,y  )][max(   0,x  )] = 'X'
-                    data1[max(   0,y  )][min(dw-1,x+1)] = 'X'
-                    data1[min(dh-1,y+1)][max(   0,x-1)] = 'X'
-                    data1[min(dh-1,y+1)][max(   0,x  )] = 'X'
-                    data1[min(dh-1,y+1)][min(dw-1,x+1)] = 'X'
+                    data1[y][x] = ''
+                if not ch :
+                    data1[max(   0,y-1)][max(   0,x-1)] = ''
+                    data1[max(   0,y-1)][max(   0,x  )] = ''
+                    data1[max(   0,y-1)][min(dw-1,x+1)] = ''
+                    data1[max(   0,y  )][max(   0,x-1)] = ''
+                    data1[max(   0,y  )][max(   0,x  )] = ''
+                    data1[max(   0,y  )][min(dw-1,x+1)] = ''
+                    data1[min(dh-1,y+1)][max(   0,x-1)] = ''
+                    data1[min(dh-1,y+1)][max(   0,x  )] = ''
+                    data1[min(dh-1,y+1)][min(dw-1,x+1)] = ''
 
         # add wall
         for y,row in enumerate(data1):
             for x,ch in enumerate(row):
                 if ch == ' ':
                     if (
-                       data1[max(   0,y-1)][max(   0,x-1)] == 'X' or
-                       data1[max(   0,y-1)][max(   0,x  )] == 'X' or
-                       data1[max(   0,y-1)][min(dw-1,x+1)] == 'X' or
-                       data1[max(   0,y  )][max(   0,x-1)] == 'X' or
-                       data1[max(   0,y  )][max(   0,x  )] == 'X' or
-                       data1[max(   0,y  )][min(dw-1,x+1)] == 'X' or
-                       data1[min(dh-1,y+1)][max(   0,x-1)] == 'X' or
-                       data1[min(dh-1,y+1)][max(   0,x  )] == 'X' or
-                       data1[min(dh-1,y+1)][min(dw-1,x+1)] == 'X' ):
+                       not data1[max(   0,y-1)][max(   0,x-1)] or
+                       not data1[max(   0,y-1)][max(   0,x  )] or
+                       not data1[max(   0,y-1)][min(dw-1,x+1)] or
+                       not data1[max(   0,y  )][max(   0,x-1)] or
+                       not data1[max(   0,y  )][max(   0,x  )] or
+                       not data1[max(   0,y  )][min(dw-1,x+1)] or
+                       not data1[min(dh-1,y+1)][max(   0,x-1)] or
+                       not data1[min(dh-1,y+1)][max(   0,x  )] or
+                       not data1[min(dh-1,y+1)][min(dw-1,x+1)] ):
                         data1[y][x] = '#'
 
-
+    ####################################################
+    ####################################################
+    ####################################################
     def ensureConnection(self):
+        level = globals.level
         # find the walkable places
         dw,dh = self._tmpData['dsize']
-        data    = self._tmpData['data']
+        data  = self._tmpData['dataFloor']
         # Create a map with
         # 1 for walkable tiles,
         # 0 for not walkable tiles
@@ -280,11 +355,14 @@ class DungeonPrime():
             a,b = _checkAreas()
 
 
-
+    ####################################################
+    ####################################################
+    ####################################################
     def genWalls(self):
+        level = globals.level
         # find the walkable places
         dw,dh = self._tmpData['dsize']
-        data    = self._tmpData['data']
+        data  = self._tmpData['dataFloor']
         # Create a map with
         # 1 for Roomable tiles,
         # 0 for not walkable tiles
@@ -340,18 +418,23 @@ class DungeonPrime():
                 break
             _placeRoom(rpos,(rw,rh),0)
 
+
+    ####################################################
+    ####################################################
+    ####################################################
     def genDoors(self):
+        level = globals.level
         # find the walkable places
         dw,dh = self._tmpData['dsize']
-        data    = self._tmpData['data']
-        dataType = self._tmpData['dataType'] = [[5 if ch ==' ' else 0 for ch in row] for row in data]
+        dataFloor  = self._tmpData['dataFloor']
+        dataType = self._tmpData['dataType'] = [[5 if ch ==' ' else 0 for ch in row] for row in dataFloor]
 
         # Create a map with
         # 1 for walkable tiles,
         # 0 for not walkable tiles
         # I will use it to check if thre are not reachable areas
-        areaMap = self._tmpData['areaMap'] = [[1 if ch ==' ' else 0 for ch in row] for row in data]
-        # dataMapType = [[1 if ch ==' ' else 0 for ch in row] for row in data]
+        areaMap = self._tmpData['areaMap'] = [[1 if ch ==' ' else 0 for ch in row] for row in dataFloor]
+        # dataMapType = [[1 if ch ==' ' else 0 for ch in row] for row in dataFloor]
 
         # Divide the dungeons in walkable areas
 
@@ -384,7 +467,7 @@ class DungeonPrime():
         def _getWalls(_area):
             _walls = {}
             def __checkWall(__x,__y,_walls=_walls):
-                if data[__y][__x] == '#' and (__x,__y) not in _walls:
+                if dataFloor[__y][__x] == '#' and (__x,__y) not in _walls:
                     # List the areas connected to this wall
                     _conn = set()
                     if __x>0    and (__a:=areaMap[__y][__x-1]): _conn.add(__a)
@@ -471,10 +554,10 @@ class DungeonPrime():
                     _type1 = _getAreaType(fullTree,_tw[__wll][0])
                     _type2 = _getAreaType(fullTree,_tw[__wll][1])
                     if _type1 != _type2 :
-                        data[__y][__x] = ['D','DG','DB','DR'][max(_type1,_type2)]
+                        dataFloor[__y][__x] = ['D','DG','DB','DR'][max(_type1,_type2)]
                         dataType[__y][__x] = max(_type1,_type2)
                     else:
-                        data[__y][__x] = 'D'
+                        dataFloor[__y][__x] = 'D'
                         dataType[__y][__x] = _type1
                 __addDoor(_wlls[random.randint(0,len(_wlls)-1)])
                 # Add extra door randomly
@@ -504,16 +587,22 @@ class DungeonPrime():
                     if _ch == _num:
                         _ll.append((_x,_y))
             return _ll[random.randint(0,len(_ll)-1)]
-        return _findRandomInArea(_startingArea)
+        self._tmpData['heroPos'] = _findRandomInArea(_startingArea)
 
-    def placeKeys(self, heroPos):
+
+    ####################################################
+    ####################################################
+    ####################################################
+    def placeKeys(self):
         # find the walkable places
+        heroPos = self._tmpData['heroPos']
         dw,dh = self._tmpData['dsize']
-        data    = self._tmpData['data']
+        dataFloor= self._tmpData['dataFloor']
         dataType = self._tmpData['dataType']
-        areaMap = self._tmpData['areaMap'] = [[1 if ch ==' ' else 0 for ch in row] for row in data]
+        dataObjs  = self._tmpData['dataObjs']
 
-        heatMap  = [[0x10000 if ch in (' ','D','DR','DG','DB') else 0 for ch in row] for row in data]
+        heatMap  = self._tmpData['heatMap'] = [[0x10000 if ch in (' ','D','DR','DG','DB') else 0 for ch in row] for row in dataFloor]
+        listKeys = self._tmpData['listKeys'] = []
 
         # Build a Heat Map of the distances from the hero
         def _updateDistance(_pos,_d):
@@ -526,7 +615,7 @@ class DungeonPrime():
             if _y<dh-1:_updateDistance((_x,_y+1),_d+1)
         _updateDistance(heroPos,1)
 
-        distancesByType = {}
+        distancesByType = self._tmpData['distancesByType'] = {}
         for _y,(_rh,_rt) in enumerate(zip(heatMap,dataType)):
             for _x,(_d,_t) in enumerate(zip(_rh,_rt)):
                 if not _t in distancesByType:
@@ -536,11 +625,12 @@ class DungeonPrime():
                 elif distancesByType[_t]['min'] > _d:
                     distancesByType[_t]['min'] = _d
 
-        def _randomDistanceInType(_dist,_type):
+        def _randomDistanceInType(_dists,_type):
+            _fr,_to = _dists
             _distances = []
-            for _y,(_rh,_rt) in enumerate(zip(heatMap,dataType)):
-                for _x,(_d,_t) in enumerate(zip(_rh,_rt)):
-                      if _d ==_dist and _t<=_type:
+            for _y,(_rh,_rt,_rfl) in enumerate(zip(heatMap,dataType,dataFloor)):
+                for _x,(_d,_t,_fl) in enumerate(zip(_rh,_rt,_rfl)):
+                      if _fr<=_d<=_to and _t<=_type and _fl==' ':
                         _distances.append((_x,_y))
             return _distances[random.randint(0,len(_distances)-1)]
 
@@ -549,34 +639,94 @@ class DungeonPrime():
             if not _a: continue
             _dmax = distancesByType[_a-1]['max']
             _dmin = distancesByType[_a-1]['min']
-            _x,_y = _randomDistanceInType(_dmax-random.randint(0,(_dmax-_dmin)//4),_a-1)
-            data[_y][_x] = ['KG','KB','KR'][_a-1]
+            _da = (_dmax+_dmin)//2
+            _db = random.randint(_da+(_dmax-_dmin)//4,_dmax)
+            _x,_y = _randomDistanceInType((_da,_db),_a-1)
+            dataObjs[_y][_x] = ['KG','KB','KR'][_a-1]
+            listKeys.append({'type':_a,'area':dataType[_y][_x]})
 
+    ####################################################
+    ####################################################
+    ####################################################
+    def placeFoes(self):
+        level = globals.level
+        # find the walkable places
+        heroPos = self._tmpData['heroPos']
+        dw,dh = self._tmpData['dsize']
+        dataFloor= self._tmpData['dataFloor']
+        dataType = self._tmpData['dataType']
+        dataObjs  = self._tmpData['dataObjs']
+        dataFoes = self._tmpData['dataFoes']
+        heatMap  = self._tmpData['heatMap']
+        listKeys = self._tmpData['listKeys']
+        distancesByType = self._tmpData['distancesByType']
 
+        mapSize     = sum([sum([1 if ch == ' ' else 0 for ch in row]) for row in dataFloor])
+        maxDistance = max([max([d if d < 0x10000 else 0 for d in row]) for row in heatMap])
+        maxType     = max([max(row) for row in dataType])
 
+        # Based on the level [1,5] define the planes placement area
+        foesList = [
+            'z','Vampire','Dancer',
+            'Ogre','Imp','Ghost',
+            'Dino','Crap','Nose',
+            'Robot','SI','Alien',
+            'Dragon1','Dragon2','TRex']
+        # Reduce the number of possible foes based on the level
+        # I assume that the latest foes are stronger
+        foesList = foesList[0:level*len(foesList)//5]
+
+        # At least 1 foe every 20x3
+        # and no more than 6x3
+        foes = random.randint(mapSize//(20*3),mapSize//(6*3))
+
+        def _randomDistanceInType(_dists,_type):
+            _fr,_to = _dists
+            _distances = []
+            for _y,(_rh,_rt,_rfl,_rob,_rfo) in enumerate(zip(heatMap,dataType,dataFloor,dataObjs,dataFoes)):
+                for _x,(_d,_t,_fl,_ob,_fo) in enumerate(zip(_rh,_rt,_rfl,_rob,_rfo)):
+                      if _fr<=_d<=_to and _t<=_type and _fl==' ' and not _fo and not _ob:
+                        _distances.append((_x,_y))
+            return _distances[random.randint(0,len(_distances)-1)]
+
+        for i in range(foes):
+            # Pick a random distance
+            _foeDist = random.randint(15,maxDistance)
+            # Trying to map the foe type to 1-5 based on the current level the distance and the areatype
+            _x,_y = _randomDistanceInType((_foeDist-10,_foeDist),5)
+            _type = dataType[_y][_x]
+            _rfoes = foesList[_type*len(foesList)//4:]
+            _foe = _rfoes[random.randint(0,len(_rfoes)-1)]
+            dataFoes[_y][_x] = _foe
 
 
 
     def genDungeon(self):
         self._tmpData = {
             'layer' : {'layers':[], 'pos':[]},
-            'data'  : [],
+            'dataFoes'  : [],
+            'dataObjs'  : [],
+            'dataFloor'  : [],
             'dataType' : [],
-            'dsize' : (0,0)
+            'dsize' : (0,0),
+            'heroPos': (0,0)
         }
 
         self.genPlane()
         self.genMainArea()
         self.ensureConnection()
         self.genWalls()
-        heroPos = self.genDoors()
-        self.placeKeys(heroPos)
+        self.genDoors()
+        self.placeKeys()
+        self.placeFoes()
 
-        self._data = self._tmpData['data']
+        self._dataFloor= self._tmpData['dataFloor']
         self._dataType = self._tmpData['dataType']
+        self._dataFoes = self._tmpData['dataFoes']
+        self._dataObjs = self._tmpData['dataObjs']
         self._layerPlane = self._tmpData['layer']
 
-        return heroPos
+        return self._tmpData['heroPos']
 
 
 

@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2024 Eugenio Parodi <ceccopierangiolieugenio AT googlemail DOT com>
+# Copyrightte (c) 2024 Eugenio Parodi <ceccopierangiolieugenio AT googlemail DOT com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ import TermTk as ttk
 
 from .parallax import *
 from .dungeon  import *
+from .globals  import *
 
 class Game(ttk.TTk):
     def __init__(self, *args, **kwargs):
@@ -43,13 +44,35 @@ class Game(ttk.TTk):
         self._parallaxTimer.timeout.connect(lambda :self._parallaxTimer.start(0.05))
         self._parallaxTimer.start(0.1)
 
-        btnRnd = ttk.TTkButton(parent=self, text=' RND ', border=True)
+        btnMsg  = ttk.TTkButton(  parent=self, pos=( 0,0), text='Messages', border=True)
 
-        btnRnd.clicked.connect(self.setFocus)
-        btnRnd.clicked.connect(self._dungeon.genDungeon)
-        btnRnd.clicked.connect(self.landingAnim)
+        cbDebug = ttk.TTkCheckbox(parent=self, pos=(10,1), text='Debug', size=(8,1), checked=False)
+        debugFrame = ttk.TTkFrame(parent=self, pos=(18,0), size=(50,3),layout=ttk.TTkGridLayout(), visible=False, border=False)
+        debugFrame.layout().addWidget(btnTest := ttk.TTkButton(  text='TEST' , border=True),     0,0,3,1)
+        debugFrame.layout().addWidget(btnRnd  := ttk.TTkButton(  text=' RND ', border=True),     0,1,3,1)
+        debugFrame.layout().addWidget(           ttk.TTkLabel( text="Level:"), 0,2)
+        debugFrame.layout().addWidget(sbLevel := ttk.TTkSpinBox( value=1, minimum=1, maximum=5), 1,2)
+
+        cbDebug.toggled.connect(debugFrame.setVisible)
+        sbLevel.valueChanged.connect(globals.setLevel)
+
+        def _attachSignal(_btn,_slots):
+            _btn.clicked.connect(self.setFocus)
+            for _slot in _slots:
+                _btn.clicked.connect(_slot)
+
+        _attachSignal(btnTest, [self._testGame])
+        _attachSignal(btnRnd, [self._dungeon.genDungeon, self.landingAnim])
 
         self.landingAnim()
+        self.setFocus()
+
+    @ttk.pyTTkSlot()
+    def _testGame(self):
+        win = ttk.TTkWindow(title='Test',size=(100,20),layout=ttk.TTkGridLayout())
+        te = ttk.TTkTextEdit(parent=win, readOnly=False, lineNumber=True)
+        te.setText(TEST_TILES)
+        ttk.TTkHelper.overlay(None, win, 0,0)
 
     def landingAnim(self):
         self._dungeon.setFading(0)

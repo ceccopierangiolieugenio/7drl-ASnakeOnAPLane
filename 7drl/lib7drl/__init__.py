@@ -4,3 +4,4 @@ from .parallax     import *
 from .dungeon      import *
 from .dungeonprime import *
 from .game         import *
+from .globals      import *

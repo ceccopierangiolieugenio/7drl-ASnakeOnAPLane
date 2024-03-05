@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-__all__ = ['Dungeon']
+__all__ = ['Dungeon','TEST_TILES']
 
 import sys, os, math, random
 
@@ -33,8 +33,60 @@ from .layer  import *
 # Glyphs:
 # 🍝🍜🔑🗝️🪪💳📓🎁📔📒📕📗📘📙
 # 📀💿💾💽🥇🥈🥉🏅🎖️🗃️
-# 🔫🛡️🪃🎣🏹🧨💣🪓🚬🪦🚀
-# 💵💴💶💷🪙💰👛
+# 🔫🪃🎣🏹🧨💣🪓🚬🪦🚀
+#
+# 🐍🐔🧌🧛🧑‍✈️😈🤖👾👽💀👻💩👹👿👺🎃🕺
+# 🐯🦁🫎🐌
+# 🐌🦖🦕🦂🕷️🪳🪲🪰🐜🐊🦈🦀🪼🦑🐙🐲🐉🔥☄️💥⚡⭐🌟❄️🌪️
+#
+# 🔋🛢️🚽
+# 🩷❤️🧡💛💚🩵💙💜🖤🩶🤍🤎💔❤️‍🔥❤️‍🩹💝💘💖💗💟☮️
+# ⚪⚫🔴🔵🟤🟣🟢🟡🟠
+# ♠️♣️♥️♦️
+# 🔱⚜️
+
+# Snake:    🐍
+# Enemies:  🕺🧟🧌🧛😈🤖👾👽💀👻💩👹👿👺🎃 🦖🦕 🐲🐉
+#
+# Armor:
+# - Boots:  👢🧦👠🥿🩴🥾👟👞🩰 - 🛼⛸️
+# - Head:   🪖⛑️🎓👒🧢🎩 - 🤿👓🕶️🥽
+# - Body:   🎽🩱👙👗👘🥻👔👕👚🦺🥼🧥🥋
+# - Legs:   🩳🩲👖
+# - Shield: 🛡️
+#
+# Weapon:
+# - Melee:  🥊🪈🪥🪓🔪🗡️🥄🥢🏓📎🧹 - 👊🤌
+# - Ranged: 🏹🔫❤️‍🔥💜🎺🪄
+# - Shells: ⚪⚫🔴🟣🐚🌟
+# - Throw:  🪃🧨💣🥌
+#
+# Gold: 💵💴💶💷🪙💰👛💎
+#
+# Food: 🥘🥗🫔🌯🌮🥙🥪🍕🍟🍰🥧🍡🥮🥠🍥☕🍺🍻🥃🍷🍸🍹🍖🍗🧇🥞🥦🍔🍙🍯
+
+TEST_TILES = """
+        # Snake:    🐍
+        # Enemies:  🕺🧟🧌🧛😈🤖👾👽💀👻💩👹👿👺🎃 🦖🦕 🐲🐉
+        #
+        # Armor:
+        # - Boots:  👢🧦👠🥿🩴🥾👟👞🩰 - 🛼⛸️
+        # - Head:   🪖⛑️🎓👒🧢🎩 - 🤿👓🕶️🥽
+        # - Body:   🎽🩱👙👗👘🥻👔👕👚🦺🥼🧥🥋
+        # - Legs:   🩳🩲👖
+        # - Shield: 🛡️
+        #
+        # Weapon:
+        # - Melee:  🥊🪈🪥🪓🔪🗡️🥄🥢🏓📎🧹 - 👊🤌
+        # - Ranged: 🏹🔫❤️‍🔥💜🎺🪄
+        # - Shells: ⚪⚫🔴🟣🐚🌟
+        # - Throw:  🪃🧨💣🥌
+        #
+        # Gold: 💵💴💶💷🪙💰👛💎
+        #
+        # Food: 🥘🥗🫔🌯🌮🥙🥪🍕🍟🍰🥧🍡🥮🥠🍥☕🍺🍻🥃🍷🍸🍹🍖🍗🧇🥞🥦🍔🍙🍯
+        """
+
 Tiles = {
     '#' : ttk.TTkString('🧱'), # wall
     ' ' : ttk.TTkString('  '),
@@ -48,7 +100,25 @@ Tiles = {
     'KG' : ttk.TTkString('📗'),
     'KB' : ttk.TTkString('📘'),
     'd' : ttk.TTkString('| ',ttk.TTkColor.fg('#803000')),
-    'z' : ttk.TTkString('🧟'),
+    'z'        : ttk.TTkString('🧟'),
+    'Dragon1'  : ttk.TTkString('🐲'),
+    'Dragon2'  : ttk.TTkString('🐉'),
+    'TRex'     : ttk.TTkString('🦖'),
+    'Dino'     : ttk.TTkString('🦕'),
+    'Dancer'   : ttk.TTkString('🕺'),
+    # 'Zombie'   : ttk.TTkString('🧟'),
+    'Ogre'     : ttk.TTkString('🧌'),
+    'Vampire'  : ttk.TTkString('🧛'),
+    'Imp'      : ttk.TTkString('😈'),
+    'Robot'    : ttk.TTkString('🤖'),
+    'SI'       : ttk.TTkString('👾'),
+    'Alien'    : ttk.TTkString('👽'),
+    'Skeleton' : ttk.TTkString('💀'),
+    'Ghost'    : ttk.TTkString('👻'),
+    'Crap'     : ttk.TTkString('💩'),
+    'Daemon'   : ttk.TTkString('👹'),
+    'Nose'     : ttk.TTkString('👺'),
+    'Pumpkin'  : ttk.TTkString('🎃'),
     '>' : ttk.TTkString('🪜'),
     'b' : ttk.TTkString('🗃️'), # Black Box
 }
@@ -76,7 +146,7 @@ class Dungeon(DungeonPrime):
 
 
     def moveHero(self, direction):
-        d = self._data
+        d = self._dataFloor
         hx,hy = nx,ny = self._heroPos
         if   direction == self.UP:    ny -= 1
         elif direction == self.DOWN:  ny += 1
@@ -115,17 +185,25 @@ class Dungeon(DungeonPrime):
     def drawDungeon(self, pos, canvas:ttk.TTkCanvas):
         x,y = pos
         w,h = canvas.size()
-        data     = self._data
-        dataType = self._dataType
+        dataFloor = self._dataFloor
+        dataType  = self._dataType
+        dataFoes  = self._dataFoes
+        dataObjs  = self._dataObjs
         # Draw the plane:
         self._drawLayer(self._layerPlane, pos, canvas)
         # Draw the Dungeon:
         fd = self._fading
-        dw = int(math.ceil(fd*len(data[0])))
-        dh = int(math.ceil(fd*len(data)))
-        for cy,row in enumerate(data[0:dh],y):
-            for cx,tile in enumerate(row[:dw]):
-                ch = Tiles.get(tile)
+        dw = int(math.ceil(fd*len(dataFloor[0])))
+        dh = int(math.ceil(fd*len(dataFloor)))
+
+        ssh = slice(0,dh+1)
+        ssw = slice(0,dw+1)
+        for cy,(rof,rot,rofoe,roobj) in enumerate(zip(dataFloor[ssh],dataType[ssh],dataFoes[ssh],dataObjs[ssh]),y):
+            for cx,(fl,ty,fo,ob) in enumerate(zip(rof[ssw],rot[ssw],rofoe[ssw],roobj[ssw])):
+                if not fl: continue
+                if   fo: ch = Tiles.get(fo)
+                elif ob: ch = Tiles.get(ob)
+                else:    ch = Tiles.get(fl)
                 color = self._floor[dataType[cy-y][cx]][(cx+cy)%2]
                 if ch:
                     canvas.drawTTkString(pos=(x+cx*2,cy),text=ch,color=color)
