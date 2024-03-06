@@ -108,11 +108,11 @@ class DungeonPrime():
 
         # Based on the level [1,5] define the planes placement area
         planesArea = {
-            1 : (30,10),
+            1 : (10,10),
             2 : (40,15),
-            3 : (10,50),
+            3 : (10,30),
             4 : (30,20),
-            5 : (40,20),
+            5 : (60,40),
         }.get(level)
 
         # place the parts on a random position in their areas
@@ -288,15 +288,25 @@ class DungeonPrime():
                     break
             if ch:break # What a piece of crap
         # Now recursively process all the tiles to check if those are connected
+        # PUDATE: Reduce recursivity because bigger dungeons exceeed its max depth
         def _recurseMark(_pos,_num):
-            _x,_y = _pos
-            if  not  dataMap[_y][_x]: return
-            if _num==dataMap[_y][_x]: return
-            dataMap[_y][_x] = _num
-            if _y > 0   : _recurseMark((_x,_y-1),_num)
-            if _y < dh-2: _recurseMark((_x,_y+1),_num)
-            if _x > 0   : _recurseMark((_x-1,_y),_num)
-            if _x < dw-2: _recurseMark((_x+1,_y),_num)
+            # _x,_y = _pos
+            # if  not  dataMap[_y][_x]: return
+            # if _num==dataMap[_y][_x]: return
+            # dataMap[_y][_x] = _num
+            # if _y > 0   : _recurseMark((_x,_y-1),_num)
+            # if _y < dh-2: _recurseMark((_x,_y+1),_num)
+            # if _x > 0   : _recurseMark((_x-1,_y),_num)
+            # if _x < dw-2: _recurseMark((_x+1,_y),_num)
+            toBeProcessed = [_pos]
+            # Move Right
+            while toBeProcessed:
+                _x,_y = toBeProcessed.pop()
+                dataMap[_y][_x] = _num
+                if _y > 0    and (_dm:=dataMap[_y-1][_x]) and _dm!=_num and (_x  ,_y-1) not in toBeProcessed: toBeProcessed.append((_x  ,_y-1))
+                if _y < dh-2 and (_dm:=dataMap[_y+1][_x]) and _dm!=_num and (_x  ,_y+1) not in toBeProcessed: toBeProcessed.append((_x  ,_y+1))
+                if _x > 0    and (_dm:=dataMap[_y][_x-1]) and _dm!=_num and (_x-1,_y  ) not in toBeProcessed: toBeProcessed.append((_x-1,_y  ))
+                if _x < dw-2 and (_dm:=dataMap[_y][_x+1]) and _dm!=_num and (_x+1,_y  ) not in toBeProcessed: toBeProcessed.append((_x+1,_y  ))
 
         def _checkAreas():
             _a =_b = None
@@ -448,15 +458,25 @@ class DungeonPrime():
 
         # Process all the tiles and mark the connected ones
         def _recurseMark(_data,_pos,_num):
-            _x,_y = _pos
-            if  not  _data[_y][_x]: return
-            if _num==_data[_y][_x]: return
-            _data[_y][_x] = _num
-            # data[_y][_x] = 'D'
-            if _y > 0   : _recurseMark(_data,(_x,_y-1),_num)
-            if _y < dh-2: _recurseMark(_data,(_x,_y+1),_num)
-            if _x > 0   : _recurseMark(_data,(_x-1,_y),_num)
-            if _x < dw-2: _recurseMark(_data,(_x+1,_y),_num)
+            # _x,_y = _pos
+            # if  not  _data[_y][_x]: return
+            # if _num==_data[_y][_x]: return
+            # _data[_y][_x] = _num
+            # # data[_y][_x] = 'D'
+            # if _y > 0   : _recurseMark(_data,(_x,_y-1),_num)
+            # if _y < dh-2: _recurseMark(_data,(_x,_y+1),_num)
+            # if _x > 0   : _recurseMark(_data,(_x-1,_y),_num)
+            # if _x < dw-2: _recurseMark(_data,(_x+1,_y),_num)
+            toBeProcessed = [_pos]
+            # Move Right
+            while toBeProcessed:
+                _x,_y = toBeProcessed.pop()
+                _data[_y][_x] = _num
+                if _y > 0    and (_dm:=_data[_y-1][_x]) and _dm!=_num and (_x  ,_y-1) not in toBeProcessed: toBeProcessed.append((_x  ,_y-1))
+                if _y < dh-2 and (_dm:=_data[_y+1][_x]) and _dm!=_num and (_x  ,_y+1) not in toBeProcessed: toBeProcessed.append((_x  ,_y+1))
+                if _x > 0    and (_dm:=_data[_y][_x-1]) and _dm!=_num and (_x-1,_y  ) not in toBeProcessed: toBeProcessed.append((_x-1,_y  ))
+                if _x < dw-2 and (_dm:=_data[_y][_x+1]) and _dm!=_num and (_x+1,_y  ) not in toBeProcessed: toBeProcessed.append((_x+1,_y  ))
+
 
         # Assign an Area Id for all the connected tiles
         markId = 1
@@ -569,14 +589,6 @@ class DungeonPrime():
         #     _placeDoors(_c)
         _placeDoors(fullTree)
 
-        # connect all different area types with locked doors
-        #for y,row in enumerate(areaMap):
-        #    out = f"{y:02} - "
-        #    for v in row:
-        #        if v: out += f"{v:2} "
-        #        else:out += f"   "
-        #    ttk.TTkLog.debug(out)
-
         # Remove unreachable tiles
         self._tmpData['dataType'] = [[0 if ch ==5 else ch for ch in row] for row in dataType]
 
@@ -606,14 +618,26 @@ class DungeonPrime():
 
         # Build a Heat Map of the distances from the hero
         def _updateDistance(_pos,_d):
+            # _x,_y = _pos
+            # if heatMap[_y][_x] <= _d: return
+            # heatMap[_y][_x] = _d
+            # if _x>0   :_updateDistance((_x-1,_y),_d+1)
+            # if _x<dw-1:_updateDistance((_x+1,_y),_d+1)
+            # if _y>0   :_updateDistance((_x,_y-1),_d+1)
+            # if _y<dh-1:_updateDistance((_x,_y+1),_d+1)
             _x,_y = _pos
-            if heatMap[_y][_x] <= _d: return
             heatMap[_y][_x] = _d
-            if _x>0   :_updateDistance((_x-1,_y),_d+1)
-            if _x<dw-1:_updateDistance((_x+1,_y),_d+1)
-            if _y>0   :_updateDistance((_x,_y-1),_d+1)
-            if _y<dh-1:_updateDistance((_x,_y+1),_d+1)
+            toBeProcessed = [_pos]
+            # Move Right
+            while toBeProcessed:
+                _x,_y = toBeProcessed.pop()
+                _d = heatMap[_y][_x]
+                if _y > 0    and heatMap[_y-1][_x]>_d+1: heatMap[_y-1][_x]=_d+1; toBeProcessed.append((_x  ,_y-1))
+                if _y < dh-2 and heatMap[_y+1][_x]>_d+1: heatMap[_y+1][_x]=_d+1; toBeProcessed.append((_x  ,_y+1))
+                if _x > 0    and heatMap[_y][_x-1]>_d+1: heatMap[_y][_x-1]=_d+1; toBeProcessed.append((_x-1,_y  ))
+                if _x < dw-2 and heatMap[_y][_x+1]>_d+1: heatMap[_y][_x+1]=_d+1; toBeProcessed.append((_x+1,_y  ))
         _updateDistance(heroPos,1)
+
 
         distancesByType = self._tmpData['distancesByType'] = {}
         for _y,(_rh,_rt) in enumerate(zip(heatMap,dataType)):
@@ -632,7 +656,9 @@ class DungeonPrime():
                 for _x,(_d,_t,_fl) in enumerate(zip(_rh,_rt,_rfl)):
                       if _fr<=_d<=_to and _t<=_type and _fl==' ':
                         _distances.append((_x,_y))
-            return _distances[random.randint(0,len(_distances)-1)]
+            if _distances:
+                return _distances[random.randint(0,len(_distances)-1)]
+            return None
 
         # Place the keys in the farthest position based on the previous areaType
         for _a in distancesByType:
@@ -641,7 +667,9 @@ class DungeonPrime():
             _dmin = distancesByType[_a-1]['min']
             _da = (_dmax+_dmin)//2
             _db = random.randint(_da+(_dmax-_dmin)//4,_dmax)
-            _x,_y = _randomDistanceInType((_da,_db),_a-1)
+            if not(_rdis := _randomDistanceInType((_da,_db),_a-1)):
+                continue
+            _x,_y = _rdis
             dataObjs[_y][_x] = ['KG','KB','KR'][_a-1]
             listKeys.append({'type':_a,'area':dataType[_y][_x]})
 
@@ -668,7 +696,7 @@ class DungeonPrime():
         # Based on the level [1,5] define the planes placement area
         foesList = [
             'z','Vampire','Dancer',
-            'Ogre','Imp','Ghost',
+            'Skeleton','Imp','Ghost',
             'Dino','Crap','Nose',
             'Robot','SI','Alien',
             'Dragon1','Dragon2','TRex']
@@ -725,6 +753,19 @@ class DungeonPrime():
         self._dataFoes = self._tmpData['dataFoes']
         self._dataObjs = self._tmpData['dataObjs']
         self._layerPlane = self._tmpData['layer']
+
+        # for y,row in enumerate(self._tmpData['areaMap']):
+        #     out = f"{y:02} - "
+        #     for v in row:
+        #         if v: out += f"{v:2} "
+        #         else:out += f"   "
+        #     ttk.TTkLog.debug(out)
+        # for y,row in enumerate(self._tmpData['heatMap']):
+        #     out = f"{y:02} - "
+        #     for v in row:
+        #         if v: out += f"{v:2} "
+        #         else:out += f"   "
+        #     ttk.TTkLog.debug(out)
 
         return self._tmpData['heroPos']
 

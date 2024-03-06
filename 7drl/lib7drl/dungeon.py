@@ -107,7 +107,7 @@ Tiles = {
     'Dino'     : ttk.TTkString('🦕'),
     'Dancer'   : ttk.TTkString('🕺'),
     # 'Zombie'   : ttk.TTkString('🧟'),
-    'Ogre'     : ttk.TTkString('🧌'),
+    # 'Ogre'     : ttk.TTkString('🧌'),
     'Vampire'  : ttk.TTkString('🧛'),
     'Imp'      : ttk.TTkString('😈'),
     'Robot'    : ttk.TTkString('🤖'),
