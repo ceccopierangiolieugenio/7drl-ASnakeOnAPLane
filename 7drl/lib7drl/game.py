@@ -126,6 +126,19 @@ class Game(ttk.TTk):
         self.update()
         return True
 
+    def mousePressEvent(self, evt) -> bool:
+        self._mouseSavePos = (evt.x,evt.y)
+        return True
+
+    def mouseDragEvent(self, evt) -> bool:
+        w,h=self._dungeon.size()
+        x,y   = self._mouseSavePos
+        hx,hy = self._dungeon._heroPos
+        x=max(0,min(w-1,hx+(x-evt.x)//2))
+        y=max(0,min(h-1,hy+y-evt.y))
+        self._dungeon._heroPos = (x,y)
+        self.update()
+        return True
 
     def paintEvent(self, canvas: ttk.TTkCanvas):
         super().paintEvent(canvas)

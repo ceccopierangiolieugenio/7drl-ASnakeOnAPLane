@@ -96,10 +96,13 @@ Tiles = {
     'DR' : ttk.TTkString('🚪',ttk.TTkColor.bg('#FF0000')),
     'DG' : ttk.TTkString('🚪',ttk.TTkColor.bg('#00FF00')),
     'DB' : ttk.TTkString('🚪',ttk.TTkColor.bg('#0000FF')),
+    'DY' : ttk.TTkString('🚪',ttk.TTkColor.bg('#FFFF00')),
     'KR' : ttk.TTkString('📕'),
     'KG' : ttk.TTkString('📗'),
     'KB' : ttk.TTkString('📘'),
+    'KY' : ttk.TTkString('📒'),
     'd' : ttk.TTkString('| ',ttk.TTkColor.fg('#803000')),
+    'Snake'    : ttk.TTkString('🐍'),
     'z'        : ttk.TTkString('🧟'),
     'Dragon1'  : ttk.TTkString('🐲'),
     'Dragon2'  : ttk.TTkString('🐉'),
@@ -136,7 +139,8 @@ class Dungeon(DungeonPrime):
                 [ttk.TTkColor.bg('#eeddee'),ttk.TTkColor.bg('#ccccee')], # Base
                 [ttk.TTkColor.bg('#ddffdd'),ttk.TTkColor.bg('#aaddaa')], # Green
                 [ttk.TTkColor.bg('#ddddff'),ttk.TTkColor.bg('#aaaadd')], # Blue
-                [ttk.TTkColor.bg('#ffdddd'),ttk.TTkColor.bg('#ddaaaa')]] # Red
+                [ttk.TTkColor.bg('#ffdddd'),ttk.TTkColor.bg('#ddaaaa')], # Red
+                [ttk.TTkColor.bg('#ffffdd'),ttk.TTkColor.bg('#ddddaa')]] # Yellow
 
     def genDungeon(self):
         self._heroPos=super().genDungeon()

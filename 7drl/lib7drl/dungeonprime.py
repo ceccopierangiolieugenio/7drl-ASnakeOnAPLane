@@ -92,7 +92,10 @@ class DungeonPrime():
         self._dataObjs  = STARTING_OBJS
         self._dataFoes  = STARTING_FOES
         self._tmpData = {}
+        self._size = (len(STARTING_FLOOR[0]),len(STARTING_FLOOR))
 
+    def size(self):
+        return self._size
 
     ####################################################
     ####################################################
@@ -112,7 +115,7 @@ class DungeonPrime():
             2 : (40,15),
             3 : (10,30),
             4 : (30,20),
-            5 : (60,40),
+            5 : (30,30),
         }.get(level)
 
         # place the parts on a random position in their areas
@@ -681,6 +684,7 @@ class DungeonPrime():
         # find the walkable places
         heroPos = self._tmpData['heroPos']
         dw,dh = self._tmpData['dsize']
+        areaMap = self._tmpData['areaMap']
         dataFloor= self._tmpData['dataFloor']
         dataType = self._tmpData['dataType']
         dataObjs  = self._tmpData['dataObjs']
@@ -728,6 +732,133 @@ class DungeonPrime():
             dataFoes[_y][_x] = _foe
 
 
+    def placeBoss(self):
+        level = globals.level
+        # find the walkable places
+        heroPos = self._tmpData['heroPos']
+        dw,dh = self._tmpData['dsize']
+        areaMap = self._tmpData['areaMap']
+        dataFloor= self._tmpData['dataFloor']
+        dataType = self._tmpData['dataType']
+        dataObjs  = self._tmpData['dataObjs']
+        dataFoes = self._tmpData['dataFoes']
+        heatMap  = self._tmpData['heatMap']
+        listKeys = self._tmpData['listKeys']
+        distancesByType = self._tmpData['distancesByType']
+
+        # mapSize     = sum([sum([1 if ch == ' ' else 0 for ch in row]) for row in dataFloor])
+        # maxDistance = max([max([d if d < 0x10000 else 0 for d in row]) for row in heatMap])
+        maxType = max([max(row) for row in dataType])
+        maxDist = distancesByType[maxType]['max']
+
+        def _randomDistanceInTypes(_dists,_types):
+            _fr,_to = _dists
+            _ta,_tb = _types
+            _distances = []
+            for _y,(_rh,_rt,_rfl) in enumerate(zip(heatMap,dataType,dataFloor)):
+                for _x,(_d,_t,_fl) in enumerate(zip(_rh,_rt,_rfl)):
+                      if _fr<=_d<=_to and _ta<=_t<=_tb and _fl==' ':
+                        _distances.append((_x,_y))
+            if _distances:
+                return _distances[random.randint(0,len(_distances)-1)]
+            return None
+
+        sx,sy = snakePos = _randomDistanceInTypes([maxDist-2,maxDist],[maxType,maxType])
+
+        def _areaDoors(_x,_y):
+            _doors = []
+            _area = areaMap[_y][_x]
+            _areaTiles = []
+            for _y,_row in enumerate(areaMap):
+                for _x,_a in enumerate(_row):
+                    if _a==_area:
+                        _areaTiles.append((_x,_y))
+            # _areaTiles = [(__x,__y,__a) for _y,_row in list(enumerate(areaMap)) ]
+            for __x,__y in _areaTiles:
+                if __y > 0    and dataFloor[__y-1][__x  ]in('D','DR','DG','DB','DY','d',) and (_doorPos:=(__x  ,__y-1)) not in _doors:_doors.append(_doorPos)
+                if __y < dh-2 and dataFloor[__y+1][__x  ]in('D','DR','DG','DB','DY','d',) and (_doorPos:=(__x  ,__y+1)) not in _doors:_doors.append(_doorPos)
+                if __x > 0    and dataFloor[__y  ][__x-1]in('D','DR','DG','DB','DY','d',) and (_doorPos:=(__x-1,__y  )) not in _doors:_doors.append(_doorPos)
+                if __x < dw-2 and dataFloor[__y  ][__x+1]in('D','DR','DG','DB','DY','d',) and (_doorPos:=(__x+1,__y  )) not in _doors:_doors.append(_doorPos)
+            return _doors
+
+        # Process all the tiles and mark the connected ones
+        def _recurseMark(_pos,_num):
+            toBeProcessed = [_pos]
+            while toBeProcessed:
+                _x,_y = toBeProcessed.pop()
+                dataType[_y][_x] = _num
+                if _y > 0    and areaMap[_y-1][_x] and dataType[_y-1][_x]!=_num and (_x  ,_y-1) not in toBeProcessed: toBeProcessed.append((_x  ,_y-1))
+                if _y < dh-2 and areaMap[_y+1][_x] and dataType[_y+1][_x]!=_num and (_x  ,_y+1) not in toBeProcessed: toBeProcessed.append((_x  ,_y+1))
+                if _x > 0    and areaMap[_y][_x-1] and dataType[_y][_x-1]!=_num and (_x-1,_y  ) not in toBeProcessed: toBeProcessed.append((_x-1,_y  ))
+                if _x < dw-2 and areaMap[_y][_x+1] and dataType[_y][_x+1]!=_num and (_x+1,_y  ) not in toBeProcessed: toBeProcessed.append((_x+1,_y  ))
+
+        # If we have enough space to place a room, do it:
+        def _placeRoom(_x,_y):
+            _newRoomTiles = []
+            _area = areaMap[_y][_x]
+            for __y in     range(max(0,_y-2),min(dh-1,_y+3)):
+                for __x in range(max(0,_x-2),min(dw-1,_x+3)):
+                    if areaMap[__y][__x] == _area:
+                        _newRoomTiles.append((__x,__y))
+            if len(_newRoomTiles) > 2:
+                # Place Walls
+                for _tx,_ty in _newRoomTiles:
+                    areaMap[_ty][_tx]=0x10000
+                    if abs(_x-_tx)<2 and abs(_y-_ty)<2: continue
+                    areaMap[_ty][_tx]=0
+                    dataFoes[_y][_x]=''
+                    dataObjs[_y][_x]=''
+                    if abs(_x-_tx)==2 and abs(_y-_ty)==2: continue
+                    if dataFloor[_ty][_tx] == ' ':
+                        # if abs(_x-_tx)==2 and abs(_y-_ty)==2:
+                        #     dataFloor[_ty][_tx] = '#'
+                        # else:
+                        dataFloor[_ty][_tx] = 'd'
+        _placeRoom(sx,sy)
+
+        cx,cy = closestDoor = (sx,sy)
+        for _pos in _areaDoors(sx,sy):
+            _x,_y = _pos
+            dataFloor[_y][_x] = 'DY'
+            if heatMap[cy][cx]>=heatMap[_y][_x]>0:
+                cx,cy = closestDoor = (_x,_y)
+        _recurseMark((sx,sy),4)
+        dataFoes[sy][sx] = 'Snake'
+
+        bx,by = bossPos = _randomDistanceInTypes([maxDist-10,maxDist-6],[0,maxType])
+        dataFoes[by][bx] = 'Pumpkin'
+
+    def placeExit(self):
+        level = globals.level
+        # find the walkable places
+        heroPos = self._tmpData['heroPos']
+        dw,dh = self._tmpData['dsize']
+        areaMap = self._tmpData['areaMap']
+        dataFloor= self._tmpData['dataFloor']
+        dataType = self._tmpData['dataType']
+        dataObjs  = self._tmpData['dataObjs']
+        dataFoes = self._tmpData['dataFoes']
+        heatMap  = self._tmpData['heatMap']
+        listKeys = self._tmpData['listKeys']
+        distancesByType = self._tmpData['distancesByType']
+
+        maxType = max([max(row) for row in dataType])
+        maxDist = max([distancesByType[dit]['max'] for dit in distancesByType])
+
+        def _randomDistanceInTypes(_dists,_types):
+            _fr,_to = _dists
+            _ta,_tb = _types
+            _distances = []
+            for _y,(_rh,_rt,_rfl) in enumerate(zip(heatMap,dataType,dataFloor)):
+                for _x,(_d,_t,_fl) in enumerate(zip(_rh,_rt,_rfl)):
+                      if _fr<=_d<=_to and _ta<=_t<=_tb and _fl==' ':
+                        _distances.append((_x,_y))
+            if _distances:
+                return _distances[random.randint(0,len(_distances)-1)]
+            return None
+
+        ex,ey = exitPos = _randomDistanceInTypes([maxDist//2,maxDist-5],[0,maxType])
+        dataFloor[ey][ex] = '>'
 
     def genDungeon(self):
         self._tmpData = {
@@ -748,24 +879,31 @@ class DungeonPrime():
         self.placeKeys()
         self.placeFoes()
 
+        if  globals.level == 5:
+            self.placeBoss()
+        else:
+            self.placeExit()
+
+
         self._dataFloor= self._tmpData['dataFloor']
         self._dataType = self._tmpData['dataType']
         self._dataFoes = self._tmpData['dataFoes']
         self._dataObjs = self._tmpData['dataObjs']
         self._layerPlane = self._tmpData['layer']
+        self._size = (len(self._dataFloor[0]),len(self._dataFloor))
 
-        # for y,row in enumerate(self._tmpData['areaMap']):
-        #     out = f"{y:02} - "
-        #     for v in row:
-        #         if v: out += f"{v:2} "
-        #         else:out += f"   "
-        #     ttk.TTkLog.debug(out)
         # for y,row in enumerate(self._tmpData['heatMap']):
-        #     out = f"{y:02} - "
-        #     for v in row:
-        #         if v: out += f"{v:2} "
-        #         else:out += f"   "
-        #     ttk.TTkLog.debug(out)
+        def _printMap(_map):
+            for y,row in enumerate(_map):
+                out = f"{y:02} - "
+                for v in row:
+                    if v: out += f"{v:2} "
+                    else:out += f" . "
+                ttk.TTkLog.debug(out)
+        _printMap(self._tmpData['areaMap'])
+        _printMap(self._tmpData['dataType'])
+        # _printMap(self._tmpData['heatMap'])
+
 
         return self._tmpData['heroPos']
 
