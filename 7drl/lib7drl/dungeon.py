@@ -183,14 +183,19 @@ class Dungeon(DungeonPrime):
         super().__init__()
         self._heroPos = (5,3)
         self._floor = [
-                [ttk.TTkColor.bg('#eeddee'),ttk.TTkColor.bg('#ccccee')], # Base
-                [ttk.TTkColor.bg('#ddffdd'),ttk.TTkColor.bg('#aaddaa')], # Green
-                [ttk.TTkColor.bg('#ddddff'),ttk.TTkColor.bg('#aaaadd')], # Blue
-                [ttk.TTkColor.bg('#ffdddd'),ttk.TTkColor.bg('#ddaaaa')], # Red
-                [ttk.TTkColor.bg('#ffffdd'),ttk.TTkColor.bg('#ddddaa')]] # Yellow
-
+                [[ttk.TTkColor.bg('#eeddee'),ttk.TTkColor.bg('#ccccee')],
+                 [ttk.TTkColor.bg('#eeeeee'),ttk.TTkColor.bg('#cccccc')]], # Base
+                [[ttk.TTkColor.bg('#ddffdd'),ttk.TTkColor.bg('#aaddaa')],
+                 [ttk.TTkColor.bg('#eeeeee'),ttk.TTkColor.bg('#dddddd')]], # Green
+                [[ttk.TTkColor.bg('#ddddff'),ttk.TTkColor.bg('#aaaadd')],
+                 [ttk.TTkColor.bg('#cccccc'),ttk.TTkColor.bg('#bbbbbb')]], # Blue
+                [[ttk.TTkColor.bg('#ffdddd'),ttk.TTkColor.bg('#ddaaaa')],
+                 [ttk.TTkColor.bg('#dddddd'),ttk.TTkColor.bg('#cccccc')]], # Red
+                [[ttk.TTkColor.bg('#ffffdd'),ttk.TTkColor.bg('#ddddaa')],
+                 [ttk.TTkColor.bg('#ffffdd'),ttk.TTkColor.bg('#ddddaa')]]] # Yellow
         self._makeRayMap()
         dw,dh = self.size()
+        self._rayNum = 1
         self._visibilityMap = [[0]*(dw) for _ in range(dh)]
         self.updateVisibility()
 
@@ -213,6 +218,7 @@ class Dungeon(DungeonPrime):
                     maps[( dy2,-dx2)] = []
                     maps[(-dy2, dx2)] = []
                     maps[(-dy2,-dx2)] = []
+                if (dx2**2)+(dy2**2)>15**2:continue
                 if (d:=( dx1, dy1)) not in (m:=maps[( dx2, dy2)]):m.append(d)
                 if (d:=( dx1,-dy1)) not in (m:=maps[( dx2,-dy2)]):m.append(d)
                 if (d:=(-dx1, dy1)) not in (m:=maps[(-dx2, dy2)]):m.append(d)
@@ -226,6 +232,7 @@ class Dungeon(DungeonPrime):
     def genDungeon(self):
         self._heroPos=super().genDungeon()
         dw,dh = self.size()
+        self._rayNum = 1
         self._visibilityMap = [[0]*(dw) for _ in range(dh)]
         self.updateVisibility()
 
@@ -235,13 +242,14 @@ class Dungeon(DungeonPrime):
         dataMap = self._dataFloor
         vm = self._visibilityMap
         rm = self._rayMap
+        rn = self._rayNum = self._rayNum+1
         def _process(_points):
             for _rayPos in _points:
                 _rx,_ry=_rayPos
                 _px,_py = hx+_rx,hy+_ry
                 if not (-25<_rx<25 and -13<_ry<13): continue
                 if not (0<=_px<dw-1 and 0<=_py<dh): continue
-                vm[_py][_px] = 1
+                vm[_py][_px] = rn
                 if dataMap[_py][_px] not in (' ','d','>'):  continue
                 # if in a corner, prevent diagonal rays
                 #
@@ -249,16 +257,17 @@ class Dungeon(DungeonPrime):
                 #         _p  #
                 #   h
                 #
-                filter = []
+                _filter = []
                 _T = dataMap[_py+1][_px  ] not in (' ','d','>')
                 _B = dataMap[_py-1][_px  ] not in (' ','d','>')
                 _L = dataMap[_py  ][_px-1] not in (' ','d','>')
                 _R = dataMap[_py  ][_px+1] not in (' ','d','>')
-                if _T and _R : filter += [(_rx+1,_ry+1)]
-                if _B and _R : filter += [(_rx+1,_ry-1)]
-                if _T and _L : filter += [(_rx-1,_ry+1)]
-                if _B and _L : filter += [(_rx-1,_ry-1)]
-                _process([_rr for _rr in rm[(_rx,_ry)] if _rr not in filter])
+                if _T and _R : _filter += [(_rx+1,_ry+1)]
+                if _B and _R : _filter += [(_rx+1,_ry-1)]
+                if _T and _L : _filter += [(_rx-1,_ry+1)]
+                if _B and _L : _filter += [(_rx-1,_ry-1)]
+                _newp = [_rr for _rr in rm[(_rx,_ry)] if _rr not in _filter]
+                _process(_newp)
         _process(rm[(0,0)].copy())
 
     def updateVisibilityLoop(self):
@@ -392,12 +401,14 @@ class Dungeon(DungeonPrime):
 
     def drawDungeon(self, pos, canvas:ttk.TTkCanvas):
         x,y = pos
+        hx,hy = self._heroPos
         w,h = canvas.size()
         dataFloor = self._dataFloor
         dataType  = self._dataType
         dataFoes  = self._dataFoes
         dataObjs  = self._dataObjs
         visMap    = self._visibilityMap
+        rn        = self._rayNum
         # Draw the plane:
         self._drawLayer(self._layerPlane, pos, canvas)
         # Draw the Dungeon:
@@ -410,18 +421,17 @@ class Dungeon(DungeonPrime):
         for cy,(rof,rot,rofoe,roobj,rvm) in enumerate(zip(dataFloor[ssh],dataType[ssh],dataFoes[ssh],dataObjs[ssh],visMap[ssh]),y):
             for cx,(fl,ty,fo,ob,vm) in enumerate(zip(rof[ssw],rot[ssw],rofoe[ssw],roobj[ssw],rvm[ssw])):
                 if not fl or not vm: continue
-                if   fo: ch = Tiles.get(fo)
+                if   rn==vm and fo: ch = Tiles.get(fo)
                 elif ob: ch = Tiles.get(ob)
                 else:    ch = Tiles.get(fl)
-                color = self._floor[dataType[cy-y][cx]][(cx+cy)%2]
+                color = self._floor[dataType[cy-y][cx]][0 if vm==rn else 1][(cx+cy+hy+1)%2]
                 if ch:
                     canvas.drawTTkString(pos=(x+cx*2,cy),text=ch,color=color)
                 # else:
                 #     canvas.drawText(pos=(x+cx*2,cy),text="XX",color=color)
         # Place Hero:
         he = Tiles.get('@')
-        hx,hy = self._heroPos
-        color = self._floor[dataType[hy][hx]][(hx+hy)%2]
+        color = self._floor[dataType[hy][hx]][0][(hx+hy)%2]
         canvas.drawTTkString(pos=(x+hx*2,y+hy),text=he,color=color)
 
 
