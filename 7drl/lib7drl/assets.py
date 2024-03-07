@@ -24,12 +24,13 @@ __all__ = ['HouseBG_1_1','HouseBG_1_2',
            'HouseBG_2_1','HouseBG_2_2',
            'HouseBG_3_1',
            'CLOUD_1','CLOUD_2',
-           'PLANE_FRONT','PLANE_BACK','PLANE_BODY_1']
+           'PLANE_FRONT','PLANE_BACK','PLANE_BODY_1',
+           'TEST_TILES','Tiles' ]
 
 import sys, os
 
 sys.path.append(os.path.join(sys.path[0],'../..'))
-from  TermTk import TTkUtil
+from  TermTk import TTkUtil,TTkString,TTkColor
 
 HouseBG_1_1 = TTkUtil.base64_deflate_2_obj(
     "eJxrYJmayM0ABrVTNHpYUhJLEqfETtEAoh5GhSkZLJiwh/nRtKYpIHIaVnkETAWagqaX5cP8te1TwFTLFAyZ6TAhNvxGgRSv2QMxpgtCNWJ3CxumgZiuwuJHkAX70I0U" +
@@ -125,3 +126,151 @@ PLANE_BODY_1 = TTkUtil.base64_deflate_2_obj(
     "O89P6AtIBUMI8gFE/8T8GBGCI2RAWMetkTZq6hBvUlunnGik4sw5dryuilFcqBBsaHmVQxNDEUHeQWBg059cfIfiXF9QOX3lqEPmjX8RlJ1j+aqy8XUCwZqTB0HoTMEM" +
     "QYCAgaV8SGdFSrSCZaBcdP6ofN+UN5ufa7z2FogtgqICdox7PARbCYQUUP4jt0Ymuv62qWnyoq+ojTpKIgqofJ99loMbkvxdnQxTLx1nIYht/e3d0+KtTATFBL6L9qqn" +
     "RSzFgTZoDl+78ewgBAiyAGK8xX+0qaN3Wv03btA6yN4maHr7aABYm6y2hyA5EAM15YdPmd8CQY+heMAkmz8isC21iU2WIciDfXxruaiL+jSrcfbqDu+vJqo=")
+
+
+# Glyphs:
+# 🍝🍜🔑🗝️🪪💳📓🎁📔📒📕📗📘📙
+# 📀💿💾💽🥇🥈🥉🏅🎖️🗃️
+# 🔫🪃🎣🏹🧨💣🪓🚬🪦🚀
+#
+# 🐍🐔🧌🧛🧑‍✈️😈🤖👾👽💀👻💩👹👿👺🎃🕺
+# 🐯🦁🫎🐌
+# 🐌🦖🦕🦂🕷️🪳🪲🪰🐜🐊🦈🦀🪼🦑🐙🐲🐉🔥☄️💥⚡⭐🌟❄️🌪️
+#
+# 🔋🛢️🚽
+# 🩷❤️🧡💛💚🩵💙💜🖤🩶🤍🤎💔❤️‍🔥❤️‍🩹💝💘💖💗💟☮️
+# ⚪⚫🔴🔵🟤🟣🟢🟡🟠
+# ♠️♣️♥️♦️
+# 🔱⚜️
+
+# Snake:    🐍
+# Enemies:  🕺🧟🧌🧛😈🤖👾👽💀👻💩👹👿👺🎃 🦖🦕 🐲🐉
+#
+# Armor:
+# - Boots:  👢🧦👠🥿🩴🥾👟👞🩰 - 🛼⛸️
+# - Head:   🪖⛑️🎓👒🧢🎩 - 🤿👓🕶️🥽
+# - Body:   🎽🩱👙👗👘🥻👔👕👚🦺🥼🧥🥋
+# - Legs:   🩳🩲👖
+# - Shield: 🛡️
+#
+# Weapon:
+# - Melee:  🥊🪈🪥🪓🔪🗡️🥄🥢🏓📎🧹 - 👊🤌
+# - Ranged: 🏹🔫❤️‍🔥💜🎺🪄
+# - Shells: ⚪⚫🔴🟣🐚🌟
+# - Throw:  🪃🧨💣🥌
+#
+# Gold: 💵💴💶💷🪙💰👛💎
+#
+# Food: 🥘🥗🫔🌯🌮🥙🥪🍕🍟🍰🥧🍡🥮🥠🍥☕🍺🍻🥃🍷🍸🍹🍖🍗🧇🥞🥦🍔🍙🍯
+
+TEST_TILES = """
+        # Snake:    🐍
+        # Enemies:  🕺🧟🧌🧛😈🤖👾👽💀👻💩👹👿👺🎃 🦖🦕 🐲🐉
+        #
+        # Armor:
+        # - Boots:  👢🧦👠🥿🩴🥾👟👞🩰 - 🛼⛸️
+        # - Head:   🪖⛑️🎓👒🧢🎩 - 🤿👓🕶️🥽
+        # - Body:   🎽🩱👙👗👘🥻👔👕👚🦺🥼🧥🥋
+        # - Legs:   🩳🩲👖
+        # - Shield: 🛡️
+        #
+        # Weapon:
+        # - Melee:  🥊🪈🪥🪓🔪🗡️🥄🥢🏓📎🧹 - 👊🤌
+        # - Ranged: 🏹🔫❤️‍🔥💜🎺🪄 - 💔
+        # - Shells: ⚪⚫🔴🟣🐚🌟
+        # - Throw:  🪃🧨💣🥌
+        #
+        # Gold: 💵💴💶💷🪙💰👛💎
+        #
+        # Food: 🥘🥗🫔🌯🌮🥙🥪🍕🍟🍰🥧🍡🥮🥠🍥☕🍺🍻🥃🍷🍸🍹🍖🍗🧇🥞🥦🍔🍙🍯
+        #
+        # Stuff: 🟰✖️➗➖➕❌🔆🔅
+        """
+
+Tiles = {
+    None  : TTkString(''),
+    ''  : TTkString(''),
+    '#' : TTkString('🧱'), # wall
+    ' ' : TTkString('  '),
+    '@' : TTkString('😎'),
+    'X' : None,
+    'D' : TTkString('🚪'),
+    'DR' : TTkString('🚪',TTkColor.bg('#FF0000')),
+    'DG' : TTkString('🚪',TTkColor.bg('#00FF00')),
+    'DB' : TTkString('🚪',TTkColor.bg('#0000FF')),
+    'DY' : TTkString('🚪',TTkColor.bg('#FFFF00')),
+    'KR' : TTkString('📕'),
+    'KG' : TTkString('📗'),
+    'KB' : TTkString('📘'),
+    'KY' : TTkString('📒'),
+    'd' : TTkString('| ',TTkColor.fg('#803000')),
+    'Snake'    : TTkString('🐍'),
+    'z'        : TTkString('🧟'),
+    'Dragon1'  : TTkString('🐲'),
+    'Dragon2'  : TTkString('🐉'),
+    'TRex'     : TTkString('🦖'),
+    'Dino'     : TTkString('🦕'),
+    'Dancer'   : TTkString('🕺'),
+    # 'Zombie'   : TTkString('🧟'),
+    # 'Ogre'     : TTkString('🧌'),
+    'Vampire'  : TTkString('🧛'),
+    'Imp'      : TTkString('😈'),
+    'Robot'    : TTkString('🤖'),
+    'SI'       : TTkString('👾'),
+    'Alien'    : TTkString('👽'),
+    'Skeleton' : TTkString('💀'),
+    'Ghost'    : TTkString('👻'),
+    'Crap'     : TTkString('💩'),
+    'Daemon'   : TTkString('👹'),
+    'Nose'     : TTkString('👺'),
+    'Pumpkin'  : TTkString('🎃'),
+    # Armors
+    'af1' : TTkString('👢'),
+    'af2' : TTkString('🧦'),
+    'af3' : TTkString('👠'),
+    'af4' : TTkString('🥿'),
+    'af5' : TTkString('🩴'),
+    'ah1' : TTkString('🪖'),
+    'ah2' : TTkString('⛑️'),
+    'ah3' : TTkString('🎓'),
+    'ah4' : TTkString('👒'),
+    'ah5' : TTkString('🧢'),
+    'ab1' : TTkString('🎽'),
+    'ab2' : TTkString('🩱'),
+    'ab3' : TTkString('👙'),
+    'ab4' : TTkString('👗'),
+    'ab5' : TTkString('👘'),
+    'al1' : TTkString('🩳'),
+    'al2' : TTkString('🩲'),
+    'al3' : TTkString('👖'),
+    # Weapons
+    'wm1':TTkString('🥊'),
+    'wm2':TTkString('🪈'),
+    'wm3':TTkString('🪥'),
+    'wm4':TTkString('🪓'),
+    'wr1':TTkString('🏹'),
+    'wr2':TTkString('🔫'),
+    'wr3':TTkString('💜'),
+    'wr4':TTkString('💔'),
+    'ws1':TTkString('⚪'),
+    'ws2':TTkString('⚫'),
+    'ws3':TTkString('🟣'),
+    'ws4':TTkString('🔴'),
+    'wt1':TTkString('🪃'),
+    'wt2':TTkString('🧨'),
+    'wt3':TTkString('💣'),
+    'wt4':TTkString('🥌'),
+    # Gold
+    'g1':TTkString('💵'),
+    'g2':TTkString('💴'),
+    'g3':TTkString('💶'),
+    'g4':TTkString('💷'),
+    'g5':TTkString('🪙'),
+    'g6':TTkString('👛'),
+    'g7':TTkString('💰'),
+    'g8':TTkString('💎'),
+
+    'b' : TTkString('🗃️'), # Black Box
+    # Exit
+    '>' : TTkString('🪜'),
+}

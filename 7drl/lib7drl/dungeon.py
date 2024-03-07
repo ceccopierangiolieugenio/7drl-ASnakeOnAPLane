@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-__all__ = ['Dungeon','TEST_TILES']
+__all__ = ['Dungeon']
 
 import sys, os, math, random
 
@@ -29,149 +29,7 @@ import TermTk as ttk
 
 from .dungeonprime import *
 from .layer  import *
-
-# Glyphs:
-# 🍝🍜🔑🗝️🪪💳📓🎁📔📒📕📗📘📙
-# 📀💿💾💽🥇🥈🥉🏅🎖️🗃️
-# 🔫🪃🎣🏹🧨💣🪓🚬🪦🚀
-#
-# 🐍🐔🧌🧛🧑‍✈️😈🤖👾👽💀👻💩👹👿👺🎃🕺
-# 🐯🦁🫎🐌
-# 🐌🦖🦕🦂🕷️🪳🪲🪰🐜🐊🦈🦀🪼🦑🐙🐲🐉🔥☄️💥⚡⭐🌟❄️🌪️
-#
-# 🔋🛢️🚽
-# 🩷❤️🧡💛💚🩵💙💜🖤🩶🤍🤎💔❤️‍🔥❤️‍🩹💝💘💖💗💟☮️
-# ⚪⚫🔴🔵🟤🟣🟢🟡🟠
-# ♠️♣️♥️♦️
-# 🔱⚜️
-
-# Snake:    🐍
-# Enemies:  🕺🧟🧌🧛😈🤖👾👽💀👻💩👹👿👺🎃 🦖🦕 🐲🐉
-#
-# Armor:
-# - Boots:  👢🧦👠🥿🩴🥾👟👞🩰 - 🛼⛸️
-# - Head:   🪖⛑️🎓👒🧢🎩 - 🤿👓🕶️🥽
-# - Body:   🎽🩱👙👗👘🥻👔👕👚🦺🥼🧥🥋
-# - Legs:   🩳🩲👖
-# - Shield: 🛡️
-#
-# Weapon:
-# - Melee:  🥊🪈🪥🪓🔪🗡️🥄🥢🏓📎🧹 - 👊🤌
-# - Ranged: 🏹🔫❤️‍🔥💜🎺🪄
-# - Shells: ⚪⚫🔴🟣🐚🌟
-# - Throw:  🪃🧨💣🥌
-#
-# Gold: 💵💴💶💷🪙💰👛💎
-#
-# Food: 🥘🥗🫔🌯🌮🥙🥪🍕🍟🍰🥧🍡🥮🥠🍥☕🍺🍻🥃🍷🍸🍹🍖🍗🧇🥞🥦🍔🍙🍯
-
-TEST_TILES = """
-        # Snake:    🐍
-        # Enemies:  🕺🧟🧌🧛😈🤖👾👽💀👻💩👹👿👺🎃 🦖🦕 🐲🐉
-        #
-        # Armor:
-        # - Boots:  👢🧦👠🥿🩴🥾👟👞🩰 - 🛼⛸️
-        # - Head:   🪖⛑️🎓👒🧢🎩 - 🤿👓🕶️🥽
-        # - Body:   🎽🩱👙👗👘🥻👔👕👚🦺🥼🧥🥋
-        # - Legs:   🩳🩲👖
-        # - Shield: 🛡️
-        #
-        # Weapon:
-        # - Melee:  🥊🪈🪥🪓🔪🗡️🥄🥢🏓📎🧹 - 👊🤌
-        # - Ranged: 🏹🔫❤️‍🔥💜🎺🪄
-        # - Shells: ⚪⚫🔴🟣🐚🌟
-        # - Throw:  🪃🧨💣🥌
-        #
-        # Gold: 💵💴💶💷🪙💰👛💎
-        #
-        # Food: 🥘🥗🫔🌯🌮🥙🥪🍕🍟🍰🥧🍡🥮🥠🍥☕🍺🍻🥃🍷🍸🍹🍖🍗🧇🥞🥦🍔🍙🍯
-        """
-
-Tiles = {
-    '#' : ttk.TTkString('🧱'), # wall
-    ' ' : ttk.TTkString('  '),
-    '@' : ttk.TTkString('😎'),
-    'X' : None,
-    'D' : ttk.TTkString('🚪'),
-    'DR' : ttk.TTkString('🚪',ttk.TTkColor.bg('#FF0000')),
-    'DG' : ttk.TTkString('🚪',ttk.TTkColor.bg('#00FF00')),
-    'DB' : ttk.TTkString('🚪',ttk.TTkColor.bg('#0000FF')),
-    'DY' : ttk.TTkString('🚪',ttk.TTkColor.bg('#FFFF00')),
-    'KR' : ttk.TTkString('📕'),
-    'KG' : ttk.TTkString('📗'),
-    'KB' : ttk.TTkString('📘'),
-    'KY' : ttk.TTkString('📒'),
-    'd' : ttk.TTkString('| ',ttk.TTkColor.fg('#803000')),
-    'Snake'    : ttk.TTkString('🐍'),
-    'z'        : ttk.TTkString('🧟'),
-    'Dragon1'  : ttk.TTkString('🐲'),
-    'Dragon2'  : ttk.TTkString('🐉'),
-    'TRex'     : ttk.TTkString('🦖'),
-    'Dino'     : ttk.TTkString('🦕'),
-    'Dancer'   : ttk.TTkString('🕺'),
-    # 'Zombie'   : ttk.TTkString('🧟'),
-    # 'Ogre'     : ttk.TTkString('🧌'),
-    'Vampire'  : ttk.TTkString('🧛'),
-    'Imp'      : ttk.TTkString('😈'),
-    'Robot'    : ttk.TTkString('🤖'),
-    'SI'       : ttk.TTkString('👾'),
-    'Alien'    : ttk.TTkString('👽'),
-    'Skeleton' : ttk.TTkString('💀'),
-    'Ghost'    : ttk.TTkString('👻'),
-    'Crap'     : ttk.TTkString('💩'),
-    'Daemon'   : ttk.TTkString('👹'),
-    'Nose'     : ttk.TTkString('👺'),
-    'Pumpkin'  : ttk.TTkString('🎃'),
-    # Armors
-    'af1' : ttk.TTkString('👢'),
-    'af2' : ttk.TTkString('🧦'),
-    'af3' : ttk.TTkString('👠'),
-    'af4' : ttk.TTkString('🥿'),
-    'af5' : ttk.TTkString('🩴'),
-    'ah1' : ttk.TTkString('🪖'),
-    'ah2' : ttk.TTkString('⛑️'),
-    'ah3' : ttk.TTkString('🎓'),
-    'ah4' : ttk.TTkString('👒'),
-    'ah5' : ttk.TTkString('🧢'),
-    'ab1' : ttk.TTkString('🎽'),
-    'ab2' : ttk.TTkString('🩱'),
-    'ab3' : ttk.TTkString('👙'),
-    'ab4' : ttk.TTkString('👗'),
-    'ab5' : ttk.TTkString('👘'),
-    'al1' : ttk.TTkString('🩳'),
-    'al2' : ttk.TTkString('🩲'),
-    'al3' : ttk.TTkString('👖'),
-    # Weapons
-    'wm1':ttk.TTkString('🥊'),
-    'wm2':ttk.TTkString('🪈'),
-    'wm3':ttk.TTkString('🪥'),
-    'wm4':ttk.TTkString('🪓'),
-    'wr1':ttk.TTkString('🏹'),
-    'wr2':ttk.TTkString('🔫'),
-    'wr3':ttk.TTkString('❤️‍🔥'),
-    'wr4':ttk.TTkString('💜'),
-    'ws1':ttk.TTkString('⚪'),
-    'ws2':ttk.TTkString('⚫'),
-    'ws3':ttk.TTkString('🔴'),
-    'ws4':ttk.TTkString('🟣'),
-    'wt1':ttk.TTkString('🪃'),
-    'wt2':ttk.TTkString('🧨'),
-    'wt3':ttk.TTkString('💣'),
-    'wt4':ttk.TTkString('🥌'),
-    # Gold
-    'g1':ttk.TTkString('💵'),
-    'g2':ttk.TTkString('💴'),
-    'g3':ttk.TTkString('💶'),
-    'g4':ttk.TTkString('💷'),
-    'g5':ttk.TTkString('🪙'),
-    'g6':ttk.TTkString('👛'),
-    'g7':ttk.TTkString('💰'),
-    'g8':ttk.TTkString('💎'),
-
-    'b' : ttk.TTkString('🗃️'), # Black Box
-    # Exit
-    '>' : ttk.TTkString('🪜'),
-}
+from .assets import *
 
 class Dungeon(DungeonPrime):
     UP    = 0x01
@@ -181,7 +39,11 @@ class Dungeon(DungeonPrime):
 
     def __init__(self) -> None:
         super().__init__()
-        self._heroPos = (5,3)
+        self._mousePos = (5,3)
+        self._heroPos  = (5,3)
+        self._mouseColor = ttk.TTkColor.fg('#00FF00')+ttk.TTkColor.bg('#FFFF00')
+        # self._mouseIcon = ttk.TTkString("🔆",self._mouseColor)
+        self._mouseIcon = ttk.TTkString("🔆")
         self._floor = [
                 [[ttk.TTkColor.bg('#eeddee'),ttk.TTkColor.bg('#ccccee')],
                  [ttk.TTkColor.bg('#eeeeee'),ttk.TTkColor.bg('#cccccc')]], # Base
@@ -360,6 +222,9 @@ class Dungeon(DungeonPrime):
     def heroPos(self):
         return self._heroPos
 
+    def moveMouse(self, x,y):
+        self._mousePos = (x,y)
+
     def moveHero(self, direction):
         d = self._dataFloor
         hx,hy = nx,ny = self._heroPos
@@ -433,5 +298,11 @@ class Dungeon(DungeonPrime):
         he = Tiles.get('@')
         color = self._floor[dataType[hy][hx]][0][(hx+hy)%2]
         canvas.drawTTkString(pos=(x+hx*2,y+hy),text=he,color=color)
+
+        if self._mousePos:
+            mpx,mpy = self._mousePos
+            if 0<=mpx<dw and 0<=mpy<dh and visMap[mpy][mpx]:
+                canvas.drawTTkString(pos=(x+mpx*2,y+mpy),text=self._mouseIcon,color=color)
+
 
 

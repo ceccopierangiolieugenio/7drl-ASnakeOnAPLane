@@ -29,7 +29,7 @@ import TermTk as ttk
 
 from .assets  import *
 from .layer   import *
-from .globals import *
+from .glbls import *
 
 STARTING_FLOOR = [
     [''  ,''  ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,''  ,''  ,''  ,'#' ,'#' ,'#' ,''  ,''  ,''  ,'#' ,'#' ,'#' ,'#' ,'#' ,''  ,'' ,],
@@ -102,7 +102,7 @@ class DungeonPrime():
     ####################################################
     ####################################################
     def genPlane(self):
-        level = globals.level
+        level = glbls.level
         plf  = self._plf
         plb  = self._plb
         plb1 = self._plb1
@@ -194,7 +194,7 @@ class DungeonPrime():
     ####################################################
     ####################################################
     def genMainArea(self):
-        level = globals.level
+        level = glbls.level
         # find the walkable places
         newLayer = self._tmpData['layer']
         dw,dh = self._tmpData['dsize']
@@ -251,7 +251,7 @@ class DungeonPrime():
     ####################################################
     ####################################################
     def ensureConnection(self):
-        level = globals.level
+        level = glbls.level
         # find the walkable places
         dw,dh = self._tmpData['dsize']
         data  = self._tmpData['dataFloor']
@@ -349,7 +349,7 @@ class DungeonPrime():
     ####################################################
     ####################################################
     def genWalls(self):
-        level = globals.level
+        level = glbls.level
         # find the walkable places
         dw,dh = self._tmpData['dsize']
         data  = self._tmpData['dataFloor']
@@ -413,7 +413,7 @@ class DungeonPrime():
     ####################################################
     ####################################################
     def genDoors(self):
-        level = globals.level
+        level = glbls.level
         # find the walkable places
         dw,dh = self._tmpData['dsize']
         dataFloor  = self._tmpData['dataFloor']
@@ -657,7 +657,7 @@ class DungeonPrime():
     ####################################################
     ####################################################
     def placeFoesObjs(self):
-        level = globals.level
+        level = glbls.level
         # find the walkable places
         heroPos = self._tmpData['heroPos']
         dw,dh = self._tmpData['dsize']
@@ -676,21 +676,21 @@ class DungeonPrime():
 
         # Based on the level [1,5] define the planes placement area
         foesList = [
-            'z','Vampire','Dancer',
-            'z','Vampire','Dancer',
-            'z','Vampire','Dancer',
-            'Skeleton','Imp','Ghost',
-            'Skeleton','Imp','Ghost',
-            'Skeleton','Imp','Ghost',
-            'Dino','Crap','Nose',
-            'Dino','Crap','Nose',
-            'Dino','Crap','Nose',
-            'Robot','SI','Alien',
-            'Robot','SI','Alien',
-            'Robot','SI','Alien',
-            'Dragon1','Dragon2','TRex',
-            'Dragon1','Dragon2','TRex',
-            'Dragon1','Dragon2','TRex']
+            'z','Vampire','Ghost',
+            'z','Vampire','Ghost',
+            'z','Vampire','Ghost',
+            'Pumpkin','Imp','Imp',
+            'Pumpkin','Imp','Imp',
+            'Pumpkin','Imp','Imp',
+            'Robot','Robot','Crap',
+            'Robot','Robot','Crap',
+            'Robot','Robot','Crap',
+            'SI','SI','Alien',
+            'SI','SI','Alien',
+            'SI','SI','Alien',
+            'Dragon1','TRex','TRex',
+            'Dragon1','TRex','TRex',
+            'Dragon1','TRex','TRex']
 
         objList = [
             'af1','ah1','ab1','al1', 'wm1','wr1', 'g1','g2','g3', 'ws1','ws1','ws1','wt1',
@@ -758,7 +758,7 @@ class DungeonPrime():
             dataObjs[_y][_x] = _obj
 
     def placeBoss(self):
-        level = globals.level
+        level = glbls.level
         # find the walkable places
         heroPos = self._tmpData['heroPos']
         dw,dh = self._tmpData['dsize']
@@ -788,7 +788,9 @@ class DungeonPrime():
                 return _distances[random.randint(0,len(_distances)-1)]
             return None
 
-        sx,sy = snakePos = _randomDistanceInTypes([maxDist-2,maxDist],[maxType,maxType])
+        while not (snakePos := _randomDistanceInTypes([maxDist-10,maxDist-6],[0,maxType])):
+            maxDist -= 1
+        sx,sy = snakePos
 
         def _areaDoors(_x,_y):
             _doors = []
@@ -850,11 +852,13 @@ class DungeonPrime():
         _recurseMark((sx,sy),4)
         dataFoes[sy][sx] = 'Snake'
 
-        bx,by = bossPos = _randomDistanceInTypes([maxDist-10,maxDist-6],[0,maxType])
-        dataFoes[by][bx] = 'Pumpkin'
+        while not (bossPos := _randomDistanceInTypes([maxDist-10,maxDist-6],[0,maxType])):
+            maxDist -= 1
+        bx,by = bossPos
+        dataFoes[by][bx] = 'Nose'
 
     def placeExit(self):
-        level = globals.level
+        level = glbls.level
         # find the walkable places
         heroPos = self._tmpData['heroPos']
         dw,dh = self._tmpData['dsize']
@@ -905,7 +909,7 @@ class DungeonPrime():
         self.placeFoesObjs()
         # self.placeObjs()
 
-        if  globals.level == 5:
+        if  glbls.level == 5:
             self.placeBoss()
         else:
             self.placeExit()

@@ -30,10 +30,14 @@ import TermTk as ttk
 
 from .parallax import *
 from .dungeon  import *
-from .globals  import *
+from .assets   import *
+from .glbls  import *
+from .statwin  import *
+from .player   import *
 
 class Game(ttk.TTk):
     def __init__(self, *args, **kwargs):
+        glbls.root = self
         super().__init__(*args, **kwargs)
         self._parallax = Parallax(pos=(5,3), size=(100,26))
         self._dungeon = Dungeon()
@@ -44,8 +48,11 @@ class Game(ttk.TTk):
         self._parallaxTimer.timeout.connect(lambda :self._parallaxTimer.start(0.05))
         self._parallaxTimer.start(0.1)
 
-        btnMsg  = ttk.TTkButton(  parent=self, pos=( 0,0), text='Messages', border=True)
-        btnInfo = ttk.TTkButton(  parent=self, pos=(10,0), text='Info',     border=True)
+        self._player = Player()
+        statWin = StatWin(parent=self, player=self._player, pos=(80,0),size=(30,20), visible=True)
+
+        btnMsg  = ttk.TTkButton(  parent=self, pos=( 0,0), text='Messages', border=True, checkable=True)
+        btnInfo = ttk.TTkButton(  parent=self, pos=(10,0), text='Info',     border=True, checkable=True, checked=True)
 
         cbDebug = ttk.TTkCheckbox(parent=self, pos=(16,1), text='Debug', size=(8,1), checked=False)
         debugFrame = ttk.TTkFrame(parent=self, pos=(24,0), size=(50,3),layout=ttk.TTkGridLayout(), visible=False, border=False)
@@ -55,7 +62,7 @@ class Game(ttk.TTk):
         debugFrame.layout().addWidget(sbLevel := ttk.TTkSpinBox( value=1, minimum=1, maximum=5), 1,2)
 
         cbDebug.toggled.connect(debugFrame.setVisible)
-        sbLevel.valueChanged.connect(globals.setLevel)
+        sbLevel.valueChanged.connect(glbls.setLevel)
 
         def _attachSignal(_btn,_slots):
             _btn.clicked.connect(self.setFocus)
@@ -64,6 +71,10 @@ class Game(ttk.TTk):
 
         _attachSignal(btnTest, [self._testGame])
         _attachSignal(btnRnd, [self._dungeon.genDungeon, self.landingAnim])
+
+        btnInfo.toggled.connect(statWin.setVisible)
+        btnInfo.toggled.connect(self.setFocus)
+        # btnInfo.clicked.connect(statWin.raiseWidget)
 
         self.landingAnim()
         self.setFocus()
@@ -127,9 +138,24 @@ class Game(ttk.TTk):
         self.update()
         return True
 
+    def wheelEvent(self, evt) -> bool:
+        if evt.evt == ttk.TTkK.WHEEL_Down:
+            self._player.nextWeapon()
+        else:
+            self._player.prevWeapon()
+        return True
+
     def mousePressEvent(self, evt) -> bool:
         self._mouseSavePos = (evt.x,evt.y)
         self._dungeonSavePos = self._dungeonPos
+        return True
+
+    def mouseMoveEvent(self, evt) -> bool:
+        hpx,hpy = self._dungeon.heroPos()
+        dpx,dpy = self._dungeonPos
+        px,py   = self._parallax.pos()
+        mpx,mpy = evt.x-px-dpx,evt.y-py-dpy
+        self._dungeon.moveMouse(mpx//2+hpx,mpy+hpy)
         return True
 
     def mouseDragEvent(self, evt) -> bool:

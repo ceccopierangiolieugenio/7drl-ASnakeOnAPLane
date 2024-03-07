@@ -30,6 +30,6 @@ import TermTk as ttk
 
 from lib7drl import *
 
-root = Game(title="A Snake on a Plane")
+root = Game(title="A Snake🐍 on a Plane✈️ - The Roguelike", mouseTrack=True)
 root.mainloop()
 

@@ -21,16 +21,18 @@
 # SOFTWARE.
 
 
-__all__ = ['globals']
+__all__ = ['glbls']
 
 from dataclasses import dataclass
 
 @dataclass(frozen=False)
-class Globals:
-    level: int = 1
+class Glbls:
+    level: int = 5
     score: int = 0
 
     def setLevel(self, value):
         self.level = value
 
-globals = Globals()
+    root = None
+
+glbls = Glbls()
