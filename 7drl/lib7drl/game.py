@@ -97,7 +97,7 @@ class Game(ttk.TTk):
         # Dungeon Animation
         animPlane = ttk.TTkPropertyAnimation(self,self.setDungeonPos)
         animPlane.setStartValue((-150,-30))
-        animPlane.setEndValue(  ( 50, 15))
+        animPlane.setEndValue(  ( 100//2, 26//2))
         animPlane.setDuration(2)
         animPlane.setEasingCurve(ttk.TTkEasingCurve.OutBack)
         animPlane.start()
@@ -128,15 +128,19 @@ class Game(ttk.TTk):
 
     def mousePressEvent(self, evt) -> bool:
         self._mouseSavePos = (evt.x,evt.y)
+        self._dungeonSavePos = self._dungeonPos
         return True
 
     def mouseDragEvent(self, evt) -> bool:
         w,h=self._dungeon.size()
         x,y   = self._mouseSavePos
-        hx,hy = self._dungeon._heroPos
-        x=max(0,min(w-1,hx+(x-evt.x)//2))
-        y=max(0,min(h-1,hy+y-evt.y))
-        self._dungeon._heroPos = (x,y)
+        hx,hy = self._dungeonSavePos
+        # x=max(0,min(w-1,hx-(x-evt.x)//2))
+        # y=max(0,min(h-1,hy-(y-evt.y)))
+        x = hx-(x-evt.x)
+        y = hy-(y-evt.y)
+        # self._dungeon._heroPos = (x,y)
+        self.setDungeonPos(x,y)
         self.update()
         return True
 

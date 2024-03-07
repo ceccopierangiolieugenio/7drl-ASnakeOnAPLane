@@ -33,8 +33,8 @@ from .globals import *
 
 STARTING_FLOOR = [
     [''  ,''  ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,''  ,''  ,''  ,'#' ,'#' ,'#' ,''  ,''  ,''  ,'#' ,'#' ,'#' ,'#' ,'#' ,''  ,'' ,],
-    [''  ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,''  ,''  ,'#' ,' ' ,' ' ,' ' ,'#' ,''  ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,'' ,],
-    ['#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,'#' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#',],
+    [''  ,'#' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,''  ,''  ,'#' ,' ' ,' ' ,' ' ,'#' ,''  ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,'' ,],
+    ['#' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,'#' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#',],
     ['#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'DB',' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#',],
     ['#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'D' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'>' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,'#' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#',],
     ['#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'DG',' ' ,' ' ,' ' ,' ' ,'#' ,' ' ,' ' ,'#' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,' ' ,'#',],
@@ -679,7 +679,7 @@ class DungeonPrime():
     ####################################################
     ####################################################
     ####################################################
-    def placeFoes(self):
+    def placeFoesObjs(self):
         level = globals.level
         # find the walkable places
         heroPos = self._tmpData['heroPos']
@@ -700,17 +700,57 @@ class DungeonPrime():
         # Based on the level [1,5] define the planes placement area
         foesList = [
             'z','Vampire','Dancer',
+            'z','Vampire','Dancer',
+            'z','Vampire','Dancer',
+            'Skeleton','Imp','Ghost',
+            'Skeleton','Imp','Ghost',
             'Skeleton','Imp','Ghost',
             'Dino','Crap','Nose',
+            'Dino','Crap','Nose',
+            'Dino','Crap','Nose',
             'Robot','SI','Alien',
+            'Robot','SI','Alien',
+            'Robot','SI','Alien',
+            'Dragon1','Dragon2','TRex',
+            'Dragon1','Dragon2','TRex',
             'Dragon1','Dragon2','TRex']
+
+        objList = [
+            'af1','ah1','ab1','al1', 'wm1','wr1', 'g1','g2','g3', 'ws1','ws1','ws1','wt1',
+                                                  'g1','g2','g3', 'ws1','ws1','ws1','wt1',
+                                                                  'ws1','ws1','ws1','wt1',
+                                                                  'ws1','ws1','ws1','wt1',
+
+            'af2','ah2','ab2','al2', 'wm2','wr2', 'g3','g4','g5', 'ws1','ws1','ws1','wt1',
+                                                  'g3','g4','g5', 'ws1','ws1','ws1','wt1',
+                                                                  'ws2','ws2','ws2','wt2',
+                                                                  'ws2','ws2','ws2','wt2',
+
+            'af3','ah3','ab3','al3', 'wm3','wr3', 'g4','g5','g7', 'ws1','ws1','ws1','ws1','wt1',
+                                                  'g4','g5','g7', 'ws2','ws2','ws2','ws2','wt2',
+                                                                  'ws3','ws3','ws3','ws3','wt3',
+                                                                  'ws3','ws3','ws3','ws3','wt3',
+
+            'af4','ah4','ab3','al3', 'wm4','wr4', 'g5','g7','g8', 'ws1','ws1','ws1','ws1','ws1','wt1',
+                                                  'g5','g7','g8', 'ws2','ws2','ws2','ws2','ws2','wt2',
+                                                                  'ws3','ws3','ws3','ws3','ws3','wt3',
+                                                                  'ws4','ws4','ws4','ws4','ws4','wt4',
+
+            'af4','ah4','ab4','al3', 'wm4','wr4', 'g6','g7','g8', 'ws1','ws1','ws1','ws1','ws1','wt1','wt1',
+                                                  'g6','g7','g8', 'ws2','ws2','ws2','ws2','ws2','wt2','wt2',
+                                                                  'ws3','ws3','ws3','ws3','ws3','wt3','wt3',
+                                                                  'ws4','ws4','ws4','ws4','ws4','wt4','wt4',
+        ]
+
         # Reduce the number of possible foes based on the level
         # I assume that the latest foes are stronger
         foesList = foesList[0:level*len(foesList)//5]
+        objList  = objList[(level-1)*len(objList)//5:level*len(objList)//5]
 
         # At least 1 foe every 20x3
         # and no more than 6x3
         foes = random.randint(mapSize//(20*3),mapSize//(6*3))
+        objs = random.randint(mapSize//(20*4),mapSize//(6*5))
 
         def _randomDistanceInType(_dists,_type):
             _fr,_to = _dists
@@ -730,7 +770,15 @@ class DungeonPrime():
             _rfoes = foesList[_type*len(foesList)//4:]
             _foe = _rfoes[random.randint(0,len(_rfoes)-1)]
             dataFoes[_y][_x] = _foe
-
+        for i in range(objs):
+            # Pick a random distance
+            _objDist = random.randint(15,maxDistance)
+            # Trying to map the foe type to 1-5 based on the current level the distance and the areatype
+            _x,_y = _randomDistanceInType((_objDist-10,_objDist),5)
+            _type = dataType[_y][_x]
+            _robjs = objList[_type*len(objList)//4:]
+            _obj = _robjs[random.randint(0,len(_robjs)-1)]
+            dataObjs[_y][_x] = _obj
 
     def placeBoss(self):
         level = globals.level
@@ -877,7 +925,8 @@ class DungeonPrime():
         self.genWalls()
         self.genDoors()
         self.placeKeys()
-        self.placeFoes()
+        self.placeFoesObjs()
+        # self.placeObjs()
 
         if  globals.level == 5:
             self.placeBoss()

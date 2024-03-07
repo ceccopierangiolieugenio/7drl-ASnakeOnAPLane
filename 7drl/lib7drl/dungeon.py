@@ -122,8 +122,55 @@ Tiles = {
     'Daemon'   : ttk.TTkString('👹'),
     'Nose'     : ttk.TTkString('👺'),
     'Pumpkin'  : ttk.TTkString('🎃'),
-    '>' : ttk.TTkString('🪜'),
+    # Armors
+    'af1' : ttk.TTkString('👢'),
+    'af2' : ttk.TTkString('🧦'),
+    'af3' : ttk.TTkString('👠'),
+    'af4' : ttk.TTkString('🥿'),
+    'af5' : ttk.TTkString('🩴'),
+    'ah1' : ttk.TTkString('🪖'),
+    'ah2' : ttk.TTkString('⛑️'),
+    'ah3' : ttk.TTkString('🎓'),
+    'ah4' : ttk.TTkString('👒'),
+    'ah5' : ttk.TTkString('🧢'),
+    'ab1' : ttk.TTkString('🎽'),
+    'ab2' : ttk.TTkString('🩱'),
+    'ab3' : ttk.TTkString('👙'),
+    'ab4' : ttk.TTkString('👗'),
+    'ab5' : ttk.TTkString('👘'),
+    'al1' : ttk.TTkString('🩳'),
+    'al2' : ttk.TTkString('🩲'),
+    'al3' : ttk.TTkString('👖'),
+    # Weapons
+    'wm1':ttk.TTkString('🥊'),
+    'wm2':ttk.TTkString('🪈'),
+    'wm3':ttk.TTkString('🪥'),
+    'wm4':ttk.TTkString('🪓'),
+    'wr1':ttk.TTkString('🏹'),
+    'wr2':ttk.TTkString('🔫'),
+    'wr3':ttk.TTkString('❤️‍🔥'),
+    'wr4':ttk.TTkString('💜'),
+    'ws1':ttk.TTkString('⚪'),
+    'ws2':ttk.TTkString('⚫'),
+    'ws3':ttk.TTkString('🔴'),
+    'ws4':ttk.TTkString('🟣'),
+    'wt1':ttk.TTkString('🪃'),
+    'wt2':ttk.TTkString('🧨'),
+    'wt3':ttk.TTkString('💣'),
+    'wt4':ttk.TTkString('🥌'),
+    # Gold
+    'g1':ttk.TTkString('💵'),
+    'g2':ttk.TTkString('💴'),
+    'g3':ttk.TTkString('💶'),
+    'g4':ttk.TTkString('💷'),
+    'g5':ttk.TTkString('🪙'),
+    'g6':ttk.TTkString('👛'),
+    'g7':ttk.TTkString('💰'),
+    'g8':ttk.TTkString('💎'),
+
     'b' : ttk.TTkString('🗃️'), # Black Box
+    # Exit
+    '>' : ttk.TTkString('🪜'),
 }
 
 class Dungeon(DungeonPrime):
@@ -142,12 +189,167 @@ class Dungeon(DungeonPrime):
                 [ttk.TTkColor.bg('#ffdddd'),ttk.TTkColor.bg('#ddaaaa')], # Red
                 [ttk.TTkColor.bg('#ffffdd'),ttk.TTkColor.bg('#ddddaa')]] # Yellow
 
+        self._makeRayMap()
+        dw,dh = self.size()
+        self._visibilityMap = [[0]*(dw) for _ in range(dh)]
+        self.updateVisibility()
+
+    def _makeRayMap(self):
+        maps = {}
+        # . . . . . x . . . . . = 11
+        # generate a raymap (101x51) excluding the 45Degrees rays
+        for x in range(0,61):
+            for y in range(0,60):
+                dy1 = y+1
+                dy2 = y
+                dx1 = math.floor(x*dy1/60)
+                dx2 = math.floor(x*dy2/60)
+                if (dx2,dy2) not in maps:
+                    maps[( dx2, dy2)] = []
+                    maps[( dx2,-dy2)] = []
+                    maps[(-dx2, dy2)] = []
+                    maps[(-dx2,-dy2)] = []
+                    maps[( dy2, dx2)] = []
+                    maps[( dy2,-dx2)] = []
+                    maps[(-dy2, dx2)] = []
+                    maps[(-dy2,-dx2)] = []
+                if (d:=( dx1, dy1)) not in (m:=maps[( dx2, dy2)]):m.append(d)
+                if (d:=( dx1,-dy1)) not in (m:=maps[( dx2,-dy2)]):m.append(d)
+                if (d:=(-dx1, dy1)) not in (m:=maps[(-dx2, dy2)]):m.append(d)
+                if (d:=(-dx1,-dy1)) not in (m:=maps[(-dx2,-dy2)]):m.append(d)
+                if (d:=( dy1, dx1)) not in (m:=maps[( dy2, dx2)]):m.append(d)
+                if (d:=( dy1,-dx1)) not in (m:=maps[( dy2,-dx2)]):m.append(d)
+                if (d:=(-dy1, dx1)) not in (m:=maps[(-dy2, dx2)]):m.append(d)
+                if (d:=(-dy1,-dx1)) not in (m:=maps[(-dy2,-dx2)]):m.append(d)
+        self._rayMap = maps
+
     def genDungeon(self):
         self._heroPos=super().genDungeon()
+        dw,dh = self.size()
+        self._visibilityMap = [[0]*(dw) for _ in range(dh)]
+        self.updateVisibility()
+
+    def updateVisibility(self):
+        dw,dh=self.size()
+        hx,hy = self._heroPos
+        dataMap = self._dataFloor
+        vm = self._visibilityMap
+        rm = self._rayMap
+        def _process(_points):
+            for _rayPos in _points:
+                _rx,_ry=_rayPos
+                _px,_py = hx+_rx,hy+_ry
+                if not (-25<_rx<25 and -13<_ry<13): continue
+                if not (0<=_px<dw-1 and 0<=_py<dh): continue
+                vm[_py][_px] = 1
+                if dataMap[_py][_px] not in (' ','d','>'):  continue
+                # if in a corner, prevent diagonal rays
+                #
+                #          # _p1
+                #         _p  #
+                #   h
+                #
+                filter = []
+                _T = dataMap[_py+1][_px  ] not in (' ','d','>')
+                _B = dataMap[_py-1][_px  ] not in (' ','d','>')
+                _L = dataMap[_py  ][_px-1] not in (' ','d','>')
+                _R = dataMap[_py  ][_px+1] not in (' ','d','>')
+                if _T and _R : filter += [(_rx+1,_ry+1)]
+                if _B and _R : filter += [(_rx+1,_ry-1)]
+                if _T and _L : filter += [(_rx-1,_ry+1)]
+                if _B and _L : filter += [(_rx-1,_ry-1)]
+                _process([_rr for _rr in rm[(_rx,_ry)] if _rr not in filter])
+        _process(rm[(0,0)].copy())
+
+    def updateVisibilityLoop(self):
+        dw,dh=self.size()
+        hx,hy = self._heroPos
+        dataMap = self._dataFloor
+        vm = self._visibilityMap
+        rm = self._rayMap
+        toBeProcessed = rm[(0,0)].copy()
+        def _s(_p,_r): return _p-1 if _r<0 else _p+1
+        while toBeProcessed:
+            _rx,_ry=_rayPos = toBeProcessed.pop()
+            _px,_py = hx+_rx,hy+_ry
+            if not (-25<_rx<25 and -13<_ry<13): continue
+            if not (0<=_px<dw-1 and 0<=_py<dh): continue
+            vm[_py][_px] = 1
+            if dataMap[_py][_px] not in (' ','d','>'):  continue
+            # if in a corner, prevent diagonal rays
+            #
+            #          # _p1
+            #         _p  #
+            #   h
+            #
+            filter = []
+            _T = dataMap[_py+1][_px  ] not in (' ','d','>')
+            _B = dataMap[_py-1][_px  ] not in (' ','d','>')
+            _L = dataMap[_py  ][_px-1] not in (' ','d','>')
+            _R = dataMap[_py  ][_px+1] not in (' ','d','>')
+            if _T and _R : filter += [(_rx+1,_ry+1)]
+            if _B and _R : filter += [(_rx+1,_ry-1)]
+            if _T and _L : filter += [(_rx-1,_ry+1)]
+            if _B and _L : filter += [(_rx-1,_ry-1)]
+            toBeProcessed += [_rr for _rr in rm[(_rx,_ry)] if _rr not in filter]
+
+
+    def updateVisibilityOld(self):
+        dw,dh=self.size()
+        vm = self._visibilityMap
+        dataMap = self._dataFloor
+        def _recurseMark(_pos):
+            _px,_py = _pos
+            vm[_py][_px] = 1
+            toBeProcessed = [
+                (_px  ,_py-1),
+                (_px  ,_py+1),
+                (_px-1,_py  ),
+                (_px+1,_py  ),
+                (_px+1,_py-1),
+                (_px+1,_py+1),
+                (_px-1,_py-1),
+                (_px-1,_py+1)]
+            # Move Right
+            while toBeProcessed:
+                _x,_y = toBeProcessed.pop()
+                if not (0<=_x<dw-1 and 0<=_y<dh): continue
+                if abs(_x-_px) > 60 or abs(_y-_py)>15: continue
+                vm[_y][_x] = 1
+                if dataMap[_y][_x] not in (' ','d','<'): continue
+                if _y<_py:
+                    if abs(_x-_px)<_py-_y:
+                        toBeProcessed.append((_x  ,_y-1))
+                        if   _x<_px: toBeProcessed.append((_x-1  ,_y-1))
+                        elif _x>_px: toBeProcessed.append((_x+1  ,_y-1))
+                if _y>_py:
+                    if abs(_x-_px)<_y-_py:
+                        toBeProcessed.append((_x  ,_y+1))
+                        if   _x<_px: toBeProcessed.append((_x-1  ,_y+1))
+                        elif _x>_px: toBeProcessed.append((_x+1  ,_y+1))
+                if _x<_px:
+                    if abs(_y-_py)<_px-_x:
+                        toBeProcessed.append((_x-1  ,_y))
+                        if   _y<_py: toBeProcessed.append((_x-1  ,_y-1))
+                        elif _y>_py: toBeProcessed.append((_x-1  ,_y+1))
+                if _x>_px:
+                    if abs(_y-_py)<_x-_px:
+                        toBeProcessed.append((_x+1  ,_y))
+                        if   _y<_py: toBeProcessed.append((_x+1  ,_y-1))
+                        elif _y>_py: toBeProcessed.append((_x+1  ,_y+1))
+                # if _y>_py:
+                #     if abs(_x-_px)<=abs(_y-_py): toBeProcessed.append((_x  ,_y+1))
+                #     else:toBeProcessed.append((_x  ,_y+1))
+                # if _x<_px:
+                #     if abs(_x-_px)>=abs(_y-_py): toBeProcessed.append((_x-1,_y  ))
+                #     else:toBeProcessed.append((_x-1,_y  ))
+                # if _x>_px:
+                #     if abs(_x-_px)>=abs(_y-_py): toBeProcessed.append((_x+1,_y  ))
+                #     else:toBeProcessed.append((_x+1,_y  ))
+        _recurseMark(self._heroPos)
 
     def heroPos(self):
         return self._heroPos
-
 
     def moveHero(self, direction):
         d = self._dataFloor
@@ -160,12 +362,14 @@ class Dungeon(DungeonPrime):
         # Check if the floor is empty
         if tile:=d[ny][nx] in (' ','d'):
             self._heroPos = (nx,ny)
+            self.updateVisibility()
             return
 
         # Check if the floor is empty
         if tile:=d[ny][nx] == 'D':
             d[ny][nx] = 'd'
             self._heroPos = (nx,ny)
+            self.updateVisibility()
             return
 
         # check if I am hitting a wall
@@ -193,6 +397,7 @@ class Dungeon(DungeonPrime):
         dataType  = self._dataType
         dataFoes  = self._dataFoes
         dataObjs  = self._dataObjs
+        visMap    = self._visibilityMap
         # Draw the plane:
         self._drawLayer(self._layerPlane, pos, canvas)
         # Draw the Dungeon:
@@ -202,9 +407,9 @@ class Dungeon(DungeonPrime):
 
         ssh = slice(0,dh+1)
         ssw = slice(0,dw+1)
-        for cy,(rof,rot,rofoe,roobj) in enumerate(zip(dataFloor[ssh],dataType[ssh],dataFoes[ssh],dataObjs[ssh]),y):
-            for cx,(fl,ty,fo,ob) in enumerate(zip(rof[ssw],rot[ssw],rofoe[ssw],roobj[ssw])):
-                if not fl: continue
+        for cy,(rof,rot,rofoe,roobj,rvm) in enumerate(zip(dataFloor[ssh],dataType[ssh],dataFoes[ssh],dataObjs[ssh],visMap[ssh]),y):
+            for cx,(fl,ty,fo,ob,vm) in enumerate(zip(rof[ssw],rot[ssw],rofoe[ssw],roobj[ssw],rvm[ssw])):
+                if not fl or not vm: continue
                 if   fo: ch = Tiles.get(fo)
                 elif ob: ch = Tiles.get(ob)
                 else:    ch = Tiles.get(fl)
