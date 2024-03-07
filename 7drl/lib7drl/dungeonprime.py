@@ -210,6 +210,7 @@ class DungeonPrime():
             maxx = max(maxx,pos[0]+w)
             maxy = max(maxy,pos[1]+h)
         newLayer['pos'] = [(x-minx,y-miny) for (x,y) in newLayer['pos']]
+        # newLayer = sorted(newLayer, key=lambda x: x['pos'][1], reverse=True)
         self._tmpData['dsize'] = ((maxx-minx)//2, maxy-miny)
 
 

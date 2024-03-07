@@ -45,9 +45,10 @@ class Game(ttk.TTk):
         self._parallaxTimer.start(0.1)
 
         btnMsg  = ttk.TTkButton(  parent=self, pos=( 0,0), text='Messages', border=True)
+        btnInfo = ttk.TTkButton(  parent=self, pos=(10,0), text='Info',     border=True)
 
-        cbDebug = ttk.TTkCheckbox(parent=self, pos=(10,1), text='Debug', size=(8,1), checked=False)
-        debugFrame = ttk.TTkFrame(parent=self, pos=(18,0), size=(50,3),layout=ttk.TTkGridLayout(), visible=False, border=False)
+        cbDebug = ttk.TTkCheckbox(parent=self, pos=(16,1), text='Debug', size=(8,1), checked=False)
+        debugFrame = ttk.TTkFrame(parent=self, pos=(24,0), size=(50,3),layout=ttk.TTkGridLayout(), visible=False, border=False)
         debugFrame.layout().addWidget(btnTest := ttk.TTkButton(  text='TEST' , border=True),     0,0,3,1)
         debugFrame.layout().addWidget(btnRnd  := ttk.TTkButton(  text=' RND ', border=True),     0,1,3,1)
         debugFrame.layout().addWidget(           ttk.TTkLabel( text="Level:"), 0,2)
