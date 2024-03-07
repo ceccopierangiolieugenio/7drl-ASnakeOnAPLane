@@ -29,6 +29,7 @@ from dataclasses import dataclass
 class Glbls:
     level: int = 5
     score: int = 0
+    debug: bool = False
 
     def setLevel(self, value):
         self.level = value

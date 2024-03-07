@@ -27,12 +27,14 @@ from dataclasses import dataclass
 import sys, os, math, random
 
 sys.path.append(os.path.join(sys.path[0],'../..'))
+sys.path.append(os.path.join(sys.path[0],'..'))
 import TermTk as ttk
 
 from .player  import *
 from .dungeon import *
 from .assets  import *
-from .glbls import *
+from .glbls   import *
+from wblib    import WBWindow, bgBLUE
 
 class ColorLAF(ttk.TTkLookAndFeelFPBar):
     def __init__(self, color, showText=True, textWidth=4):
@@ -47,18 +49,19 @@ class ColorLAF(ttk.TTkLookAndFeelFPBar):
 
 
 
-class StatWin(ttk.TTkWindow):
+# class StatWin(ttk.TTkWindow):
+class StatWin(WBWindow):
     def __init__(self, player:Player, **kwargs):
         # super().__init__(**(kwargs|{'layout':ttk.TTkGridLayout()}))
-        super().__init__(**kwargs)
+        super().__init__(whiteBg=False, **kwargs)
 
-        self.setTitle("Player 😎 stuff 📈")
+        self.setTitle("Player 😎 stuff")
 
         self._pbHealth = ttk.TTkFancyProgressBar(
-            parent=self,pos=(13,3),size=(15,1),
+            parent=self,pos=(13,1),size=(11,1),
             lookAndFeel=ColorLAF(showText=False, color=ttk.TTkColor.fg('#FF0000')+ttk.TTkColor.bg('#330000',modifier=ttk.TTkColorGradient(orientation=ttk.TTkK.HORIZONTAL, fgincrement=100, bgincrement=100))))
         self._pbArmor  = ttk.TTkFancyProgressBar(
-            parent=self,pos=(13,4),size=(15,1),
+            parent=self,pos=(13,2),size=(11,1),
             lookAndFeel=ColorLAF(showText=False, color=ttk.TTkColor.fg('#0000FF')+ttk.TTkColor.bg('#000033',modifier=ttk.TTkColorGradient(orientation=ttk.TTkK.HORIZONTAL, fgincrement=100, bgincrement=100))))
 
         self._player = player
@@ -74,9 +77,10 @@ class StatWin(ttk.TTkWindow):
         self.update()
 
     def paintEvent(self, canvas:ttk.TTkCanvas):
+        # canvas.fill(color=bgBLUE)
         p  = self._player
         pb = self._player.body
-        sy = 6
+        sy = 1
         sx = 1
         canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"HEALTH: {p.health}")); sy+=1
         canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"ARMOR:  {p.armor}")); sy+=1

@@ -1,8 +1,6 @@
-#!/usr/bin/env python3
-
 # MIT License
 #
-# Copyright (c) 2024 Eugenio Parodi <ceccopierangiolieugenio AT googlemail DOT com>
+# Copyright (c) 2021 Eugenio Parodi <ceccopierangiolieugenio AT googlemail DOT com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,23 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import sys, os, argparse
 
-sys.path.append(os.path.join(sys.path[0],'..'))
-import TermTk as ttk
+from TermTk.TTkTheme.theme import TTkTheme
 
-from lib7drl import *
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-d', help='Enable debug',   action='store_true')
-    parser.add_argument('-l', help='Starting Level', type=int, default=1)
-    args = parser.parse_args()
-
-    root = Game(
-        title="A Snake🐍 on a Plane✈️ - The Roguelike",
-        mouseTrack=True, debug=args.d, level=args.l)
-    root.mainloop()
-
-if __name__ == "__main__":
-    main()
+class TTkTheme(TTkTheme.NERD['draw'].TTkTheme):
+    # hscroll = ('←','┄','▓','→')
+    # vscroll = ('↑','┊','▓','↓')
+    # hscroll = ('<','┄','░','>')
+    # vscroll = ('∆','┊','░','∇')
+    hscroll = ('<','┄','⣿','>')
+    vscroll = ('∆','┊','⣿','∇')

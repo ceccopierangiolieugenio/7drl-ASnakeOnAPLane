@@ -36,9 +36,11 @@ from .statwin  import *
 from .player   import *
 
 class Game(ttk.TTk):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, debug=True, level=1, **kwargs):
         glbls.root = self
-        super().__init__(*args, **kwargs)
+        glbls.level = min(5,max(0,level))
+        glbls.debug = debug
+        super().__init__(**kwargs)
         self._parallax = Parallax(pos=(5,3), size=(100,26))
         self._dungeon = Dungeon()
         self._dungeonPos = (0,0)
@@ -49,28 +51,29 @@ class Game(ttk.TTk):
         self._parallaxTimer.start(0.1)
 
         self._player = Player()
-        statWin = StatWin(parent=self, player=self._player, pos=(80,0),size=(30,20), visible=True)
+        statWin = StatWin(parent=self, player=self._player, pos=(80,0),size=(26,15), visible=True)
 
         btnMsg  = ttk.TTkButton(  parent=self, pos=( 0,0), text='Messages', border=True, checkable=True)
         btnInfo = ttk.TTkButton(  parent=self, pos=(10,0), text='Info',     border=True, checkable=True, checked=True)
-
-        cbDebug = ttk.TTkCheckbox(parent=self, pos=(16,1), text='Debug', size=(8,1), checked=False)
-        debugFrame = ttk.TTkFrame(parent=self, pos=(24,0), size=(50,3),layout=ttk.TTkGridLayout(), visible=False, border=False)
-        debugFrame.layout().addWidget(btnTest := ttk.TTkButton(  text='TEST' , border=True),     0,0,3,1)
-        debugFrame.layout().addWidget(btnRnd  := ttk.TTkButton(  text=' RND ', border=True),     0,1,3,1)
-        debugFrame.layout().addWidget(           ttk.TTkLabel( text="Level:"), 0,2)
-        debugFrame.layout().addWidget(sbLevel := ttk.TTkSpinBox( value=1, minimum=1, maximum=5), 1,2)
-
-        cbDebug.toggled.connect(debugFrame.setVisible)
-        sbLevel.valueChanged.connect(glbls.setLevel)
 
         def _attachSignal(_btn,_slots):
             _btn.clicked.connect(self.setFocus)
             for _slot in _slots:
                 _btn.clicked.connect(_slot)
 
-        _attachSignal(btnTest, [self._testGame])
-        _attachSignal(btnRnd, [self._dungeon.genDungeon, self.landingAnim])
+        if debug:
+            cbDebug = ttk.TTkCheckbox(parent=self, pos=(16,1), text='Debug', size=(8,1), checked=False)
+            debugFrame = ttk.TTkFrame(parent=self, pos=(24,0), size=(50,3),layout=ttk.TTkGridLayout(), visible=False, border=False)
+            debugFrame.layout().addWidget(btnTest := ttk.TTkButton(  text='TEST' , border=True),     0,0,3,1)
+            debugFrame.layout().addWidget(btnRnd  := ttk.TTkButton(  text=' RND ', border=True),     0,1,3,1)
+            debugFrame.layout().addWidget(           ttk.TTkLabel( text="Level:"), 0,2)
+            debugFrame.layout().addWidget(sbLevel := ttk.TTkSpinBox( value=glbls.level, minimum=1, maximum=5), 1,2)
+
+            cbDebug.toggled.connect(debugFrame.setVisible)
+            sbLevel.valueChanged.connect(glbls.setLevel)
+
+            _attachSignal(btnTest, [self._testGame])
+            _attachSignal(btnRnd, [self._dungeon.genDungeon, self.landingAnim])
 
         btnInfo.toggled.connect(statWin.setVisible)
         btnInfo.toggled.connect(self.setFocus)

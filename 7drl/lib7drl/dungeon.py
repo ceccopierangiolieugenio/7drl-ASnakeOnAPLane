@@ -39,8 +39,9 @@ class Dungeon(DungeonPrime):
 
     def __init__(self) -> None:
         super().__init__()
-        self._mousePos = (5,3)
-        self._heroPos  = (5,3)
+        self._mousePos  = (5,3)
+        self._heroPos   = (5,3)
+        self._mouseLine = []
         self._mouseColor = ttk.TTkColor.fg('#00FF00')+ttk.TTkColor.bg('#FFFF00')
         # self._mouseIcon = ttk.TTkString("🔆",self._mouseColor)
         self._mouseIcon = ttk.TTkString("🔆")
@@ -63,33 +64,32 @@ class Dungeon(DungeonPrime):
 
     def _makeRayMap(self):
         maps = {}
-        # . . . . . x . . . . . = 11
-        # generate a raymap (101x51) excluding the 45Degrees rays
-        for x in range(0,61):
-            for y in range(0,60):
-                dy1 = y+1
-                dy2 = y
-                dx1 = math.floor(x*dy1/60)
-                dx2 = math.floor(x*dy2/60)
-                if (dx2,dy2) not in maps:
-                    maps[( dx2, dy2)] = []
-                    maps[( dx2,-dy2)] = []
-                    maps[(-dx2, dy2)] = []
-                    maps[(-dx2,-dy2)] = []
-                    maps[( dy2, dx2)] = []
-                    maps[( dy2,-dx2)] = []
-                    maps[(-dy2, dx2)] = []
-                    maps[(-dy2,-dx2)] = []
-                if (dx2**2)+(dy2**2)>15**2:continue
-                if (d:=( dx1, dy1)) not in (m:=maps[( dx2, dy2)]):m.append(d)
-                if (d:=( dx1,-dy1)) not in (m:=maps[( dx2,-dy2)]):m.append(d)
-                if (d:=(-dx1, dy1)) not in (m:=maps[(-dx2, dy2)]):m.append(d)
-                if (d:=(-dx1,-dy1)) not in (m:=maps[(-dx2,-dy2)]):m.append(d)
-                if (d:=( dy1, dx1)) not in (m:=maps[( dy2, dx2)]):m.append(d)
-                if (d:=( dy1,-dx1)) not in (m:=maps[( dy2,-dx2)]):m.append(d)
-                if (d:=(-dy1, dx1)) not in (m:=maps[(-dy2, dx2)]):m.append(d)
-                if (d:=(-dy1,-dx1)) not in (m:=maps[(-dy2,-dx2)]):m.append(d)
+        invMap = {}
+        for dx in range(-60,60):
+            for dy in range(-30,30):
+                invMap[(dx,dy)] = []
+                if -50<dx<50 or -50<dy<50:
+                    if dy and abs(dy) >= abs(dx):
+                        _a = 1 if dy>0 else -1
+                        _d = dx/dy
+                        for _y in range(0,abs(dy)):
+                            _x = math.floor(_d*_y)
+                            invMap[(dx,dy)].append((_x*_a,_y*_a))
+                    elif dx:
+                        _a = 1 if dx>0 else -1
+                        _d = dy/dx
+                        for _x in range(0,abs(dx)):
+                            _y = math.floor(_d*_x)
+                            invMap[(dx,dy)].append((_x*_a,_y*_a))
+        maps = {}
+        for r in invMap:
+            for a,b in zip(invMap[r],invMap[r][1:]):
+                x,y=a
+                if a not in maps: maps[a]=[]
+                if (x**2)+(y**2)>15**2:continue
+                if b not in maps[a]:maps[a].append(b)
         self._rayMap = maps
+        self._ratInvMap = invMap
 
     def genDungeon(self):
         self._heroPos=super().genDungeon()
@@ -130,102 +130,34 @@ class Dungeon(DungeonPrime):
                 if _B and _L : _filter += [(_rx-1,_ry-1)]
                 _newp = [_rr for _rr in rm[(_rx,_ry)] if _rr not in _filter]
                 _process(_newp)
-        _process(rm[(0,0)].copy())
-
-    def updateVisibilityLoop(self):
-        dw,dh=self.size()
-        hx,hy = self._heroPos
-        dataMap = self._dataFloor
-        vm = self._visibilityMap
-        rm = self._rayMap
-        toBeProcessed = rm[(0,0)].copy()
-        def _s(_p,_r): return _p-1 if _r<0 else _p+1
-        while toBeProcessed:
-            _rx,_ry=_rayPos = toBeProcessed.pop()
-            _px,_py = hx+_rx,hy+_ry
-            if not (-25<_rx<25 and -13<_ry<13): continue
-            if not (0<=_px<dw-1 and 0<=_py<dh): continue
-            vm[_py][_px] = 1
-            if dataMap[_py][_px] not in (' ','d','>'):  continue
-            # if in a corner, prevent diagonal rays
-            #
-            #          # _p1
-            #         _p  #
-            #   h
-            #
-            filter = []
-            _T = dataMap[_py+1][_px  ] not in (' ','d','>')
-            _B = dataMap[_py-1][_px  ] not in (' ','d','>')
-            _L = dataMap[_py  ][_px-1] not in (' ','d','>')
-            _R = dataMap[_py  ][_px+1] not in (' ','d','>')
-            if _T and _R : filter += [(_rx+1,_ry+1)]
-            if _B and _R : filter += [(_rx+1,_ry-1)]
-            if _T and _L : filter += [(_rx-1,_ry+1)]
-            if _B and _L : filter += [(_rx-1,_ry-1)]
-            toBeProcessed += [_rr for _rr in rm[(_rx,_ry)] if _rr not in filter]
-
-
-    def updateVisibilityOld(self):
-        dw,dh=self.size()
-        vm = self._visibilityMap
-        dataMap = self._dataFloor
-        def _recurseMark(_pos):
-            _px,_py = _pos
-            vm[_py][_px] = 1
-            toBeProcessed = [
-                (_px  ,_py-1),
-                (_px  ,_py+1),
-                (_px-1,_py  ),
-                (_px+1,_py  ),
-                (_px+1,_py-1),
-                (_px+1,_py+1),
-                (_px-1,_py-1),
-                (_px-1,_py+1)]
-            # Move Right
-            while toBeProcessed:
-                _x,_y = toBeProcessed.pop()
-                if not (0<=_x<dw-1 and 0<=_y<dh): continue
-                if abs(_x-_px) > 60 or abs(_y-_py)>15: continue
-                vm[_y][_x] = 1
-                if dataMap[_y][_x] not in (' ','d','<'): continue
-                if _y<_py:
-                    if abs(_x-_px)<_py-_y:
-                        toBeProcessed.append((_x  ,_y-1))
-                        if   _x<_px: toBeProcessed.append((_x-1  ,_y-1))
-                        elif _x>_px: toBeProcessed.append((_x+1  ,_y-1))
-                if _y>_py:
-                    if abs(_x-_px)<_y-_py:
-                        toBeProcessed.append((_x  ,_y+1))
-                        if   _x<_px: toBeProcessed.append((_x-1  ,_y+1))
-                        elif _x>_px: toBeProcessed.append((_x+1  ,_y+1))
-                if _x<_px:
-                    if abs(_y-_py)<_px-_x:
-                        toBeProcessed.append((_x-1  ,_y))
-                        if   _y<_py: toBeProcessed.append((_x-1  ,_y-1))
-                        elif _y>_py: toBeProcessed.append((_x-1  ,_y+1))
-                if _x>_px:
-                    if abs(_y-_py)<_x-_px:
-                        toBeProcessed.append((_x+1  ,_y))
-                        if   _y<_py: toBeProcessed.append((_x+1  ,_y-1))
-                        elif _y>_py: toBeProcessed.append((_x+1  ,_y+1))
-                # if _y>_py:
-                #     if abs(_x-_px)<=abs(_y-_py): toBeProcessed.append((_x  ,_y+1))
-                #     else:toBeProcessed.append((_x  ,_y+1))
-                # if _x<_px:
-                #     if abs(_x-_px)>=abs(_y-_py): toBeProcessed.append((_x-1,_y  ))
-                #     else:toBeProcessed.append((_x-1,_y  ))
-                # if _x>_px:
-                #     if abs(_x-_px)>=abs(_y-_py): toBeProcessed.append((_x+1,_y  ))
-                #     else:toBeProcessed.append((_x+1,_y  ))
-        _recurseMark(self._heroPos)
+        _T = dataMap[hy+1][hx  ] in (' ','d','>')
+        _B = dataMap[hy-1][hx  ] in (' ','d','>')
+        _L = dataMap[hy  ][hx-1] in (' ','d','>')
+        _R = dataMap[hy  ][hx+1] in (' ','d','>')
+        if _T or _R : _process([(+1,+1)])
+        if _B or _R : _process([(+1,-1)])
+        if _T or _L : _process([(-1,+1)])
+        if _B or _L : _process([(-1,-1)])
+        # _process(rm[(0,0)].copy())
+        _process([(1,0),(-1,0),(0,1),(0,-1)])
 
     def heroPos(self):
         return self._heroPos
 
     def moveMouse(self, x,y):
+        hx,hy = self._heroPos
         self._mousePos = (x,y)
+        rim = self._ratInvMap
+        dx,dy=x-hx,y-hy
+        if (dx,dy) in rim:
+            self._mouseLine = [(hx+_x,hy+_y) for _x,_y in rim[(dx,dy)]]
+        else:
+            self._mouseLine = []
+        pass
+
 
     def moveHero(self, direction):
+        self._mouseLine = []
         d = self._dataFloor
         hx,hy = nx,ny = self._heroPos
         if   direction == self.UP:    ny -= 1
@@ -290,6 +222,10 @@ class Dungeon(DungeonPrime):
                 elif ob: ch = Tiles.get(ob)
                 else:    ch = Tiles.get(fl)
                 color = self._floor[dataType[cy-y][cx]][0 if vm==rn else 1][(cx+cy+hy+1)%2]
+                if (cx,cy-y) in self._mouseLine:
+                    color = self._mouseColor
+                else:
+                    color = self._floor[dataType[cy-y][cx]][0 if vm==rn else 1][(cx+cy+hy+1)%2]
                 if ch:
                     canvas.drawTTkString(pos=(x+cx*2,cy),text=ch,color=color)
                 # else:
@@ -303,6 +239,9 @@ class Dungeon(DungeonPrime):
             mpx,mpy = self._mousePos
             if 0<=mpx<dw and 0<=mpy<dh and visMap[mpy][mpx]:
                 canvas.drawTTkString(pos=(x+mpx*2,y+mpy),text=self._mouseIcon,color=color)
+
+        # for cx,cy in self._mouseLine:
+        #     canvas.drawText(pos=(x+cx*2,y+cy),text='XX')
 
 
 
