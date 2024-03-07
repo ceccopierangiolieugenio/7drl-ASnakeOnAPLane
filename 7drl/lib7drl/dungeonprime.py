@@ -85,7 +85,8 @@ class DungeonPrime():
         self._plb1 = plb1 = Layer(PLANE_BODY_1)
         wplf,hplf = plf.size()
         wplb,hplb = plb.size()
-        self._layerPlane = {'layers':[plb,plf]    ,'pos':[(-18,-7),(wplb-27,-1)]}
+        self._layerPlane = [{'layer':plf,'pos':(wplb-27,-1)},
+                            {'layer':plb,'pos':(-18,-7)}]
 
         self._dataFloor = STARTING_FLOOR
         self._dataType  = STARTING_TYPE
@@ -119,7 +120,7 @@ class DungeonPrime():
         }.get(level)
 
         # place the parts on a random position in their areas
-        newLayer = self._tmpData['layer']
+        newLayer = self._tmpData['layer'] = []
 
         # Place n central body based on the available space
         bodies = []
@@ -140,8 +141,7 @@ class DungeonPrime():
 
         while _pos:=_freeBodySpace():
             bodies.append(_pos)
-            newLayer['layers'].append(plb1)
-            newLayer['pos'].append(_pos)
+            newLayer.append({'layer':plb1, 'pos':_pos})
 
 
         # get the leftmost bodies:
@@ -165,55 +165,30 @@ class DungeonPrime():
         for _x,_y in random.sample(rightmostBodies,random.randint(1,len(rightmostBodies))):
             _x += wplb1+random.randint(-25,-5)
             _y += random.randint(4,8)
-            newLayer['layers'].append(plf)
-            newLayer['pos'].append((_x,_y))
+            newLayer.append({'layer':plf, 'pos':(_x,_y)})
         # place the backs
         for _x,_y in random.sample(leftmostBodies,random.randint(1,len(leftmostBodies))):
             _x -= wplb+random.randint(-35,-5)
             _y += random.randint(-8,2)
-            newLayer['layers'].append(plb)
-            newLayer['pos'].append((_x,_y))
-
-        # for y,row in enumerate(cb):
-        #     y-=1
-        #     if row[0]:
-        #         px = random.randint(0,40)
-        #         py = random.randint(0,5)+y*(hplf-5)
-        #         newLayer['layers'].append(plb)
-        #         newLayer['pos'].append((px,py))
-        #     if row[2]:
-        #         px = random.randint(0,40)+wplb+wplb1-50
-        #         py = random.randint(0,7)+y*(hplf-5)
-        #         newLayer['layers'].append(plf)
-        #         newLayer['pos'].append((px,py))
-        #     if row[1]:
-        #         px = random.randint(0,40)+wplb-30
-        #         py = random.randint(0,5)+y*(hplb1-8)-2
-        #         newLayer['layers'].append(plb1)
-        #         newLayer['pos'].append((px,py))
-
-        # newLayer['layers'].append(plb)
-        # newLayer['pos'].append((-20,-20))
-
-        # newLayer['layers'].append(plf)
-        # newLayer['pos'].append((100,-20))
+            newLayer.append({'layer':plb, 'pos':(_x,_y)})
 
         minx=0x1000
         miny=0x1000
         maxx=-0x1000
         maxy=-0x1000
         # Normalize
-        for l,pos in zip(newLayer['layers'],newLayer['pos']):
-            w,h=l.size()
-            minx = min(minx,pos[0])
-            miny = min(miny,pos[1])
-            maxx = max(maxx,pos[0]+w)
-            maxy = max(maxy,pos[1]+h)
-        newLayer['pos'] = [(x-minx,y-miny) for (x,y) in newLayer['pos']]
-        # newLayer = sorted(newLayer, key=lambda x: x['pos'][1], reverse=True)
+        for nl in newLayer:
+            w,h=nl['layer'].size()
+            px,py=nl['pos']
+            minx = min(minx,px)
+            miny = min(miny,py)
+            maxx = max(maxx,px+w)
+            maxy = max(maxy,py+h)
+        # newLayer['pos'] = [(x-minx,y-miny) for (x,y) in newLayer['pos']]
+        for nl in newLayer: px,py=nl['pos'] ; nl['pos'] = (px-minx,py-miny)
+        newLayer = sorted(newLayer, key=lambda x: x['pos'][1], reverse=False)
+        self._tmpData['layer'] = newLayer
         self._tmpData['dsize'] = ((maxx-minx)//2, maxy-miny)
-
-
 
     ####################################################
     ####################################################
@@ -224,9 +199,10 @@ class DungeonPrime():
         newLayer = self._tmpData['layer']
         dw,dh = self._tmpData['dsize']
         data0 = [['']*(dw) for _ in range(dh)]
-        for l,pos in zip(newLayer['layers'],newLayer['pos']):
+        for nl in newLayer:
+            l = nl['layer']
             lw,lh=l.size()
-            x,y=pos
+            x,y=nl['pos']
             for ly in range(lh):
                 for lx in range(((lw-1)//2)*2):
                     cl1 = l.getColor(lx,ly)

@@ -392,11 +392,11 @@ class Dungeon(DungeonPrime):
 
     # draw the Layers:
     def _drawLayer(self, l, pos, canvas):
-        la   = l['layers']
-        lpos = l['pos']
         x,y = pos
-        for ll,(px,py) in zip(la,lpos):
-            w,h = ll.size()
+        for la in l:
+            ll = la['layer']
+            px,py = la['pos']
+            # w,h = ll.size()
             ll.drawInCanvas(pos=(x+px,y+py),canvas=canvas)
 
     def drawDungeon(self, pos, canvas:ttk.TTkCanvas):
