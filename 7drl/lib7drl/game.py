@@ -66,8 +66,8 @@ class Game(ttk.TTk):
                 _btn.clicked.connect(_slot)
 
         if debug:
-            cbDebug = ttk.TTkCheckbox(parent=self, pos=(0,30), text='Debug', size=(8,1), checked=False)
-            debugFrame = ttk.TTkFrame(parent=self, pos=(9,30), size=(50,3),layout=ttk.TTkGridLayout(), visible=False, border=False)
+            cbDebug = ttk.TTkCheckbox(parent=self, pos=(0,30), text='Debug', size=(8,1), checked=True)
+            debugFrame = ttk.TTkFrame(parent=self, pos=(9,30), size=(50,3),layout=ttk.TTkGridLayout(), visible=True, border=False)
             debugFrame.layout().addWidget(btnTest := ttk.TTkButton(  text='TEST' , border=True),     0,0,3,1)
             debugFrame.layout().addWidget(btnRnd  := ttk.TTkButton(  text=' RND ', border=True),     0,1,3,1)
             debugFrame.layout().addWidget(           ttk.TTkLabel( text="Level:"), 0,2)
@@ -84,7 +84,6 @@ class Game(ttk.TTk):
 
             _attachSignal(btnTest, [self._testGame])
             _attachSignal(btnRnd, [self._dungeon.genDungeon, self.landingAnim])
-            debugFrame.hide()
 
         # btnInfo.toggled.connect(statWin.setVisible)
         # btnInfo.toggled.connect(self.setFocus)
@@ -183,7 +182,6 @@ class Game(ttk.TTk):
             px,py   = self._parallax.pos()
             mpx,mpy = evt.x-px-dpx,evt.y-py-dpy
             self._dungeon.shotWeapon(mpx//2+hpx,mpy+hpy)
-            self._dungeon.foesAction()
             self.checkGameProgress()
         self._dragging = False
         return True

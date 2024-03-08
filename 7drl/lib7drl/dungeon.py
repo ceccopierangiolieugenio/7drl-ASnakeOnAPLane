@@ -243,6 +243,28 @@ class Dungeon(DungeonPrime):
         self._mouseLine = line
         self._mouseVisibleLine = visible
 
+    def hitFoe(self, foe:Foe, amount, suicide=False):
+        dfoes = self._dataFoes
+        foes  = self._foes
+        foe.health -= amount
+        x,y = foe.pos
+        if foe.health <= 0: # the foe is dead
+            foes.remove(foe)
+            dfoes[y][x] = None
+            if suicide:
+                Message.add(
+                    ttk.TTkString(f"{foe.fullName} {foe.picture}",ttk.TTkColor.fg("FFFF00")) +
+                    ttk.TTkString(f" Died"))
+                Message.add(
+                    ttk.TTkString(f" And this is your fault"))
+            else:
+                Message.add(
+                    ttk.TTkString(f"You Killed ") +
+                    ttk.TTkString(f"{foe.fullName} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
+        else:
+            Message.add(ttk.TTkString(f"You Hit ") +
+                    ttk.TTkString(f"{foe.fullName} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
+
     def shotWeapon(self,x,y):
         self._mouseLine = []
         self._mouseVisibleLine = []
@@ -258,16 +280,9 @@ class Dungeon(DungeonPrime):
         if hit and (foe:=df[y][x]):
             # Process Melee Action
             if not player.shot(): return
-            foe.health -= player.wpn
             def _endingCallback():
-                if foe.health <= 0: # the foe is dead
-                    foes.remove(foe)
-                    dfoes[y][x] = None
-                    Message.add(ttk.TTkString(f"You Killed ") +
-                                ttk.TTkString(f"{foe.fullName} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
-                else:
-                    Message.add(ttk.TTkString(f"You Hit ") +
-                                ttk.TTkString(f"{foe.fullName} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
+                self.hitFoe(foe,player.wpn,False)
+                self.foesAction()
             self.animShot(self._heroPos,hitPos,visible,player.shellGlyph(),_endingCallback)
 
 
@@ -286,11 +301,11 @@ class Dungeon(DungeonPrime):
             if abs(x-hx)>40 or abs(y-hy)>15: foe.active = False
             if not foe.active: continue
             move,shot = foe.getActions()
-            if move:
+
+            def _moveAction():
                 ch = hm[y][x]
                 if ch == 2: # Melee Attack
-                    if not glbls.godMode:
-                        player.health -= foe.atk
+                    player.health -= foe.atk
                     return
                 if ch < foe.distance:
                     chNew = ch+1
@@ -305,8 +320,18 @@ class Dungeon(DungeonPrime):
                         _rx,_ry = movableTiles[random.randint(0,len(movableTiles)-1)]
                         foe.pos = (_rx,_ry)
                         df[y][x],df[_ry][_rx] = df[_ry][_rx],df[y][x]
+
+            def _shotAction():
+                if not foe.wpn: return
+                line, visible, hitPos, hit = self.getRays((x,y),self._heroPos)
+                if hit:
+                    def _endingCallback():
+                        player.health -= foe.wpn
+                    self.animShot((x,y),self._heroPos,visible,foe.shellGlyph(),_endingCallback)
             if shot:
-                pass
+                _shotAction()
+            elif move:
+                _moveAction()
 
     def heroAction(self):
         pass
@@ -327,17 +352,7 @@ class Dungeon(DungeonPrime):
         elif direction == self.RIGHT: nx += 1
 
         if foe:=dfoes[ny][nx]:
-            # Process Melee Action
-            foe.health -= player.atk
-
-            if foe.health <= 0: # the foe is dead
-                foes.remove(foe)
-                dfoes[ny][nx] = None
-                Message.add(ttk.TTkString(f"You Killed ") +
-                            ttk.TTkString(f"{foe.fullName} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
-            else:
-                Message.add(ttk.TTkString(f"You Hit ") +
-                            ttk.TTkString(f"{foe.fullName} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
+            self.hitFoe(foe,player.atk,False)
             return
 
         # Check if the floor is empty
