@@ -264,10 +264,10 @@ class Dungeon(DungeonPrime):
                     foes.remove(foe)
                     dfoes[y][x] = None
                     Message.add(ttk.TTkString(f"You Killed ") +
-                                ttk.TTkString(f"{foe.name} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
+                                ttk.TTkString(f"{foe.fullName} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
                 else:
                     Message.add(ttk.TTkString(f"You Hit ") +
-                                ttk.TTkString(f"{foe.name} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
+                                ttk.TTkString(f"{foe.fullName} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
             self.animShot(self._heroPos,hitPos,visible,player.shellGlyph(),_endingCallback)
 
 
@@ -334,10 +334,10 @@ class Dungeon(DungeonPrime):
                 foes.remove(foe)
                 dfoes[ny][nx] = None
                 Message.add(ttk.TTkString(f"You Killed ") +
-                            ttk.TTkString(f"{foe.name} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
+                            ttk.TTkString(f"{foe.fullName} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
             else:
                 Message.add(ttk.TTkString(f"You Hit ") +
-                            ttk.TTkString(f"{foe.name} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
+                            ttk.TTkString(f"{foe.fullName} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
             return
 
         # Check if the floor is empty
