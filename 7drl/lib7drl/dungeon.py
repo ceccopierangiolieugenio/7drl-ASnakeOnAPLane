@@ -191,61 +191,54 @@ class Dungeon(DungeonPrime):
             line = [(hx+_x,hy+_y) for _x,_y in rim[(dx,dy)]]
 
         visibleLine = []
-        hit = (hx,hy)
+        hitPos = (hx,hy)
         for a,b in zip(line,line[1:]+[(x,y)]):
             dx,dy=a
             bx,by=b
             visibleLine.append(a)
             if dataMap[dy][dx  ] not in (' ','d','>'):
-                hit=(dx,dy)
+                hitPos=(dx,dy)
                 break
             _T = dataMap[dy+1][dx  ] not in (' ','d','>')
             _B = dataMap[dy-1][dx  ] not in (' ','d','>')
             _L = dataMap[dy  ][dx-1] not in (' ','d','>')
             _R = dataMap[dy  ][dx+1] not in (' ','d','>')
-            if bx>dx and by>dy and _T and _R : hit=(dx,dy); break
-            if bx>dx and by<dy and _B and _R : hit=(dx,dy); break
-            if bx<dx and by>dy and _T and _L : hit=(dx,dy); break
-            if bx<dx and by<dy and _B and _L : hit=(dx,dy); break
-        return line, visibleLine, hit, len(line)==len(visibleLine)
+            if bx>dx and by>dy and _T and _R : hitPos=(dx,dy); break
+            if bx>dx and by<dy and _B and _R : hitPos=(dx,dy); break
+            if bx<dx and by>dy and _T and _L : hitPos=(dx,dy); break
+            if bx<dx and by<dy and _B and _L : hitPos=(dx,dy); break
+        return line, visibleLine, hitPos, len(line)==len(visibleLine)
+
+    def animShot(self,fr,to,glyph):
+        pass
 
     def moveMouse(self, x,y):
-        hx,hy = self._heroPos
-        self._mousePos = (x,y)
-        dataMap = self._dataFloor
-        rim = self._ratInvMap
-        dx,dy=x-hx,y-hy
-        if (dx,dy) in reversed(rim):
-            self._mouseLine = [(hx+_x,hy+_y) for _x,_y in rim[(dx,dy)]]
-        else:
-            self._mouseLine = []
-
-        self._mouseVisibleLine = []
-        for a,b in zip(self._mouseLine,self._mouseLine[1:]+[(x,y)]):
-            dx,dy=a
-            bx,by=b
-            self._mouseVisibleLine.append(a)
-            if dataMap[dy][dx  ] not in (' ','d','>'):
-                break
-            _T = dataMap[dy+1][dx  ] not in (' ','d','>')
-            _B = dataMap[dy-1][dx  ] not in (' ','d','>')
-            _L = dataMap[dy  ][dx-1] not in (' ','d','>')
-            _R = dataMap[dy  ][dx+1] not in (' ','d','>')
-            if bx>dx and by>dy and _T and _R : break
-            if bx>dx and by<dy and _B and _R : break
-            if bx<dx and by>dy and _T and _L : break
-            if bx<dx and by<dy and _B and _L : break
+        line, visible, _,__ = self.getRays(self._heroPos,(x,y))
+        self._mouseLine = line
+        self._mouseVisibleLine = visible
 
     def shotWeapon(self,x,y):
-        hx,hy = self._heroPos
-        self._mousePos = (x,y)
-        rim = self._ratInvMap
+        self._mouseLine = []
+        self._mouseVisibleLine = []
+        self._mousePos = None
+        line, visible, hitPos, hit = self.getRays(self._heroPos,(x,y))
+        hx,hy = hitPos
+        df = self._dataFoes
+        dfoes = self._dataFoes
         player:Player = glbls.player
-        dx,dy=x-hx,y-hy
-        if (dx,dy) in rim:
-            self._mouseLine = [(hx+_x,hy+_y) for _x,_y in rim[(dx,dy)]]
-        else:
-            self._mouseLine = []
+        foes  = self._foes
+        if hit and (foe:=df[y][x]):
+            # Process Melee Action
+            foe.health -= player.wpn
+            if foe.health <= 0: # the foe is dead
+                foes.remove(foe)
+                dfoes[y][x] = None
+                Message.add(ttk.TTkString(f"You Killed ") +
+                            ttk.TTkString(f"{foe.name} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
+            else:
+                Message.add(ttk.TTkString(f"You Hit ") +
+                            ttk.TTkString(f"{foe.name} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
+            return
         self._mouseLine = []
 
     def foesAction(self):
@@ -288,6 +281,8 @@ class Dungeon(DungeonPrime):
 
     def moveHero(self, direction):
         self._mouseLine = []
+        self._mouseVisibleLine = []
+        self._mousePos = None
         dtile = self._dataFloor
         dfoes = self._dataFoes
         foes  = self._foes
@@ -301,10 +296,14 @@ class Dungeon(DungeonPrime):
         if foe:=dfoes[ny][nx]:
             # Process Melee Action
             foe.health -= player.atk
+
             if foe.health <= 0: # the foe is dead
                 foes.remove(foe)
                 dfoes[ny][nx] = None
                 Message.add(ttk.TTkString(f"You Killed ") +
+                            ttk.TTkString(f"{foe.name} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
+            else:
+                Message.add(ttk.TTkString(f"You Hit ") +
                             ttk.TTkString(f"{foe.name} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
             return
 
@@ -384,6 +383,20 @@ class Dungeon(DungeonPrime):
             mpx,mpy = self._mousePos
             if 0<=mpx<dw and 0<=mpy<dh and visMap[mpy][mpx]:
                 canvas.drawTTkString(pos=(x+mpx*2,y+mpy),text=self._mouseIcon,color=color)
+
+                # Draw Info Box
+                if foe := dataFoes[mpy][mpx]:
+                    info = foe.info
+                    iw,ih = max(l.termWidth() for l in info), len(info)
+                    px,py = (w-iw-4,h-ih-3)
+                    canvas.fill(pos=(px,py),size=(iw+2,ih+2))
+                    canvas.drawText(pos=(px,py    ),text="🭟"+"▀"*(iw)+"🭔")
+                    canvas.drawText(pos=(px,py+ih+1),text="🭎"+"▄"*(iw)+"🭃")
+                    for y,l in enumerate(info,py+1):
+                        canvas.drawText(pos=(px     ,y),text="▌")
+                        canvas.drawText(pos=(px+iw+1,y),text="▐")
+                        canvas.drawTTkString(pos=(px+1,y),text=l)
+
 
         # for cx,cy in self._mouseLine:
         #     canvas.drawText(pos=(x+cx*2,y+cy),text='XX')

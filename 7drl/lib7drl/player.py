@@ -66,6 +66,16 @@ class Player():
             'wt3' : 1,
             'wt4' : 2,}
 
+        self._weaponParams = {
+            'wr1': (self.shells    , 'ws1', 10),
+            'wr2': (self.shells    , 'ws2', 20),
+            'wr3': (self.shells    , 'ws3', 40),
+            'wr4': (self.shells    , 'ws4', 40),
+            'wt1': (self.throwables, 'wt1', 25),
+            'wt2': (self.throwables, 'wt2', 30),
+            'wt3': (self.throwables, 'wt3', 40),
+            'wt4': (self.throwables, 'wt4', 20)}
+
         self.body = Body()
         self.armor:int = self.body.getArmorValue()
 
@@ -77,7 +87,18 @@ class Player():
     @property
     def wpn(self):
         # Calc the value of the weapon attack
-        return 30
+        sh = self._weaponParams.get(self.weaponHeld,None)
+        if not sh: return
+        shn, sht, wpn = sh
+        if not shn[sht]: return 0
+        return wpn
+
+    def shot(self):
+        sh = self._weaponParams.get(self.weaponHeld,None)
+        if sh:
+            shn, sht, wpn = sh
+            shn[sht] = max(0,shn[sht]-1)
+        self.updated.emit()
 
     @property
     def health(self):

@@ -177,6 +177,8 @@ class Game(ttk.TTk):
             px,py   = self._parallax.pos()
             mpx,mpy = evt.x-px-dpx,evt.y-py-dpy
             self._dungeon.shotWeapon(mpx//2+hpx,mpy+hpy)
+            self._dungeon.foesAction()
+            self.checkGameProgress()
         self._dragging = False
         return True
 

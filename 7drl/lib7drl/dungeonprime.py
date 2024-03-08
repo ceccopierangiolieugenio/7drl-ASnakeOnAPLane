@@ -648,9 +648,9 @@ class DungeonPrime():
             'SI','SI','Alien',
             'SI','SI','Alien',
             'SI','SI','Alien',
-            'Dragon1','TRex','TRex',
-            'Dragon1','TRex','TRex',
-            'Dragon1','TRex','TRex']
+            'Dragon','TRex','TRex',
+            'Dragon','TRex','TRex',
+            'Dragon','TRex','TRex']
 
         objList = [
             'af1','ah1','ab1','al1', 'wm1','wr1', 'g1','g2','g3', 'ws1','ws1','ws1','wt1',
