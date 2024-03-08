@@ -31,6 +31,9 @@ from .dungeonprime import *
 from .layer  import *
 from .assets import *
 from .foe    import *
+from .glbls  import *
+from .player import *
+from .messages import *
 
 class Dungeon(DungeonPrime):
     UP    = 0x01
@@ -42,8 +45,10 @@ class Dungeon(DungeonPrime):
         super().__init__()
         self._mousePos  = (5,3)
         self._heroPos   = (5,3)
-        self._mouseLine = []
-        self._mouseColor = ttk.TTkColor.fg('#00FF00')+ttk.TTkColor.bg('#FFFF00')
+        self._mouseLine        = []
+        self._mouseVisibleLine = []
+        self._mouseColor        = ttk.TTkColor.fg('#008800')+ttk.TTkColor.bg('#888800')
+        self._mouseColorVisible = ttk.TTkColor.fg('#00FF00')+ttk.TTkColor.bg('#FFFF00')
         # self._mouseIcon = ttk.TTkString("🔆",self._mouseColor)
         self._mouseIcon = ttk.TTkString("🔆")
         self._floor = [
@@ -97,6 +102,8 @@ class Dungeon(DungeonPrime):
         dw,dh = self.size()
         self._rayNum = 1
         self._visibilityMap = [[0]*(dw) for _ in range(dh)]
+        self._mouseLine = []
+        self._mouseVisibleLine = []
         self.updateVisibility()
 
     def updateHeatMap(self):
@@ -114,20 +121,6 @@ class Dungeon(DungeonPrime):
         for y,row in enumerate(dataMap[dmy1:dmy2],dmy1):
             for x,dm in enumerate(row[dmx1:dmx2],dmx1):
                 hm[y][x] = 0x10000 if dm in (' ','d','>') else 0
-        # Build a Heat Map of the distances from the hero
-        # def _updateDistance(_pos,_d):
-        #     _x,_y = _pos
-        #     hm[_y][_x] = _d
-        #     toBeProcessed = [_pos]
-        #     # Move Right
-        #     while toBeProcessed:
-        #         _x,_y = toBeProcessed.pop()
-        #         _d = hm[_y][_x]
-        #         if _y > 0    and hm[_y-1][_x]>_d+1: hm[_y-1][_x]=_d+1; toBeProcessed.append((_x  ,_y-1))
-        #         if _y < dh-2 and hm[_y+1][_x]>_d+1: hm[_y+1][_x]=_d+1; toBeProcessed.append((_x  ,_y+1))
-        #         if _x > 0    and hm[_y][_x-1]>_d+1: hm[_y][_x-1]=_d+1; toBeProcessed.append((_x-1,_y  ))
-        #         if _x < dw-2 and hm[_y][_x+1]>_d+1: hm[_y][_x+1]=_d+1; toBeProcessed.append((_x+1,_y  ))
-        # _updateDistance((hx,hy),1)
         def _updateDistance(_pos,_d):
             _x,_y = _pos
             if hm[_y][_x] <= _d: return
@@ -185,16 +178,75 @@ class Dungeon(DungeonPrime):
     def heroPos(self):
         return self._heroPos
 
+    # Return a line, visibleLine, hitPoint, visible bool
+    def getRays(self, fr, to) -> list[list,list,bool]:
+        hx,hy = fr
+        x,y   = to
+        self._mousePos = (x,y)
+        dataMap = self._dataFloor
+        rim = self._ratInvMap
+        dx,dy=x-hx,y-hy
+        line = []
+        if (dx,dy) in reversed(rim):
+            line = [(hx+_x,hy+_y) for _x,_y in rim[(dx,dy)]]
+
+        visibleLine = []
+        hit = (hx,hy)
+        for a,b in zip(line,line[1:]+[(x,y)]):
+            dx,dy=a
+            bx,by=b
+            visibleLine.append(a)
+            if dataMap[dy][dx  ] not in (' ','d','>'):
+                hit=(dx,dy)
+                break
+            _T = dataMap[dy+1][dx  ] not in (' ','d','>')
+            _B = dataMap[dy-1][dx  ] not in (' ','d','>')
+            _L = dataMap[dy  ][dx-1] not in (' ','d','>')
+            _R = dataMap[dy  ][dx+1] not in (' ','d','>')
+            if bx>dx and by>dy and _T and _R : hit=(dx,dy); break
+            if bx>dx and by<dy and _B and _R : hit=(dx,dy); break
+            if bx<dx and by>dy and _T and _L : hit=(dx,dy); break
+            if bx<dx and by<dy and _B and _L : hit=(dx,dy); break
+        return line, visibleLine, hit, len(line)==len(visibleLine)
+
     def moveMouse(self, x,y):
         hx,hy = self._heroPos
         self._mousePos = (x,y)
+        dataMap = self._dataFloor
         rim = self._ratInvMap
+        dx,dy=x-hx,y-hy
+        if (dx,dy) in reversed(rim):
+            self._mouseLine = [(hx+_x,hy+_y) for _x,_y in rim[(dx,dy)]]
+        else:
+            self._mouseLine = []
+
+        self._mouseVisibleLine = []
+        for a,b in zip(self._mouseLine,self._mouseLine[1:]+[(x,y)]):
+            dx,dy=a
+            bx,by=b
+            self._mouseVisibleLine.append(a)
+            if dataMap[dy][dx  ] not in (' ','d','>'):
+                break
+            _T = dataMap[dy+1][dx  ] not in (' ','d','>')
+            _B = dataMap[dy-1][dx  ] not in (' ','d','>')
+            _L = dataMap[dy  ][dx-1] not in (' ','d','>')
+            _R = dataMap[dy  ][dx+1] not in (' ','d','>')
+            if bx>dx and by>dy and _T and _R : break
+            if bx>dx and by<dy and _B and _R : break
+            if bx<dx and by>dy and _T and _L : break
+            if bx<dx and by<dy and _B and _L : break
+
+    def shotWeapon(self,x,y):
+        hx,hy = self._heroPos
+        self._mousePos = (x,y)
+        rim = self._ratInvMap
+        player:Player = glbls.player
         dx,dy=x-hx,y-hy
         if (dx,dy) in rim:
             self._mouseLine = [(hx+_x,hy+_y) for _x,_y in rim[(dx,dy)]]
         else:
             self._mouseLine = []
-        pass
+        self._mouseLine = []
 
     def foesAction(self):
         visMap = self._visibilityMap
@@ -202,6 +254,7 @@ class Dungeon(DungeonPrime):
         dm = self._dataFloor
         df = self._dataFoes
         hm = self._heatMap
+        player:Player = glbls.player
         hx,hy = self._heroPos
         for foe in self._foes:
             x,y = foe.pos
@@ -211,6 +264,9 @@ class Dungeon(DungeonPrime):
             move,shot = foe.getActions()
             if move:
                 ch = hm[y][x]
+                if ch == 2: # Melee Attack
+                    player.health -= foe.atk
+                    return
                 if ch < foe.distance:
                     chNew = ch+1
                 else:
@@ -224,34 +280,49 @@ class Dungeon(DungeonPrime):
                         _rx,_ry = movableTiles[random.randint(0,len(movableTiles)-1)]
                         foe.pos = (_rx,_ry)
                         df[y][x],df[_ry][_rx] = df[_ry][_rx],df[y][x]
+            if shot:
+                pass
 
     def heroAction(self):
         pass
 
     def moveHero(self, direction):
         self._mouseLine = []
-        d = self._dataFloor
+        dtile = self._dataFloor
+        dfoes = self._dataFoes
+        foes  = self._foes
         hx,hy = nx,ny = self._heroPos
+        player:Player = glbls.player
         if   direction == self.UP:    ny -= 1
         elif direction == self.DOWN:  ny += 1
         elif direction == self.LEFT:  nx -= 1
         elif direction == self.RIGHT: nx += 1
 
+        if foe:=dfoes[ny][nx]:
+            # Process Melee Action
+            foe.health -= player.atk
+            if foe.health <= 0: # the foe is dead
+                foes.remove(foe)
+                dfoes[ny][nx] = None
+                Message.add(ttk.TTkString(f"You Killed ") +
+                            ttk.TTkString(f"{foe.name} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
+            return
+
         # Check if the floor is empty
-        if tile:=d[ny][nx] in (' ','d','>'):
+        if tile:=dtile[ny][nx] in (' ','d','>'):
             self._heroPos = (nx,ny)
             self.updateVisibility()
             return
 
         # Check if the floor is empty
-        if tile:=d[ny][nx] == 'D':
-            d[ny][nx] = 'd'
+        if tile:=dtile[ny][nx] == 'D':
+            dtile[ny][nx] = 'd'
             self._heroPos = (nx,ny)
             self.updateVisibility()
             return
 
         # check if I am hitting a wall
-        if tile:=d[ny][nx] == '#':
+        if tile:=dtile[ny][nx] == '#':
             # Ouch!!!
             return
 
@@ -294,7 +365,9 @@ class Dungeon(DungeonPrime):
                 elif ob: ch = Tiles.get(ob)
                 else:    ch = Tiles.get(fl)
                 color = self._floor[dataType[cy-y][cx]][0 if vm==rn else 1][(cx+cy+hy+1)%2]
-                if (cx,cy-y) in self._mouseLine:
+                if (cx,cy-y) in self._mouseVisibleLine:
+                    color = self._mouseColorVisible
+                elif (cx,cy-y) in self._mouseLine:
                     color = self._mouseColor
                 else:
                     color = self._floor[dataType[cy-y][cx]][0 if vm==rn else 1][(cx+cy+hy+1)%2]

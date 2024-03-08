@@ -51,7 +51,7 @@ class ColorLAF(ttk.TTkLookAndFeelFPBar):
 
 # class StatWin(ttk.TTkWindow):
 class StatWin(WBWindow):
-    def __init__(self, player:Player, **kwargs):
+    def __init__(self, **kwargs):
         # super().__init__(**(kwargs|{'layout':ttk.TTkGridLayout()}))
         super().__init__(whiteBg=False, **kwargs)
 
@@ -65,8 +65,7 @@ class StatWin(WBWindow):
             lookAndFeel=ColorLAF(showText=False, color=ttk.TTkColor.fg('#0000FF')+ttk.TTkColor.bg('#000033',modifier=ttk.TTkColorGradient(orientation=ttk.TTkK.HORIZONTAL, fgincrement=100, bgincrement=100))))
         self._sbRight.hide()
         self._sbBottom.hide()
-        self._player = player
-        self._player.updated.connect(self._update)
+        glbls.player.updated.connect(self._update)
         self._update()
 
     def mouseReleaseEvent(self, evt) -> bool:
@@ -74,15 +73,15 @@ class StatWin(WBWindow):
         return super().mouseReleaseEvent(evt)
 
     def _update(self):
-        self._pbHealth.setValue(self._player.health/100)
-        self._pbArmor.setValue( self._player.armor/100)
+        self._pbHealth.setValue(glbls.player.health/100)
+        self._pbArmor.setValue( glbls.player.armor/100)
         self.update()
 
     def paintEvent(self, canvas:ttk.TTkCanvas):
         w,h = self.size()
         # canvas.fill(color=bgBLUE)
-        p  = self._player
-        pb = self._player.body
+        p  = glbls.player
+        pb = glbls.player.body
         sy = 1
         sx = 1
         canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"HEALTH: {p.health}")); sy+=1
@@ -99,8 +98,8 @@ class StatWin(WBWindow):
         cEn   = ttk.TTkColor.RST
         cHold = ttk.TTkColor.fg("#FFFF00")+ttk.TTkColor.bg("#333300")
         cDis  = ttk.TTkColor.fg("#AAAAAA")
-        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wr1']} Intimate Bow | {Tiles['ws1']}:{p.shells['ws1']: 3}",cDis if 'wr1' not in p.weapons else cHold if p.weaponHeld=='wr1' else cEn)); sy+=1
-        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wr2']} Feeling Gun  | {Tiles['ws2']}:{p.shells['ws2']: 3}",cDis if 'wr2' not in p.weapons else cHold if p.weaponHeld=='wr2' else cEn)); sy+=1
+        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wr1']} Cupid Strike | {Tiles['ws1']}:{p.shells['ws1']: 3}",cDis if 'wr1' not in p.weapons else cHold if p.weaponHeld=='wr1' else cEn)); sy+=1
+        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wr2']} Pacekeeper   | {Tiles['ws2']}:{p.shells['ws2']: 3}",cDis if 'wr2' not in p.weapons else cHold if p.weaponHeld=='wr2' else cEn)); sy+=1
         canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wr3']} LoveZooka    | {Tiles['ws3']}:{p.shells['ws3']: 3}",cDis if 'wr3' not in p.weapons else cHold if p.weaponHeld=='wr3' else cEn)); sy+=1
         canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wr4']} Friend Zoner | {Tiles['ws4']}:{p.shells['ws4']: 3}",cDis if 'wr4' not in p.weapons else cHold if p.weaponHeld=='wr4' else cEn)); sy+=1
         canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"Throwables:")); sy+=1
@@ -109,6 +108,7 @@ class StatWin(WBWindow):
         canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wt3']}: {p.throwables['wt3']: 2} ",cHold if p.weaponHeld=='wt3' else cEn))
         canvas.drawTTkString(pos=(sx+10,sy),text=ttk.TTkString(f"{Tiles['wt4']}: {p.throwables['wt4']: 2} ",cHold if p.weaponHeld=='wt4' else cEn)); sy+=1
 
+        # Little hack because I don't like the default borders
         canvas.drawText(pos=(0,h-1), text='🭎' + '▂'*(w-2), color=bgBLACK)
         for y in range(1,h-1):
             canvas.drawText(pos=(w-1,y), text='█', color=bgBLACK)
@@ -117,6 +117,3 @@ class StatWin(WBWindow):
         canvas.drawText(pos=(w-1,6),  text='🭔', color=bgBLACK)
         canvas.drawText(pos=(w-1,11), text='🭃', color=bgBLACK)
         super().paintEvent(canvas)
-
-        # Little hack because I don't like the borders
-        return

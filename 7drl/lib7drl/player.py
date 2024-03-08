@@ -52,7 +52,7 @@ class Body():
 class Player():
     def __init__(self) -> None:
         self.updated = ttk.pyTTkSignal()
-        self.health:     int  = 100
+        self._health:    int  = 100
         self.weaponHeld: str  = 'wr1'
         self.weapons:    list = ['wr1','wr3','wr4']
         self.shells = {
@@ -68,6 +68,27 @@ class Player():
 
         self.body = Body()
         self.armor:int = self.body.getArmorValue()
+
+    @property
+    def atk(self):
+        # Calc the value of the melee attack
+        return 10
+
+    @property
+    def wpn(self):
+        # Calc the value of the weapon attack
+        return 30
+
+    @property
+    def health(self):
+        # Calc the value of the melee attack
+        return self._health
+
+    @health.setter
+    def health(self, value):
+        # Calc the value of the weapon attack
+        self._health = max(0,min(value,100))
+        self.updated.emit()
 
     def nextWeapon(self,dir=1):
         aw = sorted(self.weapons)

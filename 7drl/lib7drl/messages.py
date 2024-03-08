@@ -30,9 +30,9 @@ sys.path.append(os.path.join(sys.path[0],'../..'))
 sys.path.append(os.path.join(sys.path[0],'..'))
 import TermTk as ttk
 
-from .player  import *
-from .dungeon import *
-from .assets  import *
+# from .player  import *
+# from .dungeon import *
+# from .assets  import *
 from .glbls   import *
 from wblib    import WBScrollWin, bgBLUE
 

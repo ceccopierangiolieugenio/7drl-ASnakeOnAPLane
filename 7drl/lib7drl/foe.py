@@ -27,9 +27,10 @@ import sys, os, math, random
 sys.path.append(os.path.join(sys.path[0],'../..'))
 import TermTk as ttk
 
+from .assets import *
 
 FOELIST = {
-    'z'       : {'health':  5, 'atk':  5, 'wpn': 0, 'speed': 7, 'reloadSpeed':  0, 'distance':2, 'drop':['g1''g2','ws1','ws2']},
+    'Zombie'  : {'health':  5, 'atk':  5, 'wpn': 0, 'speed': 7, 'reloadSpeed':  0, 'distance':2, 'drop':['g1''g2','ws1','ws2']},
     'Vampire' : {'health': 10, 'atk': 10, 'wpn': 3, 'speed': 7, 'reloadSpeed':  5, 'distance':6, 'drop':['g1''g2','ws1','ws2']},
     'Ghost'   : {'health': 15, 'atk': 10, 'wpn': 4, 'speed': 4, 'reloadSpeed':  5, 'distance':2, 'drop':['g2''g3','ws1','ws2']},
     'Pumpkin' : {'health': 20, 'atk': 15, 'wpn': 5, 'speed': 6, 'reloadSpeed':  5, 'distance':2, 'drop':['g2''g3','ws1','ws2']},
@@ -55,6 +56,7 @@ class Foe():
         self.active = False
         self.health = health
         self.distance = distance
+        self.picture = Tiles[name]
         self.reloadSpeed = reloadSpeed
         self.time = random.randint(0,10)
 

@@ -217,7 +217,7 @@ Tiles = {
     'KY' : TTkString('📒'),
     'd' : TTkString('| ',TTkColor.fg('#803000')),
     'Snake'    : TTkString('🐍'),
-    'z'        : TTkString('🧟'),
+    'Zombie'   : TTkString('🧟'),
     'Dragon1'  : TTkString('🐲'),
     'Dragon2'  : TTkString('🐉'),
     'TRex'     : TTkString('🦖'),

@@ -92,7 +92,8 @@ class DungeonPrime():
         self._dataFloor = STARTING_FLOOR
         self._dataType  = STARTING_TYPE
         self._dataObjs  = STARTING_OBJS
-        self._dataFoes  = [[Foe(pos=(x,y),name=f,**FOELIST[f]) if f else None for x,f in enumerate(row)] for y,row in enumerate(STARTING_FOES)]
+        renamedFoes     = [[(f if f!='z' else 'Zombie') for f in row] for row  in STARTING_FOES]
+        self._dataFoes  = [[(Foe(pos=(x,y),name=f,**FOELIST[f]) if f else None) for x,f in enumerate(row)] for y,row in enumerate(renamedFoes)]
         self._heatMap  = [[0]*len(STARTING_FLOOR[0]) for _ in STARTING_FLOOR]
         self._foes:list[Foe] = []
         for row in self._dataFoes: self._foes += [f for f in row if f]
@@ -635,9 +636,9 @@ class DungeonPrime():
 
         # Based on the level [1,5] define the planes placement area
         foesList = [
-            'z','Vampire','Ghost',
-            'z','Vampire','Ghost',
-            'z','Vampire','Ghost',
+            'Zombie','Vampire','Ghost',
+            'Zombie','Vampire','Ghost',
+            'Zombie','Vampire','Ghost',
             'Pumpkin','Imp','Imp',
             'Pumpkin','Imp','Imp',
             'Pumpkin','Imp','Imp',
@@ -887,15 +888,15 @@ class DungeonPrime():
         self._heatMap  = [[0]*self._size[0] for _ in range(self._size[1])]
 
         # for y,row in enumerate(self._tmpData['heatMap']):
-        def _printMap(_map):
-            for y,row in enumerate(_map):
-                out = f"{y:02} - "
-                for v in row:
-                    if v: out += f"{v:2} "
-                    else:out += f" . "
-                ttk.TTkLog.debug(out)
-        _printMap(self._tmpData['areaMap'])
-        _printMap(self._tmpData['dataType'])
+        # def _printMap(_map):
+        #     for y,row in enumerate(_map):
+        #         out = f"{y:02} - "
+        #         for v in row:
+        #             if v: out += f"{v:2} "
+        #             else:out += f" . "
+        #         ttk.TTkLog.debug(out)
+        # _printMap(self._tmpData['areaMap'])
+        # _printMap(self._tmpData['dataType'])
         # _printMap(self._tmpData['heatMap'])
 
 

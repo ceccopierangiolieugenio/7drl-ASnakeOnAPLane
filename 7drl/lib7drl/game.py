@@ -53,8 +53,8 @@ class Game(ttk.TTk):
         self._parallaxTimer.timeout.connect(lambda :self._parallaxTimer.start(0.05))
         self._parallaxTimer.start(0.1)
 
-        self._player = Player()
-        statWin = StatWin( parent=self, pos=(83,0),size=(26,15), player=self._player)
+        glbls.player = Player()
+        statWin = StatWin( parent=self, pos=(83,0),size=(26,15))
         msgWin  = MessageWin(parent=self, pos=(83,15),size=(26,15), title='Messages' )
 
         # btnMsg  = ttk.TTkButton(  parent=self, pos=( 0,0), text='Messages', border=True, checkable=True)
@@ -127,6 +127,13 @@ class Game(ttk.TTk):
         self._dungeonPos = (int(x),int(y))
         self.update()
 
+    def checkGameProgress(self):
+        player:Player = glbls.player
+        if player.health <= 0:
+            Message.add(ttk.TTkString(f"            ",ttk.TTkColor.fg("FF0000")+ttk.TTkColor.bg("000000")))
+            Message.add(ttk.TTkString(f"  You Died  ",ttk.TTkColor.fg("FF0000")+ttk.TTkColor.bg("000000")))
+            Message.add(ttk.TTkString(f"            ",ttk.TTkColor.fg("FF0000")+ttk.TTkColor.bg("000000")))
+
     def keyEvent(self, evt) -> bool:
         d = self._dungeon
         if evt.type != ttk.TTkK.SpecialKey:
@@ -136,30 +143,45 @@ class Game(ttk.TTk):
             elif evt.key == 'a': self._dungeon.moveHero(d.LEFT)  ; self._dungeon.foesAction()
             elif evt.key == 'd': self._dungeon.moveHero(d.RIGHT) ; self._dungeon.foesAction()
             elif evt.key == 'e': self._dungeon.heroAction()      ; self._dungeon.foesAction()
-            elif evt.key == ' ': self._dungeon.foesAction()
-            return super().keyEvent(evt)
+            elif evt.key == ' ': self._dungeon.foesAction()#
+            self.checkGameProgress()
+            self.update()
+            return True
         if   evt.key == ttk.TTkK.Key_Up:    self._dungeon.moveHero(d.UP)    ; self._dungeon.foesAction()
         elif evt.key == ttk.TTkK.Key_Down:  self._dungeon.moveHero(d.DOWN)  ; self._dungeon.foesAction()
         elif evt.key == ttk.TTkK.Key_Left:  self._dungeon.moveHero(d.LEFT)  ; self._dungeon.foesAction()
         elif evt.key == ttk.TTkK.Key_Right: self._dungeon.moveHero(d.RIGHT) ; self._dungeon.foesAction()
         else:
             return super().keyEvent(evt)
+        self.checkGameProgress()
         self.update()
         return True
 
     def wheelEvent(self, evt) -> bool:
         if evt.evt == ttk.TTkK.WHEEL_Down:
-            self._player.nextWeapon()
+            glbls.player.nextWeapon()
         else:
-            self._player.prevWeapon()
+            glbls.player.prevWeapon()
         return True
 
     def mousePressEvent(self, evt) -> bool:
+        self._dragging = False
         self._mouseSavePos = (evt.x,evt.y)
         self._dungeonSavePos = self._dungeonPos
         return True
 
+    def mouseReleaseEvent(self, evt) -> bool:
+        if not self._dragging:
+            hpx,hpy = self._dungeon.heroPos()
+            dpx,dpy = self._dungeonPos
+            px,py   = self._parallax.pos()
+            mpx,mpy = evt.x-px-dpx,evt.y-py-dpy
+            self._dungeon.shotWeapon(mpx//2+hpx,mpy+hpy)
+        self._dragging = False
+        return True
+
     def mouseMoveEvent(self, evt) -> bool:
+        self._dragging = False
         hpx,hpy = self._dungeon.heroPos()
         dpx,dpy = self._dungeonPos
         px,py   = self._parallax.pos()
@@ -168,6 +190,7 @@ class Game(ttk.TTk):
         return True
 
     def mouseDragEvent(self, evt) -> bool:
+        self._dragging = True
         w,h=self._dungeon.size()
         x,y   = self._mouseSavePos
         hx,hy = self._dungeonSavePos
