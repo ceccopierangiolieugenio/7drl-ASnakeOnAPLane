@@ -31,9 +31,12 @@ import TermTk as ttk
 from .parallax import *
 from .dungeon  import *
 from .assets   import *
-from .glbls  import *
+from .glbls    import *
 from .statwin  import *
 from .player   import *
+from .messages import *
+
+from wblib    import WBWindow
 
 class Game(ttk.TTk):
     def __init__(self, debug=True, level=1, **kwargs):
@@ -41,7 +44,7 @@ class Game(ttk.TTk):
         glbls.level = min(5,max(0,level))
         glbls.debug = debug
         super().__init__(**kwargs)
-        self._parallax = Parallax(pos=(5,3), size=(100,26))
+        self._parallax = Parallax(pos=(0,0), size=(83,30))
         self._dungeon = Dungeon()
         self._dungeonPos = (0,0)
 
@@ -51,10 +54,11 @@ class Game(ttk.TTk):
         self._parallaxTimer.start(0.1)
 
         self._player = Player()
-        statWin = StatWin(parent=self, player=self._player, pos=(80,0),size=(26,15), visible=True)
+        statWin = StatWin( parent=self, pos=(83,0),size=(26,15), player=self._player)
+        msgWin  = MessageWin(parent=self, pos=(83,15),size=(26,15), title='Messages' )
 
-        btnMsg  = ttk.TTkButton(  parent=self, pos=( 0,0), text='Messages', border=True, checkable=True)
-        btnInfo = ttk.TTkButton(  parent=self, pos=(10,0), text='Info',     border=True, checkable=True, checked=True)
+        # btnMsg  = ttk.TTkButton(  parent=self, pos=( 0,0), text='Messages', border=True, checkable=True)
+        # btnInfo = ttk.TTkButton(  parent=self, pos=(10,0), text='Info',     border=True, checkable=True, checked=True)
 
         def _attachSignal(_btn,_slots):
             _btn.clicked.connect(self.setFocus)
@@ -62,8 +66,8 @@ class Game(ttk.TTk):
                 _btn.clicked.connect(_slot)
 
         if debug:
-            cbDebug = ttk.TTkCheckbox(parent=self, pos=(16,1), text='Debug', size=(8,1), checked=False)
-            debugFrame = ttk.TTkFrame(parent=self, pos=(24,0), size=(50,3),layout=ttk.TTkGridLayout(), visible=False, border=False)
+            cbDebug = ttk.TTkCheckbox(parent=self, pos=(0,30), text='Debug', size=(8,1), checked=False)
+            debugFrame = ttk.TTkFrame(parent=self, pos=(9,30), size=(50,3),layout=ttk.TTkGridLayout(), visible=False, border=False)
             debugFrame.layout().addWidget(btnTest := ttk.TTkButton(  text='TEST' , border=True),     0,0,3,1)
             debugFrame.layout().addWidget(btnRnd  := ttk.TTkButton(  text=' RND ', border=True),     0,1,3,1)
             debugFrame.layout().addWidget(           ttk.TTkLabel( text="Level:"), 0,2)
@@ -74,9 +78,10 @@ class Game(ttk.TTk):
 
             _attachSignal(btnTest, [self._testGame])
             _attachSignal(btnRnd, [self._dungeon.genDungeon, self.landingAnim])
+            debugFrame.hide()
 
-        btnInfo.toggled.connect(statWin.setVisible)
-        btnInfo.toggled.connect(self.setFocus)
+        # btnInfo.toggled.connect(statWin.setVisible)
+        # btnInfo.toggled.connect(self.setFocus)
         # btnInfo.clicked.connect(statWin.raiseWidget)
 
         self.landingAnim()
@@ -84,7 +89,7 @@ class Game(ttk.TTk):
 
     @ttk.pyTTkSlot()
     def _testGame(self):
-        win = ttk.TTkWindow(title='Test',size=(100,20),layout=ttk.TTkGridLayout())
+        win = ttk.TTkWindow(title='Test',size=(83,20),layout=ttk.TTkGridLayout())
         te = ttk.TTkTextEdit(parent=win, readOnly=False, lineNumber=True)
         te.setText(TEST_TILES)
         ttk.TTkHelper.overlay(None, win, 0,0)
@@ -112,7 +117,7 @@ class Game(ttk.TTk):
         # Dungeon Animation
         animPlane = ttk.TTkPropertyAnimation(self,self.setDungeonPos)
         animPlane.setStartValue((-150,-30))
-        animPlane.setEndValue(  ( 100//2, 26//2))
+        animPlane.setEndValue(  ( 100//2, 30//2))
         animPlane.setDuration(2)
         animPlane.setEasingCurve(ttk.TTkEasingCurve.OutBack)
         animPlane.start()
@@ -123,19 +128,20 @@ class Game(ttk.TTk):
         self.update()
 
     def keyEvent(self, evt) -> bool:
-        if evt.type != ttk.TTkK.SpecialKey:
-            if evt.key == 'r':
-                self._dungeon.genDungeon()
-            return super().keyEvent(evt)
         d = self._dungeon
-        if   evt.key == ttk.TTkK.Key_Up:
-            self._dungeon.moveHero(d.UP)
-        elif evt.key == ttk.TTkK.Key_Down:
-            self._dungeon.moveHero(d.DOWN)
-        elif evt.key == ttk.TTkK.Key_Left:
-            self._dungeon.moveHero(d.LEFT)
-        elif evt.key == ttk.TTkK.Key_Right:
-            self._dungeon.moveHero(d.RIGHT)
+        if evt.type != ttk.TTkK.SpecialKey:
+            if glbls.debug and evt.key == 'r': self._dungeon.genDungeon()
+            elif evt.key == 'w': self._dungeon.moveHero(d.UP)    ; self._dungeon.foesAction()
+            elif evt.key == 's': self._dungeon.moveHero(d.DOWN)  ; self._dungeon.foesAction()
+            elif evt.key == 'a': self._dungeon.moveHero(d.LEFT)  ; self._dungeon.foesAction()
+            elif evt.key == 'd': self._dungeon.moveHero(d.RIGHT) ; self._dungeon.foesAction()
+            elif evt.key == 'e': self._dungeon.heroAction()      ; self._dungeon.foesAction()
+            elif evt.key == ' ': self._dungeon.foesAction()
+            return super().keyEvent(evt)
+        if   evt.key == ttk.TTkK.Key_Up:    self._dungeon.moveHero(d.UP)    ; self._dungeon.foesAction()
+        elif evt.key == ttk.TTkK.Key_Down:  self._dungeon.moveHero(d.DOWN)  ; self._dungeon.foesAction()
+        elif evt.key == ttk.TTkK.Key_Left:  self._dungeon.moveHero(d.LEFT)  ; self._dungeon.foesAction()
+        elif evt.key == ttk.TTkK.Key_Right: self._dungeon.moveHero(d.RIGHT) ; self._dungeon.foesAction()
         else:
             return super().keyEvent(evt)
         self.update()
@@ -183,7 +189,7 @@ class Game(ttk.TTk):
         hpx,hpy = self._dungeon.heroPos()
         dpx,dpy = self._dungeonPos
         self._dungeon.drawDungeon((dpx-hpx*2,dpy-hpy),pc)
-        pw,ph = pc.size()
-        canvas.paintCanvas(pc,cg:=(5,3,pw,ph),cg,cg)
+        px,py,pw,ph = self._parallax.geometry()
+        canvas.paintCanvas(pc,cg:=(px,py,pw,ph),cg,cg)
 
 

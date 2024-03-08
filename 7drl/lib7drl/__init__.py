@@ -7,3 +7,5 @@ from .game         import *
 from .glbls        import *
 from .statwin      import *
 from .player       import *
+from .foe          import *
+from .messages     import *

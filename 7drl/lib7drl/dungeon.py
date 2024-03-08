@@ -30,6 +30,7 @@ import TermTk as ttk
 from .dungeonprime import *
 from .layer  import *
 from .assets import *
+from .foe    import *
 
 class Dungeon(DungeonPrime):
     UP    = 0x01
@@ -98,7 +99,47 @@ class Dungeon(DungeonPrime):
         self._visibilityMap = [[0]*(dw) for _ in range(dh)]
         self.updateVisibility()
 
+    def updateHeatMap(self):
+        dw,dh=self.size()
+        hx,hy = self._heroPos
+        hmw,hmh = 50,40
+        dataMap = self._dataFloor
+        vm = self._visibilityMap
+        rm = self._rayMap
+        rn = self._rayNum = self._rayNum+1
+        hm = self._heatMap
+
+        dmy1,dmy2 = max(0, hy-hmh//2), hy+hmw//2
+        dmx1,dmx2 = max(0, hx-hmh//2), hx+hmw//2
+        for y,row in enumerate(dataMap[dmy1:dmy2],dmy1):
+            for x,dm in enumerate(row[dmx1:dmx2],dmx1):
+                hm[y][x] = 0x10000 if dm in (' ','d','>') else 0
+        # Build a Heat Map of the distances from the hero
+        # def _updateDistance(_pos,_d):
+        #     _x,_y = _pos
+        #     hm[_y][_x] = _d
+        #     toBeProcessed = [_pos]
+        #     # Move Right
+        #     while toBeProcessed:
+        #         _x,_y = toBeProcessed.pop()
+        #         _d = hm[_y][_x]
+        #         if _y > 0    and hm[_y-1][_x]>_d+1: hm[_y-1][_x]=_d+1; toBeProcessed.append((_x  ,_y-1))
+        #         if _y < dh-2 and hm[_y+1][_x]>_d+1: hm[_y+1][_x]=_d+1; toBeProcessed.append((_x  ,_y+1))
+        #         if _x > 0    and hm[_y][_x-1]>_d+1: hm[_y][_x-1]=_d+1; toBeProcessed.append((_x-1,_y  ))
+        #         if _x < dw-2 and hm[_y][_x+1]>_d+1: hm[_y][_x+1]=_d+1; toBeProcessed.append((_x+1,_y  ))
+        # _updateDistance((hx,hy),1)
+        def _updateDistance(_pos,_d):
+            _x,_y = _pos
+            if hm[_y][_x] <= _d: return
+            hm[_y][_x] = _d
+            if _y > 0   :_updateDistance((_x  ,_y-1),_d+1)
+            if _y < dh-2:_updateDistance((_x  ,_y+1),_d+1)
+            if _x > 0   :_updateDistance((_x-1,_y  ),_d+1)
+            if _x < dw-2:_updateDistance((_x+1,_y  ),_d+1)
+        _updateDistance((hx,hy),1)
+
     def updateVisibility(self):
+        self.updateHeatMap()
         dw,dh=self.size()
         hx,hy = self._heroPos
         dataMap = self._dataFloor
@@ -155,6 +196,37 @@ class Dungeon(DungeonPrime):
             self._mouseLine = []
         pass
 
+    def foesAction(self):
+        visMap = self._visibilityMap
+        rn     = self._rayNum
+        dm = self._dataFloor
+        df = self._dataFoes
+        hm = self._heatMap
+        hx,hy = self._heroPos
+        for foe in self._foes:
+            x,y = foe.pos
+            if rn==visMap[y][x]: foe.active = True
+            if abs(x-hx)>40 or abs(y-hy)>15: foe.active = False
+            if not foe.active: continue
+            move,shot = foe.getActions()
+            if move:
+                ch = hm[y][x]
+                if ch < foe.distance:
+                    chNew = ch+1
+                else:
+                    chNew = ch-1
+                if chNew > 1:
+                    nextTiles = [(x+1,y),(x-1,y),(x,y+1),(x,y-1)]
+                    movableTiles = [(_x,_y) for (_x,_y) in nextTiles if (hm[_y][_x]==chNew and not df[_y][_x])]
+                    if not movableTiles: # all the tiles are busy or not available
+                        movableTiles = [(_x,_y) for (_x,_y) in nextTiles if (hm[_y][_x] and not df[_y][_x])]
+                    if movableTiles:
+                        _rx,_ry = movableTiles[random.randint(0,len(movableTiles)-1)]
+                        foe.pos = (_rx,_ry)
+                        df[y][x],df[_ry][_rx] = df[_ry][_rx],df[y][x]
+
+    def heroAction(self):
+        pass
 
     def moveHero(self, direction):
         self._mouseLine = []
@@ -166,7 +238,7 @@ class Dungeon(DungeonPrime):
         elif direction == self.RIGHT: nx += 1
 
         # Check if the floor is empty
-        if tile:=d[ny][nx] in (' ','d'):
+        if tile:=d[ny][nx] in (' ','d','>'):
             self._heroPos = (nx,ny)
             self.updateVisibility()
             return
@@ -218,7 +290,7 @@ class Dungeon(DungeonPrime):
         for cy,(rof,rot,rofoe,roobj,rvm) in enumerate(zip(dataFloor[ssh],dataType[ssh],dataFoes[ssh],dataObjs[ssh],visMap[ssh]),y):
             for cx,(fl,ty,fo,ob,vm) in enumerate(zip(rof[ssw],rot[ssw],rofoe[ssw],roobj[ssw],rvm[ssw])):
                 if not fl or not vm: continue
-                if   rn==vm and fo: ch = Tiles.get(fo)
+                if   rn==vm and fo: ch = Tiles.get(fo.name)
                 elif ob: ch = Tiles.get(ob)
                 else:    ch = Tiles.get(fl)
                 color = self._floor[dataType[cy-y][cx]][0 if vm==rn else 1][(cx+cy+hy+1)%2]

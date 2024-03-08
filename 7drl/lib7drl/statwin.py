@@ -34,7 +34,7 @@ from .player  import *
 from .dungeon import *
 from .assets  import *
 from .glbls   import *
-from wblib    import WBWindow, bgBLUE
+from wblib    import WBWindow, bgBLUE, bgBLACK
 
 class ColorLAF(ttk.TTkLookAndFeelFPBar):
     def __init__(self, color, showText=True, textWidth=4):
@@ -58,14 +58,16 @@ class StatWin(WBWindow):
         self.setTitle("Player 😎 stuff")
 
         self._pbHealth = ttk.TTkFancyProgressBar(
-            parent=self,pos=(13,1),size=(11,1),
+            parent=self,pos=(13,0),size=(11,1),
             lookAndFeel=ColorLAF(showText=False, color=ttk.TTkColor.fg('#FF0000')+ttk.TTkColor.bg('#330000',modifier=ttk.TTkColorGradient(orientation=ttk.TTkK.HORIZONTAL, fgincrement=100, bgincrement=100))))
         self._pbArmor  = ttk.TTkFancyProgressBar(
-            parent=self,pos=(13,2),size=(11,1),
+            parent=self,pos=(13,1),size=(11,1),
             lookAndFeel=ColorLAF(showText=False, color=ttk.TTkColor.fg('#0000FF')+ttk.TTkColor.bg('#000033',modifier=ttk.TTkColorGradient(orientation=ttk.TTkK.HORIZONTAL, fgincrement=100, bgincrement=100))))
-
+        self._sbRight.hide()
+        self._sbBottom.hide()
         self._player = player
         self._player.updated.connect(self._update)
+        self._update()
 
     def mouseReleaseEvent(self, evt) -> bool:
         glbls.root.setFocus()
@@ -77,6 +79,7 @@ class StatWin(WBWindow):
         self.update()
 
     def paintEvent(self, canvas:ttk.TTkCanvas):
+        w,h = self.size()
         # canvas.fill(color=bgBLUE)
         p  = self._player
         pb = self._player.body
@@ -106,4 +109,14 @@ class StatWin(WBWindow):
         canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wt3']}: {p.throwables['wt3']: 2} ",cHold if p.weaponHeld=='wt3' else cEn))
         canvas.drawTTkString(pos=(sx+10,sy),text=ttk.TTkString(f"{Tiles['wt4']}: {p.throwables['wt4']: 2} ",cHold if p.weaponHeld=='wt4' else cEn)); sy+=1
 
-        return super().paintEvent(canvas)
+        canvas.drawText(pos=(0,h-1), text='🭎' + '▂'*(w-2), color=bgBLACK)
+        for y in range(1,h-1):
+            canvas.drawText(pos=(w-1,y), text='█', color=bgBLACK)
+        for y in range(7,11):
+            canvas.drawText(pos=(w-1,y), text='▐', color=bgBLACK)
+        canvas.drawText(pos=(w-1,6),  text='🭔', color=bgBLACK)
+        canvas.drawText(pos=(w-1,11), text='🭃', color=bgBLACK)
+        super().paintEvent(canvas)
+
+        # Little hack because I don't like the borders
+        return

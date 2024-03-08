@@ -27,9 +27,10 @@ import sys, os, math, random
 sys.path.append(os.path.join(sys.path[0],'../..'))
 import TermTk as ttk
 
-from .assets  import *
-from .layer   import *
-from .glbls import *
+from .assets import *
+from .layer  import *
+from .glbls  import *
+from .foe    import *
 
 STARTING_FLOOR = [
     [''  ,''  ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,'#' ,''  ,''  ,''  ,'#' ,'#' ,'#' ,''  ,''  ,''  ,'#' ,'#' ,'#' ,'#' ,'#' ,''  ,'' ,],
@@ -91,7 +92,10 @@ class DungeonPrime():
         self._dataFloor = STARTING_FLOOR
         self._dataType  = STARTING_TYPE
         self._dataObjs  = STARTING_OBJS
-        self._dataFoes  = STARTING_FOES
+        self._dataFoes  = [[Foe(pos=(x,y),name=f,**FOELIST[f]) if f else None for x,f in enumerate(row)] for y,row in enumerate(STARTING_FOES)]
+        self._heatMap  = [[0]*len(STARTING_FLOOR[0]) for _ in STARTING_FLOOR]
+        self._foes:list[Foe] = []
+        for row in self._dataFoes: self._foes += [f for f in row if f]
         self._tmpData = {}
         self._size = (len(STARTING_FLOOR[0]),len(STARTING_FLOOR))
 
@@ -438,15 +442,6 @@ class DungeonPrime():
 
         # Process all the tiles and mark the connected ones
         def _recurseMark(_data,_pos,_num):
-            # _x,_y = _pos
-            # if  not  _data[_y][_x]: return
-            # if _num==_data[_y][_x]: return
-            # _data[_y][_x] = _num
-            # # data[_y][_x] = 'D'
-            # if _y > 0   : _recurseMark(_data,(_x,_y-1),_num)
-            # if _y < dh-2: _recurseMark(_data,(_x,_y+1),_num)
-            # if _x > 0   : _recurseMark(_data,(_x-1,_y),_num)
-            # if _x < dw-2: _recurseMark(_data,(_x+1,_y),_num)
             toBeProcessed = [_pos]
             # Move Right
             while toBeProcessed:
@@ -505,36 +500,6 @@ class DungeonPrime():
             return {'area':_area, 'connections':_connections, 'walls':_walls, 'type':_type}
 
         fullTree = _treeFromArea(_startingArea:=random.randint(2,markId), 0, 0)
-
-        # # parse the tree and find the longest branch
-        # # use the longest path to decide which
-        # # card protected areas need to be defined
-        # def _parseTree(_tree):
-        #     _longest = []
-        #     for _c in _tree['connections']:
-        #         _cc = _parseTree(_c)
-        #         if len(_cc) > len(_longest):
-        #             _longest = _cc
-        #     return [_tree] + _longest
-        # longPath = _parseTree(fullTree)
-        # if _rr:=random.randint(0,max(3,len(longPath)//2)):
-
-        # # Extract all the trees of any single area type
-        # def _extractTypeTree(_tree):
-        #     _type  = _tree['type']
-        #     _area  = _tree['area']
-        #     _walls = _tree['walls']
-        #     _self  = {'area':_area, 'connections':[], 'walls':_walls, 'type':_type}
-        #     _other = []
-        #     for _c in _tree['connections']:
-        #         _cca = _extractTypeTree(_c)
-        #         if _cca and _cca[0]['type'] == _type:
-        #             _self['connections'].append(_cca[0])
-        #             _other += _cca[1:]
-        #         else:
-        #             _other += _cca
-        #     return [_self] + _other
-        # areasTrees = _extractTypeTree(fullTree)
 
         def _getAreaType(_tree, _area):
             if _tree['area'] == _area:
@@ -598,13 +563,6 @@ class DungeonPrime():
 
         # Build a Heat Map of the distances from the hero
         def _updateDistance(_pos,_d):
-            # _x,_y = _pos
-            # if heatMap[_y][_x] <= _d: return
-            # heatMap[_y][_x] = _d
-            # if _x>0   :_updateDistance((_x-1,_y),_d+1)
-            # if _x<dw-1:_updateDistance((_x+1,_y),_d+1)
-            # if _y>0   :_updateDistance((_x,_y-1),_d+1)
-            # if _y<dh-1:_updateDistance((_x,_y+1),_d+1)
             _x,_y = _pos
             heatMap[_y][_x] = _d
             toBeProcessed = [_pos]
@@ -666,6 +624,7 @@ class DungeonPrime():
         dataType = self._tmpData['dataType']
         dataObjs  = self._tmpData['dataObjs']
         dataFoes = self._tmpData['dataFoes']
+        foeList = self._tmpData['foes'] = []
         heatMap  = self._tmpData['heatMap']
         listKeys = self._tmpData['listKeys']
         distancesByType = self._tmpData['distancesByType']
@@ -746,7 +705,9 @@ class DungeonPrime():
             _type = dataType[_y][_x]
             _rfoes = foesList[_type*len(foesList)//4:]
             _foe = _rfoes[random.randint(0,len(_rfoes)-1)]
-            dataFoes[_y][_x] = _foe
+            newFoe = Foe(pos=(_x,_y),name=_foe, **FOELIST[_foe])
+            dataFoes[_y][_x] = newFoe
+            foeList.append(newFoe)
         for i in range(objs):
             # Pick a random distance
             _objDist = random.randint(15,maxDistance)
@@ -919,8 +880,11 @@ class DungeonPrime():
         self._dataType = self._tmpData['dataType']
         self._dataFoes = self._tmpData['dataFoes']
         self._dataObjs = self._tmpData['dataObjs']
+        self._dataObjs = self._tmpData['dataObjs']
         self._layerPlane = self._tmpData['layer']
+        self._foes = self._tmpData['foes']
         self._size = (len(self._dataFloor[0]),len(self._dataFloor))
+        self._heatMap  = [[0]*self._size[0] for _ in range(self._size[1])]
 
         # for y,row in enumerate(self._tmpData['heatMap']):
         def _printMap(_map):

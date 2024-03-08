@@ -56,15 +56,27 @@ HouseBG_2_2= TTkUtil.base64_deflate_2_obj(
     "5klTCAlSilOJdBWK5RguoUSWeD8TZw6xviPXzSQ4ibCDUQURPGpz8IYWrlCil+OGJofkIMXUMOB+GGQc/BkIJWyJM2M0BVM9VohThj+ORjmDgTMaR4OfMxpHg5+Tmlqq" +
     "BwBHZ7KE")
 
+# HouseBG_3_1 = TTkUtil.base64_deflate_2_obj(
+#     "eJztV81OGzEQLmpISzjApSeKRBSJRkqJIjZU4coD5A045GeRD5WQWnpEavmJetgW2k6qSqgFCYlTeYS+DE/AnQu2dzebdXaDN2uzTjWZON7vs/fbyXjGcT7m+ndbT/hr" +
+#     "H8pOrtvaa8E2lOnbmVkBkpMxJ3d7fv0ZWPf3n+Q9yc2mPknMm+Xe9Lg31wcw8O+Ly3wDks/At1nynMyNsAUyr9YbyRhpt4f8cJ7e/OzHZgobPVGaR9MSF7IQO7L4uPHg" +
+#     "xfIjchH40B/FdS63QvzRF24l/4IQe+my4aximUT3gCVBZ4nxn4B9HiX8HpJ+UuVLGEZnwnO4s9998sVgoBhilhU4NbrtTGTc4a8S0TKp1mjk4Zitc/8UyCvWX9F+YOXI" +
+#     "62h2FI0bjb5eNSk2bmKw3DwEUuH8S2qsr7iYjR0DeT3M8TnCPDrDNZET7xO0e0DWfI94ev0G7ljRnwBAany4JtHLcjI9s9LQYolfeM1z3Od9XPEsjhN14vR8PlisYoAz" +
+#     "sgIvKLZMSfdMDVY1qpIy94L6YTv5zu7b3XfvveN7s9kDlc15VrIsa91qgAhUP0l3sxVFJz4i4fAESACyAlPQ0sQ0dRzVgilfldTZ/UhhnggYEF/tFWBAmOVqI+uIYwWY" +
+#     "1bACTGlpK8Cw1ZiKmKuIe1MMt/zxQ/bclOxW2RzJ5pikN9zjiyLqdhVllMCFFILalmiSJTFst0GgAChPsIlqPfMwINALFCUW1WxsNOqbdZa3bau93qm5OYwsssgii6wx" +
+#     "LD8IDBMIECBQBLzTUGunZbc7/v+x6KnO4CBGr+pdZrEsquhUQb9RxWyVsfrBZpNs9+nazMQjQwSLKjpV0G9UMVslwe4jf1+w/73hr1gWVXSqoN+oYraK+n9eCBAgSPzb" +
+#     "jtWFAIGu6sreJQQI/keA1YUAgbbqsj9U7wEuEcBK")
+
 HouseBG_3_1 = TTkUtil.base64_deflate_2_obj(
-    "eJztV81OGzEQLmpISzjApSeKRBSJRkqJIjZU4coD5A045GeRD5WQWnpEavmJetgW2k6qSqgFCYlTeYS+DE/AnQu2dzebdXaDN2uzTjWZON7vs/fbyXjGcT7m+ndbT/hr" +
-    "H8pOrtvaa8E2lOnbmVkBkpMxJ3d7fv0ZWPf3n+Q9yc2mPknMm+Xe9Lg31wcw8O+Ly3wDks/At1nynMyNsAUyr9YbyRhpt4f8cJ7e/OzHZgobPVGaR9MSF7IQO7L4uPHg" +
-    "xfIjchH40B/FdS63QvzRF24l/4IQe+my4aximUT3gCVBZ4nxn4B9HiX8HpJ+UuVLGEZnwnO4s9998sVgoBhilhU4NbrtTGTc4a8S0TKp1mjk4Zitc/8UyCvWX9F+YOXI" +
-    "62h2FI0bjb5eNSk2bmKw3DwEUuH8S2qsr7iYjR0DeT3M8TnCPDrDNZET7xO0e0DWfI94ev0G7ljRnwBAany4JtHLcjI9s9LQYolfeM1z3Od9XPEsjhN14vR8PlisYoAz" +
-    "sgIvKLZMSfdMDVY1qpIy94L6YTv5zu7b3XfvveN7s9kDlc15VrIsa91qgAhUP0l3sxVFJz4i4fAESACyAlPQ0sQ0dRzVgilfldTZ/UhhnggYEF/tFWBAmOVqI+uIYwWY" +
-    "1bACTGlpK8Cw1ZiKmKuIe1MMt/zxQ/bclOxW2RzJ5pikN9zjiyLqdhVllMCFFILalmiSJTFst0GgAChPsIlqPfMwINALFCUW1WxsNOqbdZa3bau93qm5OYwsssgii6wx" +
-    "LD8IDBMIECBQBLzTUGunZbc7/v+x6KnO4CBGr+pdZrEsquhUQb9RxWyVsfrBZpNs9+nazMQjQwSLKjpV0G9UMVslwe4jf1+w/73hr1gWVXSqoN+oYraK+n9eCBAgSPzb" +
-    "jtWFAIGu6sreJQQI/keA1YUAgbbqsj9U7wEuEcBK")
+    "eJztW8tu1DAUBTEtUBawYVWQGFWCSqVV6QxhRlPUqnQ9exYsZtogL5Aq8Vgi8eqIRXi7CAnxkCqxop/Amv/gC/gEbMdOHE/SOhM78Qy3t2nmHNsnN9f3Oo7aPqnt/b59" +
+    "jH09xvNBbbv3sIfv4HnyHRy/hFFNx4La328HLzE9/fylOSa/+cQnjX5TzJsB8+bgGY78exUy7zCarsC3KXQKnR5iZ9AZs95oxsi6HeVHcOLPx73MTKGtb4zm0bjEBZ3N" +
+    "bDlXbjxYsXxInQTW9NVwnevNELv097CSP+EEux+yyayimUTWgFlFZ5byTzH9+SLnfWj6SZT3sYw+K9dhzr4X5PmooZ5gLhpwanjZGcmYw681ouVSrZHI4106z3tvMbpC" +
+    "zz/IObL51M/p7DA6rDX982WXYhMmBs3N5xgtMP4CMXpeCDFt28XoqsyxPko/0iM0lVPHKdoDjBaFRyy9vmDmWF10wBgts+ZljbMup3OmNidNlnrDi9xxwQu8wC2LU3Wy" +
+    "9AQfT1Y9xhXZDCsoOk1510wLtpSsJJ7FXsJG0fWOtJRROlUdPnFQSzb+dGorJveRNWReHZOw2B9+1Q7q8GutpliHWbrfHclYbx7pm8yGVbJ05Bitxkokk9bQGl8L1okR" +
+    "JGmqKoJfS9h6wgSbrRL5w2OyIWltCOORS466lTBVk48i0dkkRlWysiG8xia36JrOPB38YHpr597O/Qf8VbDbHWCTR3ByrtForDRaWAWmr2T78A1FJzsiyfDESAG6AmNw" +
+    "FIlp4TiaBWM+K4Wzu6QwjwQciK/1CnAgzHq1UXXEoQLcOqACXDmKVoBjszEWMTcR964abv3th+6+Kd9Q3RypZptkN9yHF0XacBNllMOFAoLWpmiUKXFstQFgABhPsJFq" +
+    "vfIwALALDCUW0WxdbzXbTZq3/UZ/ZWs5zGFggQUWWGCdYdlGQCYAAABgCPDdUO9uz+9vifex9K5BtBEjn5rb1DJZULGpAn6Ditsqh+rHi02+1Wfbp6ZuGVJYULGpAn6D" +
+    "itsqOVYf/XHx+uexr0wWVGyqgN+g4raK+TcvAAAA5H62Q3UBAGCrugwqjgdb/RxMGnBhVv8/tvp55w/nttdu9q5JXjKPrbDdkkC5dwXsJLGQicBmsWLDxZvCuU4HgfxX" +
+    "FMCWxGpOTlnAhZAAC4mYBGIV426HremAfPYaXutGHwNbHqs5OYWBC/cK7CSxZWWuJuBvuNLvjUKXmfvA8nBZAi7cXuk3DRGY4KiVy4ptmkv/+AUAwGQA33+09A9zRLsz")
 
 # Little Cloud
 CLOUD_1 = TTkUtil.base64_deflate_2_obj(
@@ -184,7 +196,7 @@ TEST_TILES = """
         #
         # Food: 🥘🥗🫔🌯🌮🥙🥪🍕🍟🍰🥧🍡🥮🥠🍥☕🍺🍻🥃🍷🍸🍹🍖🍗🧇🥞🥦🍔🍙🍯
         #
-        # Stuff: 🟰✖️➗➖➕❌🔆🔅
+        # Stuff: 🟰✖️➗➖➕❌🔆🔅 💊🧪🛡️ 🥦⚗️ 🚽
         """
 
 Tiles = {
@@ -252,14 +264,14 @@ Tiles = {
     'wr2':TTkString('🔫'),
     'wr3':TTkString('💜'),
     'wr4':TTkString('💔'),
-    'ws1':TTkString('⚪'),
+    'ws1':TTkString('🌟'),
     'ws2':TTkString('⚫'),
     'ws3':TTkString('🟣'),
     'ws4':TTkString('🔴'),
-    'wt1':TTkString('🪃'),
+    'wt1':TTkString('🥌'),
     'wt2':TTkString('🧨'),
     'wt3':TTkString('💣'),
-    'wt4':TTkString('🥌'),
+    'wt4':TTkString('🚽'),
     # Gold
     'g1':TTkString('💵'),
     'g2':TTkString('💴'),
