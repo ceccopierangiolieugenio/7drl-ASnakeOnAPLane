@@ -72,9 +72,15 @@ class Game(ttk.TTk):
             debugFrame.layout().addWidget(btnRnd  := ttk.TTkButton(  text=' RND ', border=True),     0,1,3,1)
             debugFrame.layout().addWidget(           ttk.TTkLabel( text="Level:"), 0,2)
             debugFrame.layout().addWidget(sbLevel := ttk.TTkSpinBox( value=glbls.level, minimum=1, maximum=5), 1,2)
+            debugFrame.layout().addWidget(cbGod   := ttk.TTkCheckbox(text='God Mode', checked=False), 2,2)
 
             cbDebug.toggled.connect(debugFrame.setVisible)
             sbLevel.valueChanged.connect(glbls.setLevel)
+
+            @ttk.pyTTkSlot(bool)
+            def _setGod(mode):
+                glbls.godMode = mode
+            cbGod.toggled.connect(_setGod)
 
             _attachSignal(btnTest, [self._testGame])
             _attachSignal(btnRnd, [self._dungeon.genDungeon, self.landingAnim])

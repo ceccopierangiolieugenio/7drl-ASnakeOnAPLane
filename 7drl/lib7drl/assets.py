@@ -282,6 +282,8 @@ Tiles = {
     'g7':TTkString('💰'),
     'g8':TTkString('💎'),
 
+    'HIT':TTkString('💥'),
+
     'b' : TTkString('🗃️'), # Black Box
     # Exit
     '>' : TTkString('🪜'),

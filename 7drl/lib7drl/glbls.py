@@ -30,6 +30,7 @@ class Glbls:
     level: int = 5
     score: int = 0
     debug: bool = False
+    godMode: bool = False
     player = None
 
     def setLevel(self, value):

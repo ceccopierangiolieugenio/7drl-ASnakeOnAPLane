@@ -28,6 +28,9 @@ import sys, os, math, random
 sys.path.append(os.path.join(sys.path[0],'../..'))
 import TermTk as ttk
 
+from .assets import *
+from .glbls  import *
+
 @dataclass()
 class Body():
     HEAD:int = 0x01
@@ -53,6 +56,7 @@ class Player():
     def __init__(self) -> None:
         self.updated = ttk.pyTTkSignal()
         self._health:    int  = 100
+        self.maxHealth:  int = 100
         self.weaponHeld: str  = 'wr1'
         self.weapons:    list = ['wr1','wr3','wr4']
         self.shells = {
@@ -79,6 +83,9 @@ class Player():
         self.body = Body()
         self.armor:int = self.body.getArmorValue()
 
+    def shellGlyph(self):
+        return Tiles[self._weaponParams[self.weaponHeld][1]]
+
     @property
     def atk(self):
         # Calc the value of the melee attack
@@ -90,7 +97,7 @@ class Player():
         sh = self._weaponParams.get(self.weaponHeld,None)
         if not sh: return
         shn, sht, wpn = sh
-        if not shn[sht]: return 0
+        # if not shn[sht]: return 0
         return wpn
 
     def shot(self):
@@ -99,6 +106,7 @@ class Player():
             shn, sht, wpn = sh
             shn[sht] = max(0,shn[sht]-1)
         self.updated.emit()
+        return sh
 
     @property
     def health(self):
@@ -108,7 +116,10 @@ class Player():
     @health.setter
     def health(self, value):
         # Calc the value of the weapon attack
-        self._health = max(0,min(value,100))
+        if glbls.godMode:
+            self._health = self.maxHealth
+        else:
+            self._health = max(0,min(value,self.maxHealth))
         self.updated.emit()
 
     def nextWeapon(self,dir=1):

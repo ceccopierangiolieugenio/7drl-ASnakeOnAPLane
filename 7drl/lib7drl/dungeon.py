@@ -43,6 +43,9 @@ class Dungeon(DungeonPrime):
 
     def __init__(self) -> None:
         super().__init__()
+        self._oneOff = []
+        self._animShells = []
+        self._ongoingAnimation = False
         self._mousePos  = (5,3)
         self._heroPos   = (5,3)
         self._mouseLine        = []
@@ -182,7 +185,6 @@ class Dungeon(DungeonPrime):
     def getRays(self, fr, to) -> list[list,list,bool]:
         hx,hy = fr
         x,y   = to
-        self._mousePos = (x,y)
         dataMap = self._dataFloor
         rim = self._ratInvMap
         dx,dy=x-hx,y-hy
@@ -207,13 +209,37 @@ class Dungeon(DungeonPrime):
             if bx>dx and by<dy and _B and _R : hitPos=(dx,dy); break
             if bx<dx and by>dy and _T and _L : hitPos=(dx,dy); break
             if bx<dx and by<dy and _B and _L : hitPos=(dx,dy); break
+        if len(line)==len(visibleLine): hitPos=to
         return line, visibleLine, hitPos, len(line)==len(visibleLine)
 
-    def animShot(self,fr,to,glyph):
-        pass
+    def animShot(self,fr,to,path,glyph,endingCallback):
+        shell = {'pos':fr,'to':to,'glyph':glyph,'path':path,'id':0}
+        def _shotAnimation(value:int):
+            self._ongoingAnimation = True
+            shell['pos'] = shell['path'][value]
+        def _finishedAnimation():
+            self._ongoingAnimation = False
+            self._animShells.remove(shell)
+            shell['glyph']=Tiles['HIT']
+            shell['pos']=shell['to']
+            self._oneOff.append(shell)
+            endingCallback()
+
+        # Entering the Parallax
+        animShell = ttk.TTkPropertyAnimation(None, _shotAnimation)
+        animShell.setStartValue(0)
+        animShell.setEndValue(  len(path)-1)
+        dur = ((fr[0]-to[0])**2+(fr[1]-to[1])**2)/400 # 20 tiles per second
+        animShell.setDuration(dur)
+        animShell.finished.connect(_finishedAnimation)
+        # animShell.setEasingCurve(ttk.TTkEasingCurve.OutQuint)
+        animShell.start()
+        self._animShells.append(shell)
 
     def moveMouse(self, x,y):
+        if self._ongoingAnimation: return
         line, visible, _,__ = self.getRays(self._heroPos,(x,y))
+        self._mousePos = (x,y)
         self._mouseLine = line
         self._mouseVisibleLine = visible
 
@@ -227,19 +253,23 @@ class Dungeon(DungeonPrime):
         dfoes = self._dataFoes
         player:Player = glbls.player
         foes  = self._foes
+        self._mouseLine = []
+        if self._ongoingAnimation: return
         if hit and (foe:=df[y][x]):
             # Process Melee Action
+            if not player.shot(): return
             foe.health -= player.wpn
-            if foe.health <= 0: # the foe is dead
-                foes.remove(foe)
-                dfoes[y][x] = None
-                Message.add(ttk.TTkString(f"You Killed ") +
-                            ttk.TTkString(f"{foe.name} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
-            else:
-                Message.add(ttk.TTkString(f"You Hit ") +
-                            ttk.TTkString(f"{foe.name} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
-            return
-        self._mouseLine = []
+            def _endingCallback():
+                if foe.health <= 0: # the foe is dead
+                    foes.remove(foe)
+                    dfoes[y][x] = None
+                    Message.add(ttk.TTkString(f"You Killed ") +
+                                ttk.TTkString(f"{foe.name} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
+                else:
+                    Message.add(ttk.TTkString(f"You Hit ") +
+                                ttk.TTkString(f"{foe.name} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
+            self.animShot(self._heroPos,hitPos,visible,player.shellGlyph(),_endingCallback)
+
 
     def foesAction(self):
         visMap = self._visibilityMap
@@ -249,6 +279,7 @@ class Dungeon(DungeonPrime):
         hm = self._heatMap
         player:Player = glbls.player
         hx,hy = self._heroPos
+        if self._ongoingAnimation: return
         for foe in self._foes:
             x,y = foe.pos
             if rn==visMap[y][x]: foe.active = True
@@ -258,7 +289,8 @@ class Dungeon(DungeonPrime):
             if move:
                 ch = hm[y][x]
                 if ch == 2: # Melee Attack
-                    player.health -= foe.atk
+                    if not glbls.godMode:
+                        player.health -= foe.atk
                     return
                 if ch < foe.distance:
                     chNew = ch+1
@@ -283,6 +315,7 @@ class Dungeon(DungeonPrime):
         self._mouseLine = []
         self._mouseVisibleLine = []
         self._mousePos = None
+        if self._ongoingAnimation: return
         dtile = self._dataFloor
         dfoes = self._dataFoes
         foes  = self._foes
@@ -350,15 +383,22 @@ class Dungeon(DungeonPrime):
         rn        = self._rayNum
         # Draw the plane:
         self._drawLayer(self._layerPlane, pos, canvas)
+
         # Draw the Dungeon:
         fd = self._fading
-        dw = int(math.ceil(fd*len(dataFloor[0])))
-        dh = int(math.ceil(fd*len(dataFloor)))
+        dw = len(dataFloor[0])
+        dh = len(dataFloor)
+        if fd == 1:
+            ssh = slice(0,dh+1)
+            ssw = slice(0,dw+1)
+            fdx,fdy=0,0
+        else:
+            _fw,_fh = fd*25,fd*15
+            ssw = slice(fdx:=max(0,int(hx-_fw)),int(hx+_fw))
+            ssh = slice(fdy:=max(0,int(hy-_fh)),int(hy+_fh))
 
-        ssh = slice(0,dh+1)
-        ssw = slice(0,dw+1)
-        for cy,(rof,rot,rofoe,roobj,rvm) in enumerate(zip(dataFloor[ssh],dataType[ssh],dataFoes[ssh],dataObjs[ssh],visMap[ssh]),y):
-            for cx,(fl,ty,fo,ob,vm) in enumerate(zip(rof[ssw],rot[ssw],rofoe[ssw],roobj[ssw],rvm[ssw])):
+        for cy,(rof,rot,rofoe,roobj,rvm) in enumerate(zip(dataFloor[ssh],dataType[ssh],dataFoes[ssh],dataObjs[ssh],visMap[ssh]),y+fdy):
+            for cx,(fl,ty,fo,ob,vm) in enumerate(zip(rof[ssw],rot[ssw],rofoe[ssw],roobj[ssw],rvm[ssw]),fdx):
                 if not fl or not vm: continue
                 if   rn==vm and fo: ch = Tiles.get(fo.name)
                 elif ob: ch = Tiles.get(ob)
@@ -397,6 +437,10 @@ class Dungeon(DungeonPrime):
                         canvas.drawText(pos=(px+iw+1,y),text="▐")
                         canvas.drawTTkString(pos=(px+1,y),text=l)
 
+        for sh in self._animShells+self._oneOff:
+            shx,shy = sh['pos']
+            canvas.drawTTkString(pos=(x+shx*2,y+shy),text=sh['glyph'],color=color)
+        self._oneOff = []
 
         # for cx,cy in self._mouseLine:
         #     canvas.drawText(pos=(x+cx*2,y+cy),text='XX')
