@@ -687,7 +687,7 @@ class DungeonPrime():
         # At least 1 foe every 20x3
         # and no more than 6x3
         foes = random.randint(mapSize//(20*3),mapSize//(6*3))
-        objs = random.randint(mapSize//(20*4),mapSize//(6*5))
+        objs = random.randint(foes,3*foes//2)
 
         def _randomDistanceInType(_dists,_type):
             _fr,_to = _dists

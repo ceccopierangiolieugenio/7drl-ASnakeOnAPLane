@@ -240,7 +240,7 @@ Tiles = {
     'af1' : TTkString('👢'),
     'af2' : TTkString('🧦'),
     'af3' : TTkString('👠'),
-    'af4' : TTkString('🥿'),
+    'af4' : TTkString('👟'),
     'af5' : TTkString('🩴'),
     'ah1' : TTkString('🪖'),
     'ah2' : TTkString('⛑️'),
@@ -249,9 +249,9 @@ Tiles = {
     'ah5' : TTkString('🧢'),
     'ab1' : TTkString('🎽'),
     'ab2' : TTkString('🩱'),
-    'ab3' : TTkString('👙'),
+    'ab3' : TTkString('👘'),
     'ab4' : TTkString('👗'),
-    'ab5' : TTkString('👘'),
+    'ab5' : TTkString('👙'),
     'al1' : TTkString('🩳'),
     'al2' : TTkString('🩲'),
     'al3' : TTkString('👖'),
@@ -286,5 +286,5 @@ Tiles = {
 
     'b' : TTkString('🗃️'), # Black Box
     # Exit
-    '>' : TTkString('🪜'),
+    '>' : TTkString('🕳️ '),
 }

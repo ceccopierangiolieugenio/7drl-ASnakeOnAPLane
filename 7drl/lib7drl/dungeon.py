@@ -33,6 +33,7 @@ from .assets import *
 from .foe    import *
 from .glbls  import *
 from .player import *
+from .objinfo  import *
 from .messages import *
 
 class Dungeon(DungeonPrime):
@@ -434,14 +435,17 @@ class Dungeon(DungeonPrime):
         color = self._floor[dataType[hy][hx]][0][(hx+hy)%2]
         canvas.drawTTkString(pos=(x+hx*2,y+hy),text=he,color=color)
 
+        for sh in self._animShells+self._oneOff:
+            shx,shy = sh['pos']
+            canvas.drawTTkString(pos=(x+shx*2,y+shy),text=sh['glyph'],color=color)
+        self._oneOff = []
+
         if self._mousePos:
             mpx,mpy = self._mousePos
             if 0<=mpx<dw and 0<=mpy<dh and visMap[mpy][mpx]:
                 canvas.drawTTkString(pos=(x+mpx*2,y+mpy),text=self._mouseIcon,color=color)
 
-                # Draw Info Box
-                if foe := dataFoes[mpy][mpx]:
-                    info = foe.info
+                def _drawInfo(info):
                     iw,ih = max(l.termWidth() for l in info), len(info)
                     px,py = (w-iw-4,h-ih-3)
                     canvas.fill(pos=(px,py),size=(iw+2,ih+2))
@@ -452,10 +456,14 @@ class Dungeon(DungeonPrime):
                         canvas.drawText(pos=(px+iw+1,y),text="▐")
                         canvas.drawTTkString(pos=(px+1,y),text=l)
 
-        for sh in self._animShells+self._oneOff:
-            shx,shy = sh['pos']
-            canvas.drawTTkString(pos=(x+shx*2,y+shy),text=sh['glyph'],color=color)
-        self._oneOff = []
+                # Draw Info Box
+                if foe := dataFoes[mpy][mpx]:
+                    _drawInfo(foe.info)
+                elif (obj:=dataObjs[mpy][mpx]) and obj in ObjInfo:
+                    _drawInfo(ObjInfo[obj])
+                elif (obj:=dataFloor[mpy][mpx]) and obj in ObjInfo:
+                    _drawInfo(ObjInfo[obj])
+
 
         # for cx,cy in self._mouseLine:
         #     canvas.drawText(pos=(x+cx*2,y+cy),text='XX')

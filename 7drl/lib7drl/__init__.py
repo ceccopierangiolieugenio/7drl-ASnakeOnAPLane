@@ -9,3 +9,4 @@ from .statwin      import *
 from .player       import *
 from .foe          import *
 from .messages     import *
+from .objinfo      import *
