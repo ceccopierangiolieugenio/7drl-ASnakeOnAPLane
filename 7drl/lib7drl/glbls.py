@@ -25,6 +25,10 @@ __all__ = ['glbls']
 
 from dataclasses import dataclass
 
+import sys, os
+sys.path.append(os.path.join(sys.path[0],'../..'))
+import TermTk as ttk
+
 @dataclass(frozen=False)
 class Glbls:
     level: int = 5
@@ -37,6 +41,10 @@ class Glbls:
 
     def setLevel(self, value):
         self.level = value
+
+    nextLevel = ttk.pyTTkSignal()
+    endGame   = ttk.pyTTkSignal()
+    death     = ttk.pyTTkSignal()
 
     root = None
 

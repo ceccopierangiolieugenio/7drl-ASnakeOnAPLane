@@ -207,9 +207,13 @@ class Foe():
         self.picture = Tiles[name]
         self.reloadSpeed = reloadSpeed
         self.time = random.randint(0,10)
-        self.info = []
+        self._info = []
 
         self.genInfo()
+
+    @property
+    def info(self):
+        return self._info + [ttk.TTkString(f"Health: {self.health}/{FOELIST[self.name]['health']}")]
 
     def shellGlyph(self):
         return self._shellGlyph
@@ -218,14 +222,14 @@ class Foe():
         def _getName():
             return stolenNames[random.randint(0,len(stolenNames)-1)]
         self.fullName = _getName()
-        self.info = [
+        self._info = [
             ttk.TTkString(f" {self.picture} {self.fullName} the {self.name} ")]
         r = random.randint(0,20)
         if r == 0: # married 1
             wife = _getName()
             son = _getName()
             nkids = random.randint(2,10)
-            self.info += [
+            self._info += [
                 ttk.TTkString(f"he is in love with {wife}"),
                 ttk.TTkString(f"a beautiful {self.name}"),
                 ttk.TTkString(f"they have {nkids} amazing kids"),
@@ -235,29 +239,29 @@ class Foe():
             wife = _getName()
             son = _getName()
             nkids = random.randint(2,10)
-            self.info += [
+            self._info += [
                 ttk.TTkString(f"His son {son} is also his best friend"),
                 ttk.TTkString(f"he mean the world to him"),
             ]
         elif r == 2:
             son = _getName()
-            self.info += [
+            self._info += [
                 ttk.TTkString(f"she is a single mom"),
                 ttk.TTkString(f"her daughter {son} is"),
                 ttk.TTkString(f"very smart and lovely"),
             ]
         elif r == 3: # married 1
-            self.info += [
+            self._info += [
                 ttk.TTkString(f"Yesterday had the best burrito of his life"),
             ]
         elif r == 4: # married 1
-            self.info += [
+            self._info += [
                 ttk.TTkString(f"Every Sunday he helps the neighbourhood"),
                 ttk.TTkString(f"cooking meals for the homeless"),
             ]
         elif r == 5: # married 1
             dog = _getName()
-            self.info += [
+            self._info += [
                 ttk.TTkString(f"She loves to cuddle her dog {dog}"),
             ]
         else:
@@ -274,8 +278,7 @@ class Foe():
             else:
                 hobby = [hobby]
             for h in hobby:
-                self.info.append(ttk.TTkString(h))
-        self.info.append(ttk.TTkString(f"Health: {self.health}/{FOELIST[self.name]['health']}"))
+                self._info.append(ttk.TTkString(h))
 
     def drop(self):
         drop = []

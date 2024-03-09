@@ -287,5 +287,6 @@ Tiles = {
 
     'b' : TTkString('🗃️'), # Black Box
     # Exit
-    '>' : TTkString('🕳️ '),
+    # '>' : TTkString('🕳️ '),
+    '>' : TTkString('🭦🭛',TTkColor.fg("000000")),
 }

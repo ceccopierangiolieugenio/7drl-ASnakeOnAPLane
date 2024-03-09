@@ -170,12 +170,15 @@ class Player():
         return AttackParam[self.weaponHeld]
 
     def shot(self):
+        ret = False
         sh = self._weaponParams.get(self.weaponHeld,None)
         if sh:
             shn, sht = sh
-            shn[sht] = max(0,shn[sht]-1)
-        self.updated.emit()
-        return sh
+            if shn[sht]:
+                shn[sht] = max(0,shn[sht]-1)
+                ret = True
+                self.updated.emit()
+        return ret
 
     @property
     def health(self):

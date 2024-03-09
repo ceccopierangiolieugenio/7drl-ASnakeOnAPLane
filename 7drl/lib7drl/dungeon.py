@@ -293,7 +293,9 @@ class Dungeon(DungeonPrime):
         if self._ongoingAnimation: return
         if hit and (foe:=df[y][x]):
             # Process Melee Action
-            if not player.shot(): return
+            if not player.shot():
+                Message.add(ttk.TTkString(" - You have no ammo - ",ttk.TTkColor.bg('#0000AA')+ttk.TTkColor.fg('#FFFF00')))
+                return
             def _endingCallback():
                 self.hitFoe(foe,player.wpn,False)
                 self.foesAction()
@@ -348,7 +350,6 @@ class Dungeon(DungeonPrime):
                 _moveAction()
 
     def heroAction(self):
-        if self._ongoingAnimation: return
         dataFloor = self._dataFloor
         dataType  = self._dataType
         dataObjs  = self._dataObjs
@@ -357,6 +358,8 @@ class Dungeon(DungeonPrime):
         if obj:=dataObjs[hy][hx]:
             if player.grab(obj):
                 dataObjs[hy][hx] = ''
+        elif dataFloor[hy][hx] == '>':
+            glbls.nextLevel.emit()
 
 
     def moveHero(self, direction):

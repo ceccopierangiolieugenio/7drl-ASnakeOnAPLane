@@ -23,7 +23,7 @@
 
 __all__ = ['Game']
 
-import sys, os
+import sys, os, random
 
 sys.path.append(os.path.join(sys.path[0],'../..'))
 import TermTk as ttk
@@ -37,6 +37,31 @@ from .player   import *
 from .messages import *
 
 from wblib    import WBWindow
+
+# Thanks ChatGPT
+funny_plane_names = [
+    "Air Force Zero",
+    "Air Goose",
+    "Wing Wonder",
+    "Turbulence Terminator",
+    "Cloud Cruiser",
+    "Flyin' Banana",
+    "Sky Squirrel",
+    "Aero Avocado",
+    "Propeller Puffin",
+    "Altitude Alpaca",
+    "Jet Jester",
+    "Whirlybird Whiz",
+    "Skyward Sloth",
+    "Aero Avocado",
+    "Aviary Avenger",
+    "Feathered Falcon",
+    "Sonic Sloth",
+    "Nimbus Ninja",
+    "Aerodynamic Armadillo",
+    "Zephyr Zebra",
+    "Gliding Gopher"
+]
 
 class Game(ttk.TTk):
     def __init__(self, debug=True, level=1, **kwargs):
@@ -65,6 +90,12 @@ class Game(ttk.TTk):
             for _slot in _slots:
                 _btn.clicked.connect(_slot)
 
+        def _rndButton():
+            self.takingOffAnim([
+                self._dungeon.genDungeon,
+                self.landingAnim
+            ])
+
         if debug:
             cbDebug = ttk.TTkCheckbox(parent=self, pos=(0,30), text='Debug', size=(8,1), checked=True)
             debugFrame = ttk.TTkFrame(parent=self, pos=(9,30), size=(50,3),layout=ttk.TTkGridLayout(), visible=True, border=False)
@@ -89,7 +120,11 @@ class Game(ttk.TTk):
             cbShow.toggled.connect(_setMap)
 
             _attachSignal(btnTest, [self._testGame])
-            _attachSignal(btnRnd, [self._dungeon.genDungeon, self.landingAnim])
+            _attachSignal(btnRnd, [_rndButton])
+
+        glbls.nextLevel.connect(self._nextLevel)
+        glbls.endGame.connect(self._endGame)
+        glbls.death.connect(self._death)
 
         # btnInfo.toggled.connect(statWin.setVisible)
         # btnInfo.toggled.connect(self.setFocus)
@@ -97,6 +132,23 @@ class Game(ttk.TTk):
 
         self.landingAnim()
         self.setFocus()
+
+    @ttk.pyTTkSlot()
+    def _nextLevel(self):
+        def _doIt():
+            glbls.level = min(5,glbls.level+1)
+            glbls.player.resetKeys()
+            self._dungeon.genDungeon()
+            self.landingAnim()
+        self.takingOffAnim([_doIt])
+
+    @ttk.pyTTkSlot()
+    def _endGame(self):
+        pass
+    @ttk.pyTTkSlot()
+    def _death(self):
+        pass
+
 
     @ttk.pyTTkSlot()
     def _testGame(self):
@@ -108,14 +160,6 @@ class Game(ttk.TTk):
     def landingAnim(self):
         self._dungeon.setFading(0)
 
-        # Entering the Parallax
-        animVPos = ttk.TTkPropertyAnimation(self._parallax, self._parallax.setVPos)
-        animVPos.setStartValue(50)
-        animVPos.setEndValue(   0)
-        animVPos.setDuration(2)
-        animVPos.setEasingCurve(ttk.TTkEasingCurve.OutQuint)
-        animVPos.start()
-
         def _animFading():
         # Dungeon Animation
             animFading = ttk.TTkPropertyAnimation(self._dungeon,self._dungeon.setFading)
@@ -125,14 +169,65 @@ class Game(ttk.TTk):
             animFading.setEasingCurve(ttk.TTkEasingCurve.OutQuint)
             animFading.start()
 
+        def _parallaxAnim():
+            # Entering the Parallax
+            animVPos = ttk.TTkPropertyAnimation(self._parallax, self._parallax.setVPos)
+            animVPos.setStartValue(50)
+            animVPos.setEndValue(   0)
+            animVPos.setDuration(2)
+            animVPos.setEasingCurve(ttk.TTkEasingCurve.OutQuint)
+            animVPos.start()
+
+        def _dungeonAnim():
+            Message.add(ttk.TTkString(f"- Phase {glbls.level} -"))
+            Message.add(ttk.TTkString(f"Entering {random.choice(funny_plane_names)}"))
+            # Dungeon Animation
+            animPlane = ttk.TTkPropertyAnimation(self,self.setDungeonPos)
+            animPlane.setStartValue((-150,-30))
+            animPlane.setEndValue(  ( 100//2, 30//2))
+            animPlane.setDuration(2)
+            animPlane.setEasingCurve(ttk.TTkEasingCurve.OutBack)
+            animPlane.finished.connect(_animFading)
+            animPlane.start()
+
+        _parallaxAnim()
+        _dungeonAnim()
+
+    def takingOffAnim(self,next):
+        self._dungeon.setFading(1)
+
+        def _parallaxAnim():
+            # Entering the Parallax
+            animVPos = ttk.TTkPropertyAnimation(self._parallax, self._parallax.setVPos)
+            animVPos.setStartValue( 0)
+            animVPos.setEndValue(  50)
+            animVPos.setDuration(2)
+            animVPos.setEasingCurve(ttk.TTkEasingCurve.InQuint)
+            animVPos.start()
+
+        def _dungeonAnim():
+            # Dungeon Animation
+            animPlane = ttk.TTkPropertyAnimation(self,self.setDungeonPos)
+            animPlane.setStartValue(  ( 100//2, 30//2))
+            animPlane.setEndValue(    ( 150,-30))
+            animPlane.setDuration(2)
+            animPlane.setEasingCurve(ttk.TTkEasingCurve.InBack)
+            for n in next:
+                animPlane.finished.connect(n)
+            animPlane.start()
+
+        def _animFading():
         # Dungeon Animation
-        animPlane = ttk.TTkPropertyAnimation(self,self.setDungeonPos)
-        animPlane.setStartValue((-150,-30))
-        animPlane.setEndValue(  ( 100//2, 30//2))
-        animPlane.setDuration(2)
-        animPlane.setEasingCurve(ttk.TTkEasingCurve.OutBack)
-        animPlane.start()
-        animPlane.finished.connect(_animFading)
+            animFading = ttk.TTkPropertyAnimation(self._dungeon,self._dungeon.setFading)
+            animFading.setStartValue(1)
+            animFading.setEndValue(  0)
+            animFading.setDuration(1)
+            animFading.setEasingCurve(ttk.TTkEasingCurve.OutQuint)
+            animFading.start()
+            animFading.finished.connect(_dungeonAnim)
+            animFading.finished.connect(_parallaxAnim)
+
+        _animFading()
 
     def setDungeonPos(self, x,y):
         self._dungeonPos = (int(x),int(y))
@@ -154,6 +249,8 @@ class Game(ttk.TTk):
             elif evt.key == 'a': self._dungeon.moveHero(d.LEFT)  ; self._dungeon.foesAction()
             elif evt.key == 'd': self._dungeon.moveHero(d.RIGHT) ; self._dungeon.foesAction()
             elif evt.key == 'e': self._dungeon.heroAction()      ; self._dungeon.foesAction()
+            elif evt.key == 'g': self._dungeon.heroAction()      ; self._dungeon.foesAction()
+            elif evt.key == '<': self._dungeon.heroAction()      ; self._dungeon.foesAction()
             elif evt.key == ' ': self._dungeon.foesAction()#
             self.checkGameProgress()
             self.update()

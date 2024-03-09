@@ -84,9 +84,9 @@ ObjInfo = {
              ttk.TTkString("   Armor +20")] ,
     'ab3' : [ttk.TTkString(" Kimono of the Power ") + Tiles['ab3'],
              ttk.TTkString("   Armor +25")] ,
-    'ab5' : [ttk.TTkString(" Not yet wedding Dress ") + Tiles['ab4'],
+    'ab4' : [ttk.TTkString(" Not yet wedding Dress ") + Tiles['ab4'],
              ttk.TTkString("   Armor +30")] ,
-    'ab4' : [ttk.TTkString(" Chainmail Bikini ") + Tiles['ab5'],
+    'ab5' : [ttk.TTkString(" Chainmail Bikini ") + Tiles['ab5'],
              ttk.TTkString("Best armor in any RPG"),
              ttk.TTkString("   Armor +35")] ,
     'al1' : [ttk.TTkString(" Sausage Holder ") + Tiles['al1'],
@@ -129,5 +129,5 @@ ObjInfo = {
 
     'b' : [ttk.TTkString("Black Box ") + Tiles['b']] ,
     # Exit
-    '>' : [ttk.TTkString("This is ") + Tiles['>' ]] ,
+    '>' : [ttk.TTkString("This is the Exit") + Tiles['>' ]] ,
 }
