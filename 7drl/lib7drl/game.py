@@ -159,6 +159,16 @@ class Game(ttk.TTk):
 
     def landingAnim(self):
         self._dungeon.setFading(0)
+        self._dungeon.setBouncingHero(-5,-20)
+
+        def _animBouncingHero():
+        # Dungeon Animation
+            animBouncing = ttk.TTkPropertyAnimation(self._dungeon,self._dungeon.setBouncingHero)
+            animBouncing.setStartValue((-5,-20))
+            animBouncing.setEndValue(  (  0,  0))
+            animBouncing.setDuration(1.5)
+            animBouncing.setEasingCurve(ttk.TTkEasingCurve.OutBounce)
+            animBouncing.start()
 
         def _animFading():
         # Dungeon Animation
@@ -166,7 +176,8 @@ class Game(ttk.TTk):
             animFading.setStartValue(0)
             animFading.setEndValue(  1)
             animFading.setDuration(1)
-            animFading.setEasingCurve(ttk.TTkEasingCurve.OutQuint)
+            animFading.setEasingCurve(ttk.TTkEasingCurve.InOutQuad)
+            animFading.finished.connect(_animBouncingHero)
             animFading.start()
 
         def _parallaxAnim():

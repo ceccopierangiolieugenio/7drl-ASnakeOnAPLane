@@ -49,6 +49,7 @@ class Dungeon(DungeonPrime):
         self._ongoingAnimation = False
         self._mousePos  = (5,3)
         self._heroPos   = (5,3)
+        self._heroBouncing = (0,0)
         self._mouseLine        = []
         self._mouseVisibleLine = []
         self._mouseColor        = ttk.TTkColor.fg('#008800')+ttk.TTkColor.bg('#888800')
@@ -412,6 +413,9 @@ class Dungeon(DungeonPrime):
     def setFading(self, fading):
         self._fading = fading
 
+    def setBouncingHero(self, x,y):
+        self._heroBouncing = (int(x),int(y))
+
     # draw the Layers:
     def _drawLayer(self, l, pos, canvas):
         x,y = pos
@@ -466,10 +470,16 @@ class Dungeon(DungeonPrime):
                     canvas.drawTTkString(pos=(x+cx*2,cy),text=ch,color=color)
                 # else:
                 #     canvas.drawText(pos=(x+cx*2,cy),text="XX",color=color)
+
         # Place Hero:
         he = Tiles.get('@')
-        color = self._floor[dataType[hy][hx]][0][(hx+hy)%2]
-        canvas.drawTTkString(pos=(x+hx*2,y+hy),text=he,color=color)
+        hbx,hby = self._heroBouncing
+        nhx,nhy=hbx+hx,hby+hy
+        if 0<=nhx<dw and 0<=nhy<dh:
+            color = self._floor[dataType[nhy][nhx]][0][(hx+hy)%2]
+        else:
+            color =ttk.TTkColor.RST
+        canvas.drawTTkString(pos=(x+nhx*2,y+nhy),text=he,color=color)
 
         for sh in self._animShells+self._oneOff:
             shx,shy = sh['pos']
