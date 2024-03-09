@@ -28,8 +28,17 @@ import sys, os, math, random
 sys.path.append(os.path.join(sys.path[0],'../..'))
 import TermTk as ttk
 
-from .assets import *
-from .glbls  import *
+from .assets   import *
+from .glbls    import *
+from .objinfo  import *
+from .messages import *
+
+ArmorValues = {
+    'af1':15,'ah1':15,'ab1':15,'al1':10,
+    'af2':20,'ah2':20,'ab2':20,'al2':20,
+    'af3':25,'ah3':25,'ab3':25,'al3':30,
+    'af4':30,'ah5':30,'ab5':30,
+    'af4':35,'ah4':35,'ab4':35}
 
 @dataclass()
 class Body():
@@ -38,27 +47,78 @@ class Body():
     LEGS:int = 0x03
     FEET:int = 0x04
 
-    head: str = ''
-    body: str = ''
-    legs: str = ''
-    feet: str = ''
+    head: str = 'ah1'
+    body: str = 'ab1'
+    legs: str = 'al1'
+    feet: str = 'af1'
 
-    def wear(self, what, where):
-        if where == self.HEAD: self.head = what
-        if where == self.BODY: self.body = what
-        if where == self.LEGS: self.legs = what
-        if where == self.FEET: self.feet = what
+    maxArmor = 35+35+35+30
+
+    armorPoint = {'h': 15,'b': 15,'l': 10,'f': 15}
+
+    def wear(self, obj):
+        if obj in ['af1','af2','af3','af4','af4']:
+            if self.armorPoint['f'] > ArmorValues[obj]:
+                return False
+            self.feet=obj
+            self.armorPoint['f']=ArmorValues[obj]
+        if obj in ['ah1','ah2','ah3','ah4','ah4']:
+            if self.armorPoint['f'] > ArmorValues[obj]:
+                return False
+            self.head=obj
+            self.armorPoint['h']=ArmorValues[obj]
+        if obj in ['ab1','ab2','ab3','ab4','ab4']:
+            if self.armorPoint['b'] > ArmorValues[obj]:
+                return False
+            self.body=obj
+            self.armorPoint['b']=ArmorValues[obj]
+        if obj in ['al1','al2','al3']:
+            if self.armorPoint['l'] > ArmorValues[obj]:
+                return False
+            self.legs=obj
+            self.armorPoint['l']=ArmorValues[obj]
+        return True
 
     def getArmorValue(self):
-        return 100
+        armor = 0
+        for i in self.armorPoint:
+            armor += self.armorPoint[i]
+        return armor
 
+    def hit(self, value):
+        for ak in (ap:=self.armorPoint):
+            if value >= ap[ak]:
+                value -= ap[ak]
+                ap[ak] = 0
+                if ak == 'h': self.head = ''
+                if ak == 'b': self.body = ''
+                if ak == 'l': self.legs = ''
+                if ak == 'f': self.feet = ''
+            else:
+                ap[ak] -= value
+                value = 0
+        return value
+
+# ['wm1','wm2','wm3','wm4']
+# ['wr1','wr2','wr3','wr4']
+# ['ws1','ws2','ws3','ws4']
+# ['wt1','wt2','wt3','wt4']
+
+MeleeParams = {'wm0':10,'wm1':15,'wm2':20,'wm3':25,'wm4':30}
+ShellsParam = {'wr1':5 ,'wr2':5 ,'wr3': 3,'wr4': 3,
+               'ws1':15,'ws2':15,'ws3': 5,'ws4': 5,
+               'wt1':3 ,'wt2':2 ,'wt3': 1,'wt4': 1}
+AttackParam = {'wr1':5 ,'wr2':10,'wr3':20,'wr4':25,
+               'wt1':20,'wt2':30,'wt3':40,'wt4':30}
+MaxShells =   {'ws1':100,'ws2':100,'ws3':30,'ws4': 20,
+               'wt1': 20,'wt2': 20,'wt3':20,'wt4': 10}
+Gold = {'g1': 10,'g2': 13,'g3': 27,'g4':  44,
+        'g5':142,'g6':364,'g7':735,'g8':1297}
 class Player():
     def __init__(self) -> None:
         self.updated = ttk.pyTTkSignal()
-        self._health:    int  = 100
-        self.maxHealth:  int = 100
-        self.weaponHeld: str  = 'wr1'
-        self.weapons:    list = ['wr1','wr3','wr4']
+        self.moneyUpdated = ttk.pyTTkSignal(int)
+
         self.shells = {
             'ws1' : 20,
             'ws2' : 0,
@@ -71,17 +131,30 @@ class Player():
             'wt4' : 2,}
 
         self._weaponParams = {
-            'wr1': (self.shells    , 'ws1', 10),
-            'wr2': (self.shells    , 'ws2', 20),
-            'wr3': (self.shells    , 'ws3', 40),
-            'wr4': (self.shells    , 'ws4', 40),
-            'wt1': (self.throwables, 'wt1', 25),
-            'wt2': (self.throwables, 'wt2', 30),
-            'wt3': (self.throwables, 'wt3', 40),
-            'wt4': (self.throwables, 'wt4', 20)}
+            'wr1': (self.shells    , 'ws1'),
+            'wr2': (self.shells    , 'ws2'),
+            'wr3': (self.shells    , 'ws3'),
+            'wr4': (self.shells    , 'ws4'),
+            'wt1': (self.throwables, 'wt1'),
+            'wt2': (self.throwables, 'wt2'),
+            'wt3': (self.throwables, 'wt3'),
+            'wt4': (self.throwables, 'wt4')}
+        self.resetStats()
 
+    def resetKeys(self):
+        self.keys = []
+        self.updated.emit()
+
+    def resetStats(self):
+        self.money= 0
+        self.keys = []
         self.body = Body()
-        self.armor:int = self.body.getArmorValue()
+        self._health:    int  = 100
+        self.maxHealth:  int = 100
+        self.meleeHeld:  str  = 'wm0'
+        self.weaponHeld: str  = 'wr1'
+        self.weapons:    list = ['wr1','wr3','wr4']
+        self.maxArmor = self.body.maxArmor
 
     def shellGlyph(self):
         return Tiles[self._weaponParams[self.weaponHeld][1]]
@@ -89,21 +162,17 @@ class Player():
     @property
     def atk(self):
         # Calc the value of the melee attack
-        return 10
+        return MeleeParams[self.meleeHeld]
+
 
     @property
     def wpn(self):
-        # Calc the value of the weapon attack
-        sh = self._weaponParams.get(self.weaponHeld,None)
-        if not sh: return
-        shn, sht, wpn = sh
-        # if not shn[sht]: return 0
-        return wpn
+        return AttackParam[self.weaponHeld]
 
     def shot(self):
         sh = self._weaponParams.get(self.weaponHeld,None)
         if sh:
-            shn, sht, wpn = sh
+            shn, sht = sh
             shn[sht] = max(0,shn[sht]-1)
         self.updated.emit()
         return sh
@@ -122,6 +191,17 @@ class Player():
             self._health = max(0,min(value,self.maxHealth))
         self.updated.emit()
 
+    @property
+    def armor(self):
+        # Calc the value of the melee attack
+        return self.body.getArmorValue()
+
+    def hit(self,value):
+        value = self.body.hit(value)
+        self.health -= value
+        self.updated.emit()
+
+
     def nextWeapon(self,dir=1):
         aw = sorted(self.weapons)
         wh = self.weaponHeld
@@ -136,6 +216,61 @@ class Player():
 
     def prevWeapon(self):
         self.nextWeapon(-1)
+
+    def grab(self, obj):
+        grabbed = True
+        if obj in ['af1','ah1','ab1','al1',
+                   'af2','ah2','ab2','al2',
+                   'af3','ah3','ab3','al3',
+                   'af4','ah4','ab4',
+                   'af5','ah5','ab5']:
+            grabbed = self.body.wear(obj)
+            if grabbed:
+                Message.add(ttk.TTkString(
+                    random.choice([
+                        "You are proudly suiting up",
+                        "You are outfitting",
+                        "You feel amazing dressing",
+                        "You are as beautiful as ever with a new",
+                        "It's time grab a damn new",
+                        "Everyone is enchanted by your new",
+                    ])))
+            else:
+                Message.add(ttk.TTkString("You are wearing something better than"))
+        elif obj in ['wm1','wm2','wm3','wm4']:
+            self.meleeHeld = obj
+            Message.add(ttk.TTkString("Welding a shiny new"))
+        elif obj in ['ws1','ws2','ws3','ws4']:
+                shells = ShellsParam[obj]
+                maxSh = MaxShells[obj]
+                if self.shells[obj] == maxSh:
+                    grabbed = False
+                    Message.add(ttk.TTkString("You are already full of"))
+                else:
+                    self.shells[obj] = min(maxSh,self.shells[obj]+shells)
+                    Message.add(ttk.TTkString("Grabbing some"))
+        elif obj in ['wt1','wt2','wt3','wt4']:
+                shells = ShellsParam[obj]
+                maxSh = MaxShells[obj]
+                self.throwables[obj] = min(maxSh,self.throwables[obj]+shells)
+                Message.add(ttk.TTkString("Grabbing some"))
+        elif obj in ['wr1','wr2','wr3','wr4']:
+            if obj not in self.weapons:
+                self.weapons.append(obj)
+                shells = ShellsParam[obj]
+                _, nameSh = self._weaponParams[obj]
+                maxSh = MaxShells[nameSh]
+                self.shells[nameSh] = min(maxSh,self.shells[nameSh]+shells)
+                Message.add(ttk.TTkString("Feel the dark power of"))
+        elif obj in ['g1','g2','g3','g4','g5','g6','g7','g8']:
+            self.money += Gold[obj]
+            self.moneyUpdated.emit(self.money)
+        elif obj in ['KR','KG','KB','KY']:
+            self.keys.append(obj)
+            Message.add(ttk.TTkString("Grabbed"))
+        Message.add(ObjInfo[obj][0])
+        self.updated.emit()
+        return grabbed
 
 
 

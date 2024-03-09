@@ -246,11 +246,22 @@ class Dungeon(DungeonPrime):
 
     def hitFoe(self, foe:Foe, amount, suicide=False):
         dfoes = self._dataFoes
+        dobjs = self._dataObjs
+        dataMap = self._dataFloor
         foes  = self._foes
         foe.health -= amount
         x,y = foe.pos
         if foe.health <= 0: # the foe is dead
             foes.remove(foe)
+            for drop in foe.drop():
+                allPos = [(x,y),(x+1,y),(x-1,y),(x,y+1),(x,y-1)]
+                random.shuffle(allPos)
+                for dpx,dpy in allPos:
+                    if dataMap[dpy][dpx] not in (' ','d'):continue
+                    if not dobjs[dpy][dpx] or drop in ['KR','KG','KB','KY']:
+                        dobjs[dpy][dpx] = drop
+                        break
+
             dfoes[y][x] = None
             if suicide:
                 Message.add(
@@ -306,7 +317,7 @@ class Dungeon(DungeonPrime):
             def _moveAction():
                 ch = hm[y][x]
                 if ch == 2: # Melee Attack
-                    player.health -= foe.atk
+                    player.hit(foe.atk)
                     return
                 if ch < foe.distance:
                     chNew = ch+1
@@ -327,7 +338,7 @@ class Dungeon(DungeonPrime):
                 line, visible, hitPos, hit = self.getRays((x,y),self._heroPos)
                 if hit:
                     def _endingCallback():
-                        player.health -= foe.wpn
+                        player.hit(foe.wpn)
                     self.animShot((x,y),self._heroPos,visible,foe.shellGlyph(),_endingCallback)
             if shot:
                 _shotAction()
@@ -335,7 +346,16 @@ class Dungeon(DungeonPrime):
                 _moveAction()
 
     def heroAction(self):
-        pass
+        if self._ongoingAnimation: return
+        dataFloor = self._dataFloor
+        dataType  = self._dataType
+        dataObjs  = self._dataObjs
+        hx,hy = self._heroPos
+        player:Player = glbls.player
+        if obj:=dataObjs[hy][hx]:
+            if player.grab(obj):
+                dataObjs[hy][hx] = ''
+
 
     def moveHero(self, direction):
         self._mouseLine = []
@@ -362,8 +382,13 @@ class Dungeon(DungeonPrime):
             self.updateVisibility()
             return
 
-        # Check if the floor is empty
-        if tile:=dtile[ny][nx] == 'D':
+        keysMap = {'DR':'KR','DG':'KG','DB':'KB','DY':'KY'}
+
+        if (tile:=dtile[ny][nx]) in ['D','DR','DG','DB','DY']:
+            if (reqKey := keysMap.get(tile)) and reqKey not in player.keys:
+                Message.add(ttk.TTkString(f"You need {Tiles[reqKey]}"))
+                Message.add(ttk.TTkString(f"to open this door"))
+                return
             dtile[ny][nx] = 'd'
             self._heroPos = (nx,ny)
             self.updateVisibility()
@@ -445,9 +470,12 @@ class Dungeon(DungeonPrime):
             if 0<=mpx<dw and 0<=mpy<dh and visMap[mpy][mpx]:
                 canvas.drawTTkString(pos=(x+mpx*2,y+mpy),text=self._mouseIcon,color=color)
 
-                def _drawInfo(info):
+                def _drawInfo(info,y=y,x=x):
                     iw,ih = max(l.termWidth() for l in info), len(info)
-                    px,py = (w-iw-4,h-ih-3)
+                    if (y+mpy)>(h-ih-10) and (x+mpx*2)>=(w-iw-8):
+                        px,py = (w-iw-4,1)
+                    else:
+                        px,py = (w-iw-4,h-ih-3)
                     canvas.fill(pos=(px,py),size=(iw+2,ih+2))
                     canvas.drawText(pos=(px,py    ),text="🭟"+"▀"*(iw)+"🭔")
                     canvas.drawText(pos=(px,py+ih+1),text="🭎"+"▄"*(iw)+"🭃")

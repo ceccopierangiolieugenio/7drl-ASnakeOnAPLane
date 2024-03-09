@@ -256,6 +256,7 @@ Tiles = {
     'al2' : TTkString('🩲'),
     'al3' : TTkString('👖'),
     # Weapons
+    'wm0':TTkString('🤌'), # Spaccimm
     'wm1':TTkString('🥊'),
     'wm2':TTkString('🪈'),
     'wm3':TTkString('🪥'),

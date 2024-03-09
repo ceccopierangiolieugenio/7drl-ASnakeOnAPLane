@@ -28,6 +28,7 @@ sys.path.append(os.path.join(sys.path[0],'../..'))
 import TermTk as ttk
 
 from .assets import *
+from .messages import *
 
 # Names stolen from:
 # https://gist.github.com/ruanbekker/a1506f06aa1df06c5a9501cb393626ea
@@ -174,17 +175,17 @@ kindness_hobbies = [
 ]
 
 FOELIST = {
-    'Zombie'  : {'health':  5, 'atk':  5, 'wpn': 0, 'shellGlyph': '💥','speed': 7, 'reloadSpeed':  0, 'distance':2, 'drop':['g1''g2','ws1','ws2']},
-    'Vampire' : {'health': 10, 'atk': 10, 'wpn': 3, 'shellGlyph': '🪓','speed': 7, 'reloadSpeed':  5, 'distance':6, 'drop':['g1''g2','ws1','ws2']},
-    'Ghost'   : {'health': 15, 'atk': 10, 'wpn': 4, 'shellGlyph': '🌪️','speed': 4, 'reloadSpeed':  5, 'distance':2, 'drop':['g2''g3','ws1','ws2']},
-    'Pumpkin' : {'health': 20, 'atk': 15, 'wpn': 5, 'shellGlyph': '🥮','speed': 6, 'reloadSpeed':  5, 'distance':2, 'drop':['g2''g3','ws1','ws2']},
-    'Imp'     : {'health': 25, 'atk': 15, 'wpn': 5, 'shellGlyph': '💥','speed': 7, 'reloadSpeed':  5, 'distance':2, 'drop':['g4''g5','ws2','ws3']},
-    'Robot'   : {'health': 40, 'atk': 20, 'wpn': 5, 'shellGlyph': '🔋','speed': 2, 'reloadSpeed':  5, 'distance':2, 'drop':['g4''g5','ws2','ws3']},
-    'Crap'    : {'health': 40, 'atk': 10, 'wpn': 5, 'shellGlyph': '🚽','speed': 4, 'reloadSpeed':  5, 'distance':6, 'drop':['g6''g7','ws2','ws3','wt2']},
-    'SI'      : {'health': 60, 'atk': 15, 'wpn': 6, 'shellGlyph': '🍕','speed': 7, 'reloadSpeed':  5, 'distance':2, 'drop':['g6''g7','ws2','ws3','wt2']},
-    'Alien'   : {'health': 70, 'atk': 15, 'wpn': 6, 'shellGlyph': '💥','speed': 8, 'reloadSpeed':  5, 'distance':2, 'drop':['g7''g8','ws3','ws4','wt3']},
-    'Dragon'  : {'health': 80, 'atk': 30, 'wpn':10, 'shellGlyph': '🥦','speed': 5, 'reloadSpeed':  5, 'distance':6, 'drop':['g7''g8','ws3','ws4','wt3']},
-    'TRex'    : {'health': 90, 'atk': 30, 'wpn': 0, 'shellGlyph': '🥦','speed': 8, 'reloadSpeed':  5, 'distance':2, 'drop':['g7''g8','ws3','ws4','wt3']},
+    'Zombie'  : {'health':  5, 'atk':  5, 'wpn': 0, 'shellGlyph': '💥','speed': 7, 'reloadSpeed':  0, 'distance':2, 'drop':['g1','g2','ws1','ws2']},
+    'Vampire' : {'health': 10, 'atk': 10, 'wpn': 3, 'shellGlyph': '🪓','speed': 7, 'reloadSpeed':  5, 'distance':6, 'drop':['g1','g2','ws1','ws2']},
+    'Ghost'   : {'health': 15, 'atk': 10, 'wpn': 4, 'shellGlyph': '🌪️','speed': 4, 'reloadSpeed':  5, 'distance':2, 'drop':['g2','g3','ws1','ws2']},
+    'Pumpkin' : {'health': 20, 'atk': 15, 'wpn': 5, 'shellGlyph': '🥮','speed': 6, 'reloadSpeed':  5, 'distance':2, 'drop':['g2','g3','ws1','ws2']},
+    'Imp'     : {'health': 25, 'atk': 15, 'wpn': 5, 'shellGlyph': '💥','speed': 7, 'reloadSpeed':  5, 'distance':2, 'drop':['g4','g5','ws2','ws3']},
+    'Robot'   : {'health': 40, 'atk': 20, 'wpn': 5, 'shellGlyph': '🔋','speed': 2, 'reloadSpeed':  5, 'distance':2, 'drop':['g4','g5','ws2','ws3']},
+    'Crap'    : {'health': 40, 'atk': 10, 'wpn': 5, 'shellGlyph': '🚽','speed': 4, 'reloadSpeed':  5, 'distance':6, 'drop':['g6','g7','ws2','ws3','wt2']},
+    'SI'      : {'health': 60, 'atk': 15, 'wpn': 6, 'shellGlyph': '🍕','speed': 7, 'reloadSpeed':  5, 'distance':2, 'drop':['g6','g7','ws2','ws3','wt2']},
+    'Alien'   : {'health': 70, 'atk': 15, 'wpn': 6, 'shellGlyph': '💥','speed': 8, 'reloadSpeed':  5, 'distance':2, 'drop':['g7','g8','ws3','ws4','wt3']},
+    'Dragon'  : {'health': 80, 'atk': 30, 'wpn':10, 'shellGlyph': '🥦','speed': 5, 'reloadSpeed':  5, 'distance':6, 'drop':['g7','g8','ws3','ws4','wt3']},
+    'TRex'    : {'health': 90, 'atk': 30, 'wpn': 0, 'shellGlyph': '🥦','speed': 8, 'reloadSpeed':  5, 'distance':2, 'drop':['g7','g8','ws3','ws4','wt3']},
     'Nose'    : {'health':150, 'atk': 35, 'wpn':15, 'shellGlyph': '💥','speed': 8, 'reloadSpeed':  5, 'distance':2, 'drop':['KY']},
 }
 
@@ -194,7 +195,7 @@ class Foe():
         self.pos=pos
         self.atk=atk
         self.wpn=wpn
-        self.drop = drop
+        self._drop = drop
         self.name = name
         self.fullName = name
         self._shellGlyph = ttk.TTkString(shellGlyph)
@@ -274,19 +275,12 @@ class Foe():
             for h in hobby:
                 self.info.append(ttk.TTkString(h))
 
+    def drop(self):
+        drop = []
+        for _ in range(random.randint(1,len(self._drop))):
+            drop.append(random.choice(self._drop))
+        return drop
 
     def getActions(self) -> list[bool,bool]: # return move or shot
         self.time += 1
         return (self.time*self.speed)%10<=self.speed, (self.time*self.reloadSpeed)%10<self.reloadSpeed,
-
-    def hit(self, amount, pos, foes, foeMap, ):
-        self.health -= amount
-        x,y = pos
-        if self.health <= 0: # the foe is dead
-            foes.remove(self)
-            foeMap[y][x] = None
-            Message.add(ttk.TTkString(f"You Killed ") +
-                        ttk.TTkString(f"{foe.fullName} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
-        else:
-            Message.add(ttk.TTkString(f"You Hit ") +
-                        ttk.TTkString(f"{foe.fullName} {foe.picture}",ttk.TTkColor.fg("FFFF00")))

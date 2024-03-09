@@ -654,27 +654,27 @@ class DungeonPrime():
 
         objList = [
             'af1','ah1','ab1','al1', 'wm1','wr1', 'g1','g2','g3', 'ws1','ws1','ws1','wt1',
-                                                  'g1','g2','g3', 'ws1','ws1','ws1','wt1',
+            'af1','ah1','ab1','al1',              'g1','g2','g3', 'ws1','ws1','ws1','wt1',
                                                                   'ws1','ws1','ws1','wt1',
                                                                   'ws1','ws1','ws1','wt1',
 
             'af2','ah2','ab2','al2', 'wm2','wr2', 'g3','g4','g5', 'ws1','ws1','ws1','wt1',
-                                                  'g3','g4','g5', 'ws1','ws1','ws1','wt1',
+            'af2','ah2','ab2','al2',              'g3','g4','g5', 'ws1','ws1','ws1','wt1',
                                                                   'ws2','ws2','ws2','wt2',
                                                                   'ws2','ws2','ws2','wt2',
 
             'af3','ah3','ab3','al3', 'wm3','wr3', 'g4','g5','g7', 'ws1','ws1','ws1','ws1','wt1',
-                                                  'g4','g5','g7', 'ws2','ws2','ws2','ws2','wt2',
+            'af3','ah3','ab3','al3',              'g4','g5','g7', 'ws2','ws2','ws2','ws2','wt2',
                                                                   'ws3','ws3','ws3','ws3','wt3',
                                                                   'ws3','ws3','ws3','ws3','wt3',
 
-            'af4','ah4','ab3','al3', 'wm4','wr4', 'g5','g7','g8', 'ws1','ws1','ws1','ws1','ws1','wt1',
-                                                  'g5','g7','g8', 'ws2','ws2','ws2','ws2','ws2','wt2',
+            'af4','ah4','ab4','al3', 'wm4','wr4', 'g5','g7','g8', 'ws1','ws1','ws1','ws1','ws1','wt1',
+            'af4','ah4','ab4','al3',              'g5','g7','g8', 'ws2','ws2','ws2','ws2','ws2','wt2',
                                                                   'ws3','ws3','ws3','ws3','ws3','wt3',
                                                                   'ws4','ws4','ws4','ws4','ws4','wt4',
 
-            'af4','ah4','ab4','al3', 'wm4','wr4', 'g6','g7','g8', 'ws1','ws1','ws1','ws1','ws1','wt1','wt1',
-                                                  'g6','g7','g8', 'ws2','ws2','ws2','ws2','ws2','wt2','wt2',
+            'af5','ah5','ab5','al3', 'wm4','wr4', 'g6','g7','g8', 'ws1','ws1','ws1','ws1','ws1','wt1','wt1',
+            'af5','ah5','ab5','al3',              'g6','g7','g8', 'ws2','ws2','ws2','ws2','ws2','wt2','wt2',
                                                                   'ws3','ws3','ws3','ws3','ws3','wt3','wt3',
                                                                   'ws4','ws4','ws4','ws4','ws4','wt4','wt4',
         ]
