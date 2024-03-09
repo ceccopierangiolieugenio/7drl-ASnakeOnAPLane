@@ -92,21 +92,26 @@ class StatWin(WBWindow):
         canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"Legs:  {Tiles[pb.legs]}"))
         canvas.drawTTkString(pos=(sx+10,sy),text=ttk.TTkString(f"Feet:  {Tiles[pb.feet]}")); sy+=1
         sy+1
-        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"Hold:  {Tiles[p.weaponHeld]} - Melee:")); sy+=1
+        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"Hold:  {Tiles[p.weaponHeld]} - Melee: {Tiles[p.meleeHeld]}")); sy+=1
 
         canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"Weapons:")); sy+=1
         cEn   = ttk.TTkColor.RST
         cHold = ttk.TTkColor.fg("#FFFF00")+ttk.TTkColor.bg("#333300")
         cDis  = ttk.TTkColor.fg("#AAAAAA")
-        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wr1']} Cupid Strike | {Tiles['ws1']}:{p.shells['ws1']: 3}",cDis if 'wr1' not in p.weapons else cHold if p.weaponHeld=='wr1' else cEn)); sy+=1
-        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wr2']} Pacekeeper   | {Tiles['ws2']}:{p.shells['ws2']: 3}",cDis if 'wr2' not in p.weapons else cHold if p.weaponHeld=='wr2' else cEn)); sy+=1
-        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wr3']} LoveZooka    | {Tiles['ws3']}:{p.shells['ws3']: 3}",cDis if 'wr3' not in p.weapons else cHold if p.weaponHeld=='wr3' else cEn)); sy+=1
-        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wr4']} Friend Zoner | {Tiles['ws4']}:{p.shells['ws4']: 3}",cDis if 'wr4' not in p.weapons else cHold if p.weaponHeld=='wr4' else cEn)); sy+=1
-        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"Throwables:")); sy+=1
+        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wr1']} Cupid Strike |{Tiles['ws1']}:{p.shells['ws1']: 3}",cDis if 'wr1' not in p.weapons else cHold if p.weaponHeld=='wr1' else cEn)); sy+=1
+        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wr2']} Pacekeeper   |{Tiles['ws2']}:{p.shells['ws2']: 3}",cDis if 'wr2' not in p.weapons else cHold if p.weaponHeld=='wr2' else cEn)); sy+=1
+        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wr3']} LoveZooka    |{Tiles['ws3']}:{p.shells['ws3']: 3}",cDis if 'wr3' not in p.weapons else cHold if p.weaponHeld=='wr3' else cEn)); sy+=1
+        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wr4']} Friend Zoner |{Tiles['ws4']}:{p.shells['ws4']: 3}",cDis if 'wr4' not in p.weapons else cHold if p.weaponHeld=='wr4' else cEn)); sy+=1
+        canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"Throwables:        Keys")); sy+=1
         canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wt1']}: {p.throwables['wt1']: 2} ",cHold if p.weaponHeld=='wt1' else cEn))
-        canvas.drawTTkString(pos=(sx+10,sy),text=ttk.TTkString(f"{Tiles['wt2']}: {p.throwables['wt2']: 2} ",cHold if p.weaponHeld=='wt2' else cEn)); sy+=1
+        canvas.drawTTkString(pos=(sx+10,sy),text=ttk.TTkString(f"{Tiles['wt2']}: {p.throwables['wt2']: 2} ",cHold if p.weaponHeld=='wt2' else cEn))
+        canvas.drawTTkString(pos=(sx+18,sy),text=ttk.TTkString(Tiles['KG'] if 'KG' in p.keys else ""))
+        canvas.drawTTkString(pos=(sx+21,sy),text=ttk.TTkString(Tiles['KB'] if 'KB' in p.keys else "")); sy+=1
         canvas.drawTTkString(pos=(sx   ,sy),text=ttk.TTkString(f"{Tiles['wt3']}: {p.throwables['wt3']: 2} ",cHold if p.weaponHeld=='wt3' else cEn))
-        canvas.drawTTkString(pos=(sx+10,sy),text=ttk.TTkString(f"{Tiles['wt4']}: {p.throwables['wt4']: 2} ",cHold if p.weaponHeld=='wt4' else cEn)); sy+=1
+        canvas.drawTTkString(pos=(sx+10,sy),text=ttk.TTkString(f"{Tiles['wt4']}: {p.throwables['wt4']: 2} ",cHold if p.weaponHeld=='wt4' else cEn))
+        canvas.drawTTkString(pos=(sx+18,sy),text=ttk.TTkString(Tiles['KR'] if 'KR' in p.keys else ""))
+        canvas.drawTTkString(pos=(sx+21,sy),text=ttk.TTkString(Tiles['KY'] if 'KY' in p.keys else "")); sy+=1
+        canvas.drawTTkString(pos=(sx+18,sy),text=ttk.TTkString(f"{Tiles['wt2']}: {p.throwables['wt2']: 2} ",cHold if p.weaponHeld=='wt2' else cEn)); sy+=1
 
         # Little hack because I don't like the default borders
         canvas.drawText(pos=(0,h-1), text='🭎' + '▂'*(w-2), color=bgBLACK)

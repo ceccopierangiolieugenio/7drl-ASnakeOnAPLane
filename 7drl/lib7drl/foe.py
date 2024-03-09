@@ -187,6 +187,7 @@ FOELIST = {
     'Dragon'  : {'health': 80, 'atk': 30, 'wpn':10, 'shellGlyph': '🥦','speed': 5, 'reloadSpeed':  5, 'distance':6, 'drop':['g7','g8','ws3','ws4','wt3']},
     'TRex'    : {'health': 90, 'atk': 30, 'wpn': 0, 'shellGlyph': '🥦','speed': 8, 'reloadSpeed':  5, 'distance':2, 'drop':['g7','g8','ws3','ws4','wt3']},
     'Nose'    : {'health':150, 'atk': 35, 'wpn':15, 'shellGlyph': '💥','speed': 8, 'reloadSpeed':  5, 'distance':2, 'drop':['KY']},
+    'Snake'   : {'health':  1, 'atk':  0, 'wpn': 0, 'shellGlyph': '  ','speed': 1, 'reloadSpeed':  0, 'distance':2, 'drop':[]},
 }
 
 class Foe():
@@ -274,11 +275,13 @@ class Foe():
                 hobby = [hobby]
             for h in hobby:
                 self.info.append(ttk.TTkString(h))
+        self.info.append(ttk.TTkString(f"Health: {self.health}/{FOELIST[self.name]['health']}"))
 
     def drop(self):
         drop = []
-        for _ in range(random.randint(1,len(self._drop))):
-            drop.append(random.choice(self._drop))
+        if self._drop:
+            for _ in range(random.randint(1,len(self._drop))):
+                drop.append(random.choice(self._drop))
         return drop
 
     def getActions(self) -> list[bool,bool]: # return move or shot

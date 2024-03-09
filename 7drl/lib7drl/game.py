@@ -73,6 +73,7 @@ class Game(ttk.TTk):
             debugFrame.layout().addWidget(           ttk.TTkLabel( text="Level:"), 0,2)
             debugFrame.layout().addWidget(sbLevel := ttk.TTkSpinBox( value=glbls.level, minimum=1, maximum=5), 1,2)
             debugFrame.layout().addWidget(cbGod   := ttk.TTkCheckbox(text='God Mode', checked=False), 2,2)
+            debugFrame.layout().addWidget(cbShow  := ttk.TTkCheckbox(text='ShowMap',  checked=False), 2,3)
 
             cbDebug.toggled.connect(debugFrame.setVisible)
             sbLevel.valueChanged.connect(glbls.setLevel)
@@ -81,6 +82,11 @@ class Game(ttk.TTk):
             def _setGod(mode):
                 glbls.godMode = mode
             cbGod.toggled.connect(_setGod)
+
+            @ttk.pyTTkSlot(bool)
+            def _setMap(mode):
+                glbls.showMap = mode
+            cbShow.toggled.connect(_setMap)
 
             _attachSignal(btnTest, [self._testGame])
             _attachSignal(btnRnd, [self._dungeon.genDungeon, self.landingAnim])
@@ -175,12 +181,22 @@ class Game(ttk.TTk):
         self._dungeonSavePos = self._dungeonPos
         return True
 
+    def mouseDoubleClickEvent(self, evt) -> bool:
+        hpx,hpy = self._dungeon.heroPos()
+        dpx,dpy = self._dungeonPos
+        px,py   = self._parallax.pos()
+        mpx,mpy = evt.x-px-dpx,evt.y-py-dpy
+        if glbls.debug:
+            self._dungeon._heroPos = (mpx//2+hpx,mpy+hpy)
+            return True
+        return super().mouseDoubleClickEvent(evt)
+
     def mouseReleaseEvent(self, evt) -> bool:
+        hpx,hpy = self._dungeon.heroPos()
+        dpx,dpy = self._dungeonPos
+        px,py   = self._parallax.pos()
+        mpx,mpy = evt.x-px-dpx,evt.y-py-dpy
         if not self._dragging:
-            hpx,hpy = self._dungeon.heroPos()
-            dpx,dpy = self._dungeonPos
-            px,py   = self._parallax.pos()
-            mpx,mpy = evt.x-px-dpx,evt.y-py-dpy
             self._dungeon.shotWeapon(mpx//2+hpx,mpy+hpy)
             self.checkGameProgress()
         self._dragging = False

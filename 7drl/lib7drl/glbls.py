@@ -29,9 +29,11 @@ from dataclasses import dataclass
 class Glbls:
     level: int = 5
     score: int = 0
+    player = None
+    # Debug
     debug: bool = False
     godMode: bool = False
-    player = None
+    showMap: bool = False
 
     def setLevel(self, value):
         self.level = value

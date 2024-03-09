@@ -281,6 +281,8 @@ class Dungeon(DungeonPrime):
         self._mouseLine = []
         self._mouseVisibleLine = []
         self._mousePos = None
+        dw,dh=self.size()
+        if not (0<=x<dw and 0<=y<dh): return
         line, visible, hitPos, hit = self.getRays(self._heroPos,(x,y))
         hx,hy = hitPos
         df = self._dataFoes
@@ -364,6 +366,7 @@ class Dungeon(DungeonPrime):
         if self._ongoingAnimation: return
         dtile = self._dataFloor
         dfoes = self._dataFoes
+        dobjs = self._dataObjs
         foes  = self._foes
         hx,hy = nx,ny = self._heroPos
         player:Player = glbls.player
@@ -379,6 +382,9 @@ class Dungeon(DungeonPrime):
         # Check if the floor is empty
         if tile:=dtile[ny][nx] in (' ','d','>'):
             self._heroPos = (nx,ny)
+            if (obj:=dobjs[ny][nx]) in ['g1','g2','g3','g4','g5','g6','g7','g8']:
+                if player.grab(obj):
+                    dobjs[ny][nx] = ''
             self.updateVisibility()
             return
 
@@ -440,8 +446,10 @@ class Dungeon(DungeonPrime):
 
         for cy,(rof,rot,rofoe,roobj,rvm) in enumerate(zip(dataFloor[ssh],dataType[ssh],dataFoes[ssh],dataObjs[ssh],visMap[ssh]),y+fdy):
             for cx,(fl,ty,fo,ob,vm) in enumerate(zip(rof[ssw],rot[ssw],rofoe[ssw],roobj[ssw],rvm[ssw]),fdx):
-                if not fl or not vm: continue
-                if   rn==vm and fo: ch = Tiles.get(fo.name)
+                if not fl: continue
+                if not glbls.showMap and not vm: continue
+                if (glbls.showMap or rn==vm) and fo:
+                         ch = Tiles.get(fo.name)
                 elif ob: ch = Tiles.get(ob)
                 else:    ch = Tiles.get(fl)
                 color = self._floor[dataType[cy-y][cx]][0 if vm==rn else 1][(cx+cy+hy+1)%2]

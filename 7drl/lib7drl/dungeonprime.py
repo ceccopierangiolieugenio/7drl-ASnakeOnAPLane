@@ -731,6 +731,7 @@ class DungeonPrime():
         dataFoes = self._tmpData['dataFoes']
         heatMap  = self._tmpData['heatMap']
         listKeys = self._tmpData['listKeys']
+        foeList = self._tmpData['foes']
         distancesByType = self._tmpData['distancesByType']
 
         # mapSize     = sum([sum([1 if ch == ' ' else 0 for ch in row]) for row in dataFloor])
@@ -812,12 +813,15 @@ class DungeonPrime():
             if heatMap[cy][cx]>=heatMap[_y][_x]>0:
                 cx,cy = closestDoor = (_x,_y)
         _recurseMark((sx,sy),4)
-        dataFoes[sy][sx] = 'Snake'
+        dataFoes[sy][sx] = foe = Foe(pos=(sx,sy),name='Snake', **FOELIST['Snake'])
+        foeList.append(foe)
 
-        while not (bossPos := _randomDistanceInTypes([maxDist-10,maxDist-6],[0,maxType])):
+        while not (bossPos := _randomDistanceInTypes([maxDist-16,maxDist-11],[0,maxType])):
             maxDist -= 1
         bx,by = bossPos
-        dataFoes[by][bx] = 'Nose'
+        dataFoes[by][bx] = foe = Foe(pos=(bx,by),name='Nose', **FOELIST['Nose'])
+        foeList.append(foe)
+        pass
 
     def placeExit(self):
         level = glbls.level
