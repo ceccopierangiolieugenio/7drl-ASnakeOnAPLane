@@ -38,31 +38,10 @@ from wblib    import WBScrollWin, bgBLUE
 
 class Message():
     pushText = ttk.pyTTkSignal(ttk.TTkString)
-    listMessages = [
-        ttk.TTkString("A Snake🐍 on a Plane✈️ - The Roguelike"),
-        ttk.TTkString(""),
-        ttk.TTkString("Embrace the journey of"),
-        ttk.TTkString("Fluid Snake 😎 in the"),
-        ttk.TTkString("perilous land of"),
-        ttk.TTkString("The Love air Boats 🌹"),
-        ttk.TTkString(""),
-        ttk.TTkString("Choose and perish"),
-        ttk.TTkString(""),
-        ttk.TTkString("(This is a text window)"),
-        ttk.TTkString("  - you can scroll -"),
-        ttk.TTkString(""),
-        ttk.TTkString(""),
-        ttk.TTkString("←↑↓→ or"),
-        ttk.TTkString("W A S D = Direction"),
-        ttk.TTkString("  Space = Wait"),
-        ttk.TTkString("      E = Action"),
-        ttk.TTkString("     (climb/grab)"),
-        ttk.TTkString(""),
-        ttk.TTkString("Use the mouse to aim,"),
-        ttk.TTkString("shot, or drag the map"),
-        ttk.TTkString("or change the weapon"),
-        ttk.TTkString("with the weel"),
-        ]
+    listMessages = [ttk.TTkString()]
+    def clean(txt=ttk.TTkString()):
+        Message.listMessages = [txt]
+        Message.pushText.emit(ttk.TTkString())
     def add(text):
         if type(text) == str:
             text = ttk.TTkString(text)

@@ -34,11 +34,11 @@ from .objinfo  import *
 from .messages import *
 
 ArmorValues = {
-    'af1':15,'ah1':15,'ab1':15,'al1':10,
-    'af2':20,'ah2':20,'ab2':20,'al2':20,
-    'af3':25,'ah3':25,'ab3':25,'al3':30,
-    'af4':30,'ah5':30,'ab5':30,
-    'af4':35,'ah4':35,'ab4':35}
+    'af1':25,'ah1':25,'ab1':25,'al1':20,
+    'af2':30,'ah2':30,'ab2':30,'al2':30,
+    'af3':35,'ah3':35,'ab3':35,'al3':50,
+    'af4':40,'ah5':40,'ab5':40,
+    'af4':45,'ah4':45,'ab4':45}
 
 @dataclass()
 class Body():
@@ -52,7 +52,7 @@ class Body():
     legs: str = 'al1'
     feet: str = 'af1'
 
-    maxArmor = 35+35+35+30
+    maxArmor = 45+45+45+50
 
     armorPoint = {'h': 15,'b': 15,'l': 10,'f': 15}
 
@@ -149,8 +149,8 @@ class Player():
         self.money= 0
         self.keys = []
         self.body = Body()
-        self._health:    int  = 100
-        self.maxHealth:  int = 100
+        self._health:    int  = 200
+        self.maxHealth:  int = 200
         self.meleeHeld:  str  = 'wm0'
         self.weaponHeld: str  = 'wr1'
         self.weapons:    list = ['wr1','wr3','wr4']
@@ -251,12 +251,12 @@ class Player():
                     Message.add(ttk.TTkString("You are already full of"))
                 else:
                     self.shells[obj] = min(maxSh,self.shells[obj]+shells)
-                    Message.add(ttk.TTkString("Grabbing some"))
+                    Message.add(ttk.TTkString("Grabbing"))
         elif obj in ['wt1','wt2','wt3','wt4']:
                 shells = ShellsParam[obj]
                 maxSh = MaxShells[obj]
                 self.throwables[obj] = min(maxSh,self.throwables[obj]+shells)
-                Message.add(ttk.TTkString("Grabbing some"))
+                Message.add(ttk.TTkString("Picking up"))
         elif obj in ['wr1','wr2','wr3','wr4']:
             if obj not in self.weapons:
                 self.weapons.append(obj)

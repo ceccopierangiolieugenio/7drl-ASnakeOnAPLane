@@ -34,6 +34,8 @@ class Glbls:
     level: int = 5
     score: int = 0
     player = None
+    playing:bool = False
+    seed:int = 0
     # Debug
     debug: bool = False
     godMode: bool = False

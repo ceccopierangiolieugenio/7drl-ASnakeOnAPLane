@@ -73,14 +73,14 @@ class StatWin(WBWindow):
         return super().mouseReleaseEvent(evt)
 
     def _update(self):
-        self._pbHealth.setValue(glbls.player.health/100)
-        self._pbArmor.setValue( glbls.player.armor/100)
+        self._pbHealth.setValue(glbls.player.health/glbls.player.maxHealth)
+        self._pbArmor.setValue( glbls.player.armor/glbls.player.maxArmor)
         self.update()
 
     def paintEvent(self, canvas:ttk.TTkCanvas):
         w,h = self.size()
         # canvas.fill(color=bgBLUE)
-        p  = glbls.player
+        p:Player  = glbls.player
         pb = glbls.player.body
         sy = 1
         sx = 1
@@ -121,4 +121,7 @@ class StatWin(WBWindow):
             canvas.drawText(pos=(w-1,y), text='▐', color=bgBLACK)
         canvas.drawText(pos=(w-1,6),  text='🭔', color=bgBLACK)
         canvas.drawText(pos=(w-1,11), text='🭃', color=bgBLACK)
+
+        canvas.drawText(pos=(3,h-1), text=f'🭃 $ {p.money: 6} 🭎', color=bgBLACK)
+
         super().paintEvent(canvas)

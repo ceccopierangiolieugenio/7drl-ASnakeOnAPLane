@@ -63,18 +63,29 @@ funny_plane_names = [
     "Zephyr Zebra",
     "Gliding Gopher"
 ]
-
+GEOMETRIES = {
+    'hackPos'  : {'pos':(-1,-1),'size':(  1, 1)},
+    'root'     : {'pos':(0 , 0),'size':(109,30)},
+    'stat'     : {'pos':(83, 0),'size':( 26,15)},
+    'msgs'     : {'pos':(83,15),'size':( 26,15)},
+    # 'msgsInit' : {'pos':(10, 3),'size':( 85,18)},
+    'dungeon'  : {'pos':( 0, 0),'size':( 83,30)},
+    'parallax' : {'pos':( 0, 0),'size':( 83,30),'v0':48,'v1':0},
+    'deathWid' : {'pos':( 0, 0),'size':(105,30)},
+}
 class Game(ttk.TTk):
-    def __init__(self, debug=True, level=1, **kwargs):
+    def __init__(self, debug=True, level=1, skipIntro=False, **kwargs):
         glbls.root = self
         glbls.level = min(5,max(0,level))
         glbls.debug = debug
         super().__init__(**kwargs)
-        self._parallax = Parallax(pos=(0,0), size=(83,30))
-        self._dungeon = Dungeon()
-        self._dungeonPos = (0,0)
+        boundL = ttk.TTkLayout(**GEOMETRIES['root'])
+        self.rootLayout().addItem(boundL)
 
-        self._youDiedWidget = YouDiedWidget(parent=self, visible=False)
+        self._parallax = Parallax(**GEOMETRIES['parallax'])
+        self._dungeon = Dungeon()
+
+        self._youDiedWidget = YouDiedWidget(**(GEOMETRIES['hackPos']|{'parent':self,'visible':False}))
 
         self._parallaxTimer = ttk.TTkTimer()
         self._parallaxTimer.timeout.connect(self.update)
@@ -82,8 +93,22 @@ class Game(ttk.TTk):
         self._parallaxTimer.start(0.1)
 
         glbls.player = Player()
-        statWin = StatWin( parent=self, pos=(83,0),size=(26,15))
-        msgWin  = MessageWin(parent=self, pos=(83,15),size=(26,15), title='Messages' )
+
+        self._statWin = StatWin(   **(GEOMETRIES['stat']|{'parent':self,'title':'Messages'}))
+        self._msgWin  = MessageWin(**(GEOMETRIES['msgs']|{'parent':self,'title':'Messages'}))
+        self._btnNext          = ttk.TTkButton( pos=(0,-10), text=' Next '           , border=True,enabled=False)
+        self._btnNewGame       = ttk.TTkButton( pos=(0,-10), text=' New Game '       , border=True,enabled=False)
+        self._btnNewGamePlus   = ttk.TTkButton( pos=(0,-10), text=' New Game Plus '  , border=True,enabled=False)
+        self._btnNewGameMinus  = ttk.TTkButton( pos=(0,-10), text=' New Game Minus ' , border=True,enabled=False)
+        glbls.seed = f" Seed: 0x{random.randint(0,0xFFFFFFFF):08X}"
+        self._textSeed         = ttk.TTkLineEdit(pos=(0,-10), size=(20,1), text=glbls.seed)
+
+        self.layout().addWidget(self._btnNext)
+        boundL.addWidgets([
+                self._btnNewGame, self._btnNewGamePlus, self._btnNewGameMinus,
+                self._textSeed
+            ])
+
 
         # btnMsg  = ttk.TTkButton(  parent=self, pos=( 0,0), text='Messages', border=True, checkable=True)
         # btnInfo = ttk.TTkButton(  parent=self, pos=(10,0), text='Info',     border=True, checkable=True, checked=True)
@@ -133,16 +158,251 @@ class Game(ttk.TTk):
         # btnInfo.toggled.connect(self.setFocus)
         # btnInfo.clicked.connect(statWin.raiseWidget)
 
+        if skipIntro:
+            self.landingAnim()
+            glbls.playing = True
+        else:
+            self._initialScreen()
+        self.setFocus()
+
+    def _quickAnim(self,fr,to,time,trans,obj,fn,cbks=[]):
+        _anim = ttk.TTkPropertyAnimation(obj,fn)
+        _anim.setStartValue(fr)
+        _anim.setEndValue(  to)
+        _anim.setDuration(time)
+        _anim.setEasingCurve(trans)
+        for n in cbks:
+            _anim.finished.connect(n)
+        _anim.start()
+
+    def _disableMenuBtns(self):
+        # Little hack to overcome the button being cleared during the signal
+        self._btnNext.clicked.clear()
+        self._btnNewGame.clicked.clear()
+        self._btnNewGamePlus.clicked.clear()
+        self._btnNewGameMinus.clicked.clear()
+        self._btnNext.setEnabled(False)
+        self._btnNewGame.setEnabled(False)
+        self._btnNewGamePlus.setEnabled(False)
+        self._btnNewGameMinus.setEnabled(False)
+        self._youDiedWidget.nextAction.clear()
+
+    def _initialScreen(self):
+        #If there is time I will add a snake anim
+        self._initialScreenMenu()
+
+    def _initialScreenMenu(self):
+        glbls.playing = False
+        x,y = GEOMETRIES['parallax']['pos']
+        w,h = GEOMETRIES['parallax']['size']
+        self._dungeonPos = (0,-10)
+        self._parallax.setVPos(GEOMETRIES['parallax']['v0'])
+        self._msgWin.setGeometry(x+10,y+3,w-20,18)
+        self._btnNext.move(-10,18)
+        self._statWin.move(83,-15)
+        self._statWin.resize(*GEOMETRIES['stat']['size'])
+        self._disableMenuBtns()
+
+        self._youDiedWidget.hide()
+        self._btnNewGame.raiseWidget()
+        self._btnNewGame.setFocus()
+        self._btnNewGamePlus.raiseWidget()
+        self._btnNewGameMinus.raiseWidget()
+        self._textSeed.raiseWidget()
+
+        self._btnNewGame.clicked.connect(self._newGameIntro)
+        # self._btnNewGamePlus
+        # self._btnNewGameMinus
+        self._btnNewGame.setEnabled(True)
+        # self._btnNewGamePlus.setEnabled(True)
+        # self._btnNewGameMinus.setEnabled(True)
+
+        EC = ttk.TTkEasingCurve
+        self._quickAnim(( 0,h),(16,22), 1, EC.OutBounce, self._btnNewGame,      self._btnNewGame.move)
+        self._quickAnim((25,h),(30,22), 1, EC.OutBounce, self._btnNewGamePlus,  self._btnNewGamePlus.move)
+        self._quickAnim((60,h),(49,22), 1, EC.OutBounce, self._btnNewGameMinus, self._btnNewGameMinus.move)
+        self._quickAnim((25,h),(25,26), 1, EC.Linear,    self._textSeed,        self._textSeed.move)
+
+        Message.clean(ttk.TTkString("  A Snake on a Plane🛩️- The Roguelike"))
+        Message.add(ttk.TTkString(""),)
+        Message.add(ttk.TTkString("Embrace the journey of Fluid Snake 😎 in the"),)
+        Message.add(ttk.TTkString("perilous land of The Love air Boats 🌹"),)
+        Message.add(ttk.TTkString(""),)
+        Message.add(ttk.TTkString("  ←↑↓→ or W A S D = Direction"),)
+        Message.add(ttk.TTkString("            Space = Wait"),)
+        Message.add(ttk.TTkString("                E = Action (climb/grab/interact)"),)
+        Message.add(ttk.TTkString(""),)
+        Message.add(ttk.TTkString("Use the mouse to aim, shot, or drag the map"),)
+        Message.add(ttk.TTkString("or change the weapon with the weel"),)
+        Message.add(ttk.TTkString(""),)
+        Message.add(ttk.TTkString("(This is a text window)"),)
+        Message.add(ttk.TTkString("  - you can scroll -"),)
+        Message.add(ttk.TTkString(""),)
+        Message.add(ttk.TTkString("  Choose and perish"),)
+
+    def _newGameIntro(self):
+        glbls.playing = False
+        mwx,mwy,mww,mwh=self._msgWin.geometry()
+        swx,swy,sww,swh=self._statWin.geometry()
+        x,y = GEOMETRIES['parallax']['pos']
+        w,h = GEOMETRIES['parallax']['size']
+
+        self._youDiedWidget.hide()
+
+        EC = ttk.TTkEasingCurve
+        self._quickAnim((20,22),( 0,h), 0.5, EC.Linear, self._btnNewGame,      self._btnNewGame.move)
+        self._quickAnim((32,22),(25,h), 0.5, EC.Linear, self._btnNewGamePlus,  self._btnNewGamePlus.move)
+        self._quickAnim((50,22),(60,h), 0.5, EC.Linear, self._btnNewGameMinus, self._btnNewGameMinus.move)
+        self._quickAnim((25,26),(25,h), 0.5, EC.Linear, self._textSeed,        self._textSeed.move)
+
+        glbls.seed = self._textSeed.text().toAscii()
+        random.seed(glbls.seed)
+        Message.add(ttk.TTkString(f""))
+        Message.add(ttk.TTkString(f"Seed Used: '{glbls.seed}'"))
+        Message.add(ttk.TTkString(f""))
+
+        messages = {
+            'id':0,
+            'msg':[
+                [
+                    ttk.TTkString(""),
+                    ttk.TTkString("🥸 Hello Fluid Snake..."),
+                    ttk.TTkString(""),
+                ],
+                [
+                    ttk.TTkString("   Who are you?            😎"),
+                    ttk.TTkString("")
+                ],
+                [
+                    ttk.TTkString("🥸 No time to explain"),
+                    ttk.TTkString("   The world is in danger"),
+                    ttk.TTkString("   There is 'A Snake on a Plane'"),
+                    ttk.TTkString("   You need to find it!!!"),
+                    ttk.TTkString(""),
+                ],
+                [
+                    ttk.TTkString("   Cool, which plane?      😎"),
+                    ttk.TTkString("")
+                ],
+                [
+                    ttk.TTkString("🥸 You are not paid to make questions"),
+                    ttk.TTkString("")
+                ],
+            ]
+        }
+
+        def _nextMessage(m=messages):
+            if m['id'] >= len(m['msg']):
+                self._btnNext.clicked.clear()
+                self._newGame()
+                return
+            for msg in m['msg'][m['id']]:
+                Message.add(msg)
+            m['id']+=1
+
+        self._btnNext.setEnabled(True)
+        self._btnNext.clicked.connect(_nextMessage)
+
+        mwx,mwy,mww,mwh=self._msgWin.geometry()
+        swx,swy,sww,swh=self._statWin.geometry()
+        self._quickAnim(( mwx,mwy),(x+10,y+5), 0.5, EC.Linear, self._msgWin,  self._msgWin.move)
+        self._quickAnim(( mww,mwh),(w-20, 12), 0.5, EC.Linear, self._msgWin,  self._msgWin.resize)
+        self._quickAnim(( -10,-18),(  20, 18), 0.5, EC.Linear, self._btnNext, self._btnNext.move, [_nextMessage])
+
+    def _firstBreak(self):
+        glbls.playing = False
+        messages = {
+            'id':0,
+            'msg':[
+                [
+                    ttk.TTkString(""),
+                    ttk.TTkString("🥸 Hey Fluid Snake..."),
+                    ttk.TTkString("   How is it going?"),
+                    ttk.TTkString(""),
+                ],
+                [
+                    ttk.TTkString("   I was having fun till   😎"),
+                    ttk.TTkString("   you arrived, what's up?"),
+                    ttk.TTkString("")
+                ],
+                [
+                    ttk.TTkString("🥸 Remember"),
+                    ttk.TTkString("   Don't harm the Snake"),
+                    ttk.TTkString(""),
+                ],
+            ]
+        }
+
+        x,y = GEOMETRIES['parallax']['pos']
+        w,h = GEOMETRIES['parallax']['size']
+        mwx,mwy,mww,mwh=self._msgWin.geometry()
+        EC = ttk.TTkEasingCurve
+
+        def _nextMessage(m=messages):
+            if m['id'] >= len(m['msg']):
+                self._btnNext.clicked.clear()
+                self._nextLevel()
+                self._quickAnim((20,18),(-10,18), 0.5, EC.Linear, self._btnNext, self._btnNext.move)
+                self._quickAnim((mwx,mwy),GEOMETRIES['msgs']['pos'],  1, EC.OutBounce, self._msgWin, self._msgWin.move)
+                self._quickAnim((mww,mwh),GEOMETRIES['msgs']['size'], 1, EC.OutBounce, self._msgWin, self._msgWin.resize)
+                return
+            for msg in m['msg'][m['id']]:
+                Message.add(msg)
+            m['id']+=1
+
+        self._btnNext.setEnabled(True)
+        self._btnNext.clicked.connect(_nextMessage)
+
+        self._quickAnim(( mwx,mwy),(x+10,y+5), 0.5, EC.Linear, self._msgWin,  self._msgWin.move)
+        self._quickAnim(( mww,mwh),(w-20, 12), 0.5, EC.Linear, self._msgWin,  self._msgWin.resize)
+        self._quickAnim((-10,18),  (20  , 18), 0.5, EC.Linear, self._btnNext, self._btnNext.move, [_nextMessage])
+
+
+    def _showDeadStats(self):
+        x,y = GEOMETRIES['root']['pos']
+        w,h = GEOMETRIES['root']['size']
+        mwx,mwy,mww,mwh=self._msgWin.geometry()
+        EC = ttk.TTkEasingCurve
+
+        self._youDiedWidget.lowerWidget()
+        #self._youDiedWidget.nextAction.clear()
+        self._btnNext.raiseWidget()
+        self._msgWin.raiseWidget()
+        self._btnNext.setEnabled(True)
+        self._btnNext.clicked.connect(self._initialScreen)
+
+        self._quickAnim(( 30,10),(x+10,y+5), 0.5, EC.Linear, self._msgWin,  self._msgWin.move)
+        self._quickAnim(( 0,0),(w-20, 12), 0.5, EC.Linear, self._msgWin,  self._msgWin.resize)
+        self._quickAnim((-10,18),(20, 18), 0.5, EC.Linear, self._btnNext, self._btnNext.move)
+
+    def _newGame(self):
+        mwx,mwy,mww,mwh=self._msgWin.geometry()
+        swx,swy,sww,swh=self._statWin.geometry()
+        w,h = GEOMETRIES['root']['size']
+
+        EC = ttk.TTkEasingCurve
+        self._quickAnim((20,18),(-10,18), 0.5, EC.Linear, self._btnNext, self._btnNext.move)
+        self._quickAnim((mwx,mwy),GEOMETRIES['msgs']['pos'],  1, EC.OutBounce, self._msgWin, self._msgWin.move)
+        self._quickAnim((mww,mwh),GEOMETRIES['msgs']['size'], 1, EC.OutBounce, self._msgWin, self._msgWin.resize)
+        self._quickAnim((swx,swy),GEOMETRIES['stat']['pos'],  1, EC.OutBounce, self._statWin,self._statWin.move)
+        self._quickAnim((sww,swh),GEOMETRIES['stat']['size'], 1, EC.Linear,    self._statWin,self._statWin.resize, [self._disableMenuBtns])
         self.landingAnim()
         self.setFocus()
+        glbls.playing = True
 
     @ttk.pyTTkSlot()
     def _nextLevel(self):
+        if glbls.level <= 0:
+            glbls.level = 1
+            self._firstBreak()
+            return
         def _doIt():
             glbls.level = min(5,glbls.level+1)
             glbls.player.resetKeys()
             self._dungeon.genDungeon()
             self.landingAnim()
+            glbls.playing = True
+            self.setFocus()
         self.takingOffAnim([_doIt])
 
     @ttk.pyTTkSlot()
@@ -171,6 +431,9 @@ class Game(ttk.TTk):
         # _anim.finished.connect(__animHero)
         _anim.start()
         self._youDiedWidget.show()
+        self._youDiedWidget.raiseWidget()
+        self._youDiedWidget.nextAction.connect(self._showDeadStats)
+
 
     def landingAnim(self):
         self._dungeon.setFading(0)
@@ -198,8 +461,8 @@ class Game(ttk.TTk):
         def _parallaxAnim():
             # Entering the Parallax
             _anim = ttk.TTkPropertyAnimation(self._parallax, self._parallax.setVPos)
-            _anim.setStartValue(50)
-            _anim.setEndValue(   0)
+            _anim.setStartValue(GEOMETRIES['parallax']['v0'])
+            _anim.setEndValue(  GEOMETRIES['parallax']['v1'])
             _anim.setDuration(2)
             _anim.setEasingCurve(ttk.TTkEasingCurve.OutQuint)
             _anim.start()
@@ -225,8 +488,8 @@ class Game(ttk.TTk):
         def _parallaxAnim():
             # Entering the Parallax
             _anim = ttk.TTkPropertyAnimation(self._parallax, self._parallax.setVPos)
-            _anim.setStartValue( 0)
-            _anim.setEndValue(  50)
+            _anim.setStartValue(GEOMETRIES['parallax']['v1'])
+            _anim.setEndValue(  GEOMETRIES['parallax']['v0'])
             _anim.setDuration(2)
             _anim.setEasingCurve(ttk.TTkEasingCurve.InQuint)
             _anim.start()
@@ -306,6 +569,7 @@ class Game(ttk.TTk):
             glbls.death.emit()
 
     def keyEvent(self, evt) -> bool:
+        if not glbls.playing: return False
         d = self._dungeon
         if evt.type != ttk.TTkK.SpecialKey:
             if glbls.debug and evt.key == 'r': self._dungeon.genDungeon()
@@ -332,6 +596,7 @@ class Game(ttk.TTk):
         return True
 
     def wheelEvent(self, evt) -> bool:
+        if not glbls.playing: return False
         if evt.evt == ttk.TTkK.WHEEL_Down:
             glbls.player.nextWeapon()
         else:
@@ -339,12 +604,14 @@ class Game(ttk.TTk):
         return True
 
     def mousePressEvent(self, evt) -> bool:
+        if not glbls.playing: return False
         self._dragging = False
         self._mouseSavePos = (evt.x,evt.y)
         self._dungeonSavePos = self._dungeonPos
         return True
 
     def mouseDoubleClickEvent(self, evt) -> bool:
+        if not glbls.playing: return False
         hpx,hpy = self._dungeon.heroPos()
         dpx,dpy = self._dungeonPos
         px,py   = self._parallax.pos()
@@ -355,6 +622,7 @@ class Game(ttk.TTk):
         return super().mouseDoubleClickEvent(evt)
 
     def mouseReleaseEvent(self, evt) -> bool:
+        if not glbls.playing: return False
         hpx,hpy = self._dungeon.heroPos()
         dpx,dpy = self._dungeonPos
         px,py   = self._parallax.pos()
@@ -366,6 +634,7 @@ class Game(ttk.TTk):
         return True
 
     def mouseMoveEvent(self, evt) -> bool:
+        if not glbls.playing: return False
         self._dragging = False
         hpx,hpy = self._dungeon.heroPos()
         dpx,dpy = self._dungeonPos
@@ -375,6 +644,7 @@ class Game(ttk.TTk):
         return True
 
     def mouseDragEvent(self, evt) -> bool:
+        if not glbls.playing: return False
         self._dragging = True
         w,h=self._dungeon.size()
         x,y   = self._mouseSavePos

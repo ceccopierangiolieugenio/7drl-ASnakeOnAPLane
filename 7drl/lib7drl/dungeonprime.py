@@ -823,7 +823,7 @@ class DungeonPrime():
             if heatMap[cy][cx]>=heatMap[_y][_x]>0:
                 cx,cy = closestDoor = (_x,_y)
         _recurseMark((sx,sy),4)
-        dataFoes[sy][sx] = foe = Foe(pos=(sx,sy),name='Snake', **FOELIST['Snake'])
+        dataFoes[sy][sx] = foe = Snake(pos=(sx,sy),name='Snake', **FOELIST['Snake'])
         foeList.append(foe)
 
         while not (bossPos := _randomDistanceInTypes([maxDist-16,maxDist-11],[0,maxType])):
@@ -876,14 +876,24 @@ class DungeonPrime():
             'heroPos': (0,0)
         }
 
+        seeds = [random.random() for _ in range(100)]
+
+        random.seed(seeds.pop())
         self.genPlane()
+        random.seed(seeds.pop())
         self.genMainArea()
+        random.seed(seeds.pop())
         self.ensureConnection()
+        random.seed(seeds.pop())
         self.genWalls()
+        random.seed(seeds.pop())
         self.genDoors()
+        random.seed(seeds.pop())
         self.placeKeys()
+        random.seed(seeds.pop())
         self.placeFoesObjs()
         # self.placeObjs()
+        random.seed(seeds.pop())
 
         if  glbls.level == 5:
             self.placeBoss()

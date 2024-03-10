@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-__all__ = ['Foe','FOELIST']
+__all__ = ['Foe','Snake','FOELIST']
 
 import sys, os, math, random
 
@@ -190,6 +190,8 @@ FOELIST = {
     'Snake'   : {'health':  1, 'atk':  0, 'wpn': 0, 'shellGlyph': '  ','speed': 1, 'reloadSpeed':  0, 'distance':2, 'drop':[]},
 }
 
+class Snake(Foe):
+    pass
 class Foe():
     def __init__(self, *, pos=(0,0), name,
                  distance, atk, wpn, shellGlyph, speed, reloadSpeed, health, drop) -> None:

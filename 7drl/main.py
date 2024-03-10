@@ -32,12 +32,13 @@ from lib7drl import *
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', help='Enable debug',   action='store_true')
+    parser.add_argument('-s', help='Skip Intro',     action='store_true')
     parser.add_argument('-l', help='Starting Level', type=int, default=1)
     args = parser.parse_args()
 
     root = Game(
         title="A Snake🐍 on a Plane✈️ - The Roguelike",
-        mouseTrack=True, debug=args.d, level=args.l)
+        mouseTrack=True, debug=args.d, level=args.l, skipIntro=args.s)
     root.mainloop()
 
 if __name__ == "__main__":
