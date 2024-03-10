@@ -44,19 +44,11 @@ class Dungeon(DungeonPrime):
 
     def __init__(self) -> None:
         super().__init__()
-        self._oneOff = []
-        self._animShells = []
-        self._ongoingAnimation = False
-        self._mousePos  = (5,3)
-        self._heroPos   = (5,3)
-        self._heroBouncing = (0,0)
-        self._mouseLine        = []
-        self._mouseVisibleLine = []
         self._mouseColor        = ttk.TTkColor.fg('#88BB88')+ttk.TTkColor.bg('#BBBB88')
         self._mouseColorVisible = ttk.TTkColor.fg('#00FF00')+ttk.TTkColor.bg('#FFFF88')
         # self._mouseIcon = ttk.TTkString("🔆",self._mouseColor)
         self._mouseIcon = ttk.TTkString("🔆")
-        self._floor = [
+        self._floorOld = [
                 [[ttk.TTkColor.bg('#eeddee'),ttk.TTkColor.bg('#ccccee')],
                  [ttk.TTkColor.bg('#eeeeee'),ttk.TTkColor.bg('#cccccc')]], # Base
                 [[ttk.TTkColor.bg('#ddffdd'),ttk.TTkColor.bg('#aaddaa')],
@@ -70,11 +62,44 @@ class Dungeon(DungeonPrime):
                 [[ttk.TTkColor.bg('#DAA06D'),ttk.TTkColor.bg('#B87333')],
                  [ttk.TTkColor.bg('#D2B48C'),ttk.TTkColor.bg('#C19A6B')]], # Crap
             ]
+        def _genTile(r,g,b):
+            r1,g1,b1    = int(r*0.9),int(g*0.9),int(b*0.9)
+            r2,g2,b2    = int(r*0.8),int(g*0.8),int(b*0.8)
+            r3,g3,b3    = int(r*0.7),int(g*0.7),int(b*0.7)
+            # rg=gg=bg    = (r+g+b)//3
+            # rg1=gg1=bg1 = (r1+g1+b1)//3
+            # rg1,gg1,bg1 = r1,g1,b1
+            return [
+                [ttk.TTkColor.bg(f"#{r :02x}{g :02x}{b :02x}"),
+                 ttk.TTkColor.bg(f"#{r1:02x}{g1:02x}{b1:02x}")],
+                [ttk.TTkColor.bg(f"#{r2:02x}{g2:02x}{b2:02x}"),
+                 ttk.TTkColor.bg(f"#{r3:02x}{g3:02x}{b3:02x}")]]
+        self._floor = [
+            _genTile(0xee,0xdd,0xee), # 0 Base
+            _genTile(0xdd,0xff,0xdd), # 1 Green
+            _genTile(0xdd,0xdd,0xff), # 2 Blue
+            _genTile(0xff,0xdd,0xdd), # 3 Red
+            _genTile(0xff,0xff,0xee), # 4 Yellow
+            _genTile(0xd2,0xb4,0x8c), # 5 Crap
+            _genTile(0xaa,0xff,0xaa), # 6 Exit
+            ]
+
         self._makeRayMap()
         dw,dh = self.size()
         self._rayNum = 1
         self._visibilityMap = [[0]*(dw) for _ in range(dh)]
         self.updateVisibility()
+
+    def initDungeonZero(self):
+        self._oneOff = []
+        self._animShells = []
+        self._ongoingAnimation = False
+        self._mousePos  = (5,3)
+        self._heroPos   = (5,3)
+        self._heroBouncing = (0,0)
+        self._mouseLine        = []
+        self._mouseVisibleLine = []
+        super().initDungeonZero()
 
     def _makeRayMap(self):
         maps = {}
@@ -271,6 +296,8 @@ class Dungeon(DungeonPrime):
         foe.health -= amount
         x,y = foe.pos
         if foe.health <= 0: # the foe is dead
+            if type(foe) == Snake:
+                glbls.death.emit()
             foes.remove(foe)
             for drop in foe.drop():
                 allPos = [(x,y),(x+1,y),(x-1,y),(x,y+1),(x,y-1)]
@@ -354,7 +381,7 @@ class Dungeon(DungeonPrime):
         if self._ongoingAnimation: return
         # Check hazards:
         if dt[hy][hx] == 5: # Player is on shit
-            player.hit(3)
+            player.hit(3,["Died sinking in a pool of crap"])
         for foe in self._foes:
             # ttk.TTkLog.debug(foe.name)
             x,y = foe.pos
@@ -368,7 +395,7 @@ class Dungeon(DungeonPrime):
             def _moveAction():
                 ch = hm[y][x]
                 if ch == 2: # Melee Attack
-                    player.hit(foe.atk)
+                    player.hit(foe.atk, [f"{foe.fullName} the {foe.name}{foe.picture} killed you, LOSER!!!"])
                     return
                 if ch < foe.distance:
                     chNew = ch+1
@@ -391,7 +418,7 @@ class Dungeon(DungeonPrime):
                 line, visible, hitPos, hit = self.getRays((x,y),self._heroPos)
                 if hit:
                     def _endingCallback(_foe=_foe):
-                        player.hit(_foe.wpn)
+                        player.hit(_foe.wpn, [f"{foe.fullName} the {foe.name}{foe.picture} killed you, LOSER!!!"])
                         # ttk.TTkLog.debug(f"shot cb {_foe.name}")
                         if _foe.name == 'Crap': # Add a pool of crap
                             self._poolOfCrap(self._heroPos,1)
@@ -430,7 +457,10 @@ class Dungeon(DungeonPrime):
         elif direction == self.RIGHT: nx += 1
 
         if foe:=dfoes[ny][nx]:
-            self.hitFoe(foe,player.atk,False)
+            if type(foe) == Snake:
+                glbls.endGame.emit()
+            else:
+                self.hitFoe(foe,player.atk,False)
             return
 
         # Check if the floor is empty

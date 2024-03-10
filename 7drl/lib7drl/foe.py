@@ -190,8 +190,8 @@ FOELIST = {
     'Snake'   : {'health':  1, 'atk':  0, 'wpn': 0, 'shellGlyph': '  ','speed': 1, 'reloadSpeed':  0, 'distance':2, 'drop':[]},
 }
 
-class Snake(Foe):
-    pass
+
+
 class Foe():
     def __init__(self, *, pos=(0,0), name,
                  distance, atk, wpn, shellGlyph, speed, reloadSpeed, health, drop) -> None:
@@ -292,3 +292,6 @@ class Foe():
     def getActions(self) -> list[bool,bool]: # return move or shot
         self.time += 1
         return (self.time*self.speed)%10<=self.speed, (self.time*self.reloadSpeed)%10<self.reloadSpeed,
+
+class Snake(Foe):
+    pass

@@ -146,7 +146,8 @@ class Player():
         self.updated.emit()
 
     def resetStats(self):
-        self.money= 0
+        self.deathSentence = ['']
+        self.money= 1
         self.keys = []
         self.body = Body()
         self._health:    int  = 200
@@ -199,9 +200,10 @@ class Player():
         # Calc the value of the melee attack
         return self.body.getArmorValue()
 
-    def hit(self,value):
+    def hit(self,value, deathSentence):
         value = self.body.hit(value)
         self.health -= value
+        self.deathSentence = deathSentence
         self.updated.emit()
 
 

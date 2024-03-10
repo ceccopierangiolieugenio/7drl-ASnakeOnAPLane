@@ -73,6 +73,43 @@ GEOMETRIES = {
     'parallax' : {'pos':( 0, 0),'size':( 83,30),'v0':48,'v1':0},
     'deathWid' : {'pos':( 0, 0),'size':(105,30)},
 }
+
+LOSER_SENTENCE = [
+                ["You are an individual whose efforts in the realm of ","success resemble a floundering fish in ","a dry desert.",],
+                ["You are one who dances with failure so skillfully, ","it's as if they've crafted an intricate ","waltz with defeat.",],
+                ["You are a connoisseur of calamity, navigating the ","waters of misfortune with unparalleled finesse.",],
+                ["You are an aficionado of inadequacy, painting ","masterpieces of mediocrity on the canvas of life.",],
+                ["You are a virtuoso of defeat, orchestrating symphonies ","of disappointment with breathtaking precision.",],
+                ["You are a purveyor of pitiful pursuits, forever ","chasing the elusive shadow of accomplishment.",],
+                ["You are a curator of catastrophe, sculpting monuments ","of ineptitude in the grand gallery of existence.",],
+                ["You are a maestro of misfortune, conducting the orchestra ","of their own downfall with ","unwavering dedication.",],
+                ["You are a savant of subpar performance, crafting ","opuses of underachievement in the theater of life.",],
+                ["You are a luminary of loss, illuminating the path ","to defeat with a radiant glow of ineptitude."],
+                ["You are a prodigy of patheticness, whose achievements in the realm ","of success are but mere whispers in ","the cacophony of triumph.",],
+                ["You are an architect of adversity, constructing monuments of ","failure that defy the laws of probability.",],
+                ["You are a bard of blunder, spinning tales of misfortune that ","captivate the hearts of all who witness their journey.",],
+                ["You are a paragon of pitifulness, whose escapades in the pursuit ","of victory rival the exploits of Sisyphean legend.",],
+                ["You are a luminary of lamentation, casting a shadow of defeat so ","vast it blots out the very sun of success.",],
+                ["You are a harbinger of humiliation, heralding the arrival of ","failure with a flourish and a fanfare.",],
+                ["You are a virtuoso of defeat, composing sonnets of sorrow that ","resonate across the vast expanse of human experience.",],
+                ["You are a titan of tragedy, whose endeavors in the arena of achievement ","are akin to a Greek epic of unfulfilled potential.",],
+                ["You are an artisan of inadequacy, sculpting monuments of mediocrity ","with the precision of a master craftsman.",],
+                ["You are a doyen of disappointment, whose exploits in the pursuit of ","excellence are a testament to the ","boundless depths of human folly.",],
+                ["You are a luminary of lackluster performance, whose endeavors in ","the pursuit of greatness are a testament ","to the resilience of ineptitude.",],
+                ["You are a maestro of mishap, conducting symphonies of failure with ","the grace and poise of a seasoned virtuoso.",],
+                ["You are a sage of subpar achievement, dispensing wisdom born of ","countless missteps and foiled ambitions.",],
+                ["You are an oracle of underachievement, whose prophecies of failure ","are as inevitable as the rising sun.",],
+                ["You are a maestro of missteps, choreographing dances of disappointment ","that leave audiences both bemused and bewildered.",],
+                ["You are a luminary of lowliness, whose exploits in the realm of ","success are a beacon for all who seek ","the path of least resistance.",],
+                ["You are a juggernaut of junk, bulldozing through the landscape ","of success with all the finesse of a wrecking ball.",],
+                ["You are a phoenix of failure, rising from the ashes of defeat ","with all the grace and dignity of a clumsy ostrich.",],
+                ["You are a savant of stagnation, whose mastery of the art ","of underachievement is matched only by ","their steadfast refusal to improve.",],
+                ["You are a virtuoso of vulgarity, whose exploits in the ","realm of success are a testament to the ","boundless depths of human folly.",],
+                ["You are a connoisseur of catastrophe, whose palate for failure is as refined as it is insatiable."],
+
+            ]
+
+
 class Game(ttk.TTk):
     def __init__(self, debug=True, level=1, skipIntro=False, **kwargs):
         glbls.root = self
@@ -192,6 +229,8 @@ class Game(ttk.TTk):
         self._initialScreenMenu()
 
     def _initialScreenMenu(self):
+        glbls.player.resetStats()
+        self._dungeon.initDungeonZero()
         glbls.playing = False
         x,y = GEOMETRIES['parallax']['pos']
         w,h = GEOMETRIES['parallax']['size']
@@ -260,11 +299,14 @@ class Game(ttk.TTk):
         Message.add(ttk.TTkString(f""))
         Message.add(ttk.TTkString(f"Seed Used: '{glbls.seed}'"))
         Message.add(ttk.TTkString(f""))
+        ttk.TTkLog.debug(f"Seed Used: '{glbls.seed}'")
 
         messages = {
             'id':0,
             'msg':[
                 [
+                    ttk.TTkString(""),
+                    ttk.TTkString("################################"),
                     ttk.TTkString(""),
                     ttk.TTkString("🥸 Hello Fluid Snake..."),
                     ttk.TTkString(""),
@@ -316,6 +358,8 @@ class Game(ttk.TTk):
             'msg':[
                 [
                     ttk.TTkString(""),
+                    ttk.TTkString("################################"),
+                    ttk.TTkString(""),
                     ttk.TTkString("🥸 Hey Fluid Snake..."),
                     ttk.TTkString("   How is it going?"),
                     ttk.TTkString(""),
@@ -358,6 +402,57 @@ class Game(ttk.TTk):
         self._quickAnim((-10,18),  (20  , 18), 0.5, EC.Linear, self._btnNext, self._btnNext.move, [_nextMessage])
 
 
+    def _endBreak(self):
+        glbls.playing = False
+        last_message = [
+                    ttk.TTkString( "🥸 Don't be greedy, you collected"),
+                    ttk.TTkString(f"   {glbls.player.money}$ along the way"),
+                    ttk.TTkString()]
+        for ls in random.choice(LOSER_SENTENCE):
+            last_message.append(ttk.TTkString(f"   {ls}"))
+        last_message.append(ttk.TTkString())
+        messages = {
+            'id':0,
+            'msg':[
+                [
+                    ttk.TTkString(""),
+                    ttk.TTkString("################################"),
+                    ttk.TTkString(""),
+                    ttk.TTkString("🥸 Good Job Fluid Snake..."),
+                    ttk.TTkString("   You saved the world"),
+                    ttk.TTkString(""),
+                ],
+                [
+                    ttk.TTkString("   Thanks...               😎"),
+                    ttk.TTkString("   What about the payment?"),
+                    ttk.TTkString("")
+                ],
+                last_message
+            ]
+        }
+
+        x,y = GEOMETRIES['parallax']['pos']
+        w,h = GEOMETRIES['parallax']['size']
+        mwx,mwy,mww,mwh=self._msgWin.geometry()
+        EC = ttk.TTkEasingCurve
+
+        def _nextMessage(m=messages):
+            if m['id'] >= len(m['msg']):
+                self._btnNext.clicked.clear()
+                self._initialScreen()
+                return
+            for msg in m['msg'][m['id']]:
+                Message.add(msg)
+            m['id']+=1
+
+        self._btnNext.setEnabled(True)
+        self._btnNext.clicked.connect(_nextMessage)
+
+        self._quickAnim(( mwx,mwy),(x+10,y+5), 0.5, EC.Linear, self._msgWin,  self._msgWin.move)
+        self._quickAnim(( mww,mwh),(w-20, 12), 0.5, EC.Linear, self._msgWin,  self._msgWin.resize)
+        self._quickAnim((-10,18),  (20  , 18), 0.5, EC.Linear, self._btnNext, self._btnNext.move, [_nextMessage])
+
+
     def _showDeadStats(self):
         x,y = GEOMETRIES['root']['pos']
         w,h = GEOMETRIES['root']['size']
@@ -371,9 +466,20 @@ class Game(ttk.TTk):
         self._btnNext.setEnabled(True)
         self._btnNext.clicked.connect(self._initialScreen)
 
+        def _showStats():
+            Message.add(ttk.TTkString())
+            for ds in glbls.player.deathSentence:
+                Message.add(ds)
+            Message.add(ttk.TTkString(f"You lost {glbls.player.money}$ in the explosion"))
+            Message.add(ttk.TTkString("and your kids will get NOTHING,"))
+            Message.add(ttk.TTkString(""))
+            for ls in random.choice(LOSER_SENTENCE):
+                Message.add(ttk.TTkString(ls))
+            Message.add(ttk.TTkString(""))
+
         self._quickAnim(( 30,10),(x+10,y+5), 0.5, EC.Linear, self._msgWin,  self._msgWin.move)
         self._quickAnim(( 0,0),(w-20, 12), 0.5, EC.Linear, self._msgWin,  self._msgWin.resize)
-        self._quickAnim((-10,18),(20, 18), 0.5, EC.Linear, self._btnNext, self._btnNext.move)
+        self._quickAnim((-10,18),(20, 18), 0.5, EC.Linear, self._btnNext, self._btnNext.move, [_showStats])
 
     def _newGame(self):
         mwx,mwy,mww,mwh=self._msgWin.geometry()
@@ -392,24 +498,29 @@ class Game(ttk.TTk):
 
     @ttk.pyTTkSlot()
     def _nextLevel(self):
-        if glbls.level <= 0:
-            glbls.level = 1
+        if glbls.level <= 1:
+            glbls.level = 2
             self._firstBreak()
             return
         def _doIt():
-            glbls.level = min(5,glbls.level+1)
             glbls.player.resetKeys()
             self._dungeon.genDungeon()
             self.landingAnim()
             glbls.playing = True
             self.setFocus()
+            glbls.level = min(5,glbls.level+1)
         self.takingOffAnim([_doIt])
 
     @ttk.pyTTkSlot()
     def _endGame(self):
-        pass
+        glbls.playing = False
+        glbls.level = 1
+        self.takingOffAnim([self._endBreak])
+
     @ttk.pyTTkSlot()
     def _death(self):
+        glbls.playing = False
+        glbls.level = 1
         self.deathAnim([self._youDiedScreen])
 
     @ttk.pyTTkSlot()

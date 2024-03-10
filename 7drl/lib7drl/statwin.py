@@ -122,6 +122,6 @@ class StatWin(WBWindow):
         canvas.drawText(pos=(w-1,6),  text='🭔', color=bgBLACK)
         canvas.drawText(pos=(w-1,11), text='🭃', color=bgBLACK)
 
-        canvas.drawText(pos=(3,h-1), text=f'🭃 $ {p.money: 6} 🭎', color=bgBLACK)
+        canvas.drawText(pos=(3,h-1), text=f'🭃 $ {p.money: 1} 🭎', color=bgBLACK)
 
         super().paintEvent(canvas)
