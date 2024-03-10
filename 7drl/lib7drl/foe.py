@@ -175,19 +175,20 @@ kindness_hobbies = [
 ]
 
 FOELIST = {
-    'Zombie'  : {'health':  5, 'atk':  5, 'wpn': 0, 'shellGlyph': '💥','speed': 7, 'reloadSpeed':  0, 'distance':2, 'drop':['g1','g2','ws1','ws2']},
-    'Vampire' : {'health': 10, 'atk': 10, 'wpn': 3, 'shellGlyph': '🪓','speed': 7, 'reloadSpeed':  5, 'distance':6, 'drop':['g1','g2','ws1','ws2']},
-    'Ghost'   : {'health': 15, 'atk': 10, 'wpn': 4, 'shellGlyph': '🌪️','speed': 4, 'reloadSpeed':  5, 'distance':2, 'drop':['g2','g3','ws1','ws2']},
-    'Pumpkin' : {'health': 20, 'atk': 15, 'wpn': 5, 'shellGlyph': '🥮','speed': 6, 'reloadSpeed':  5, 'distance':2, 'drop':['g2','g3','ws1','ws2']},
-    'Imp'     : {'health': 25, 'atk': 15, 'wpn': 5, 'shellGlyph': '💥','speed': 7, 'reloadSpeed':  5, 'distance':2, 'drop':['g4','g5','ws2','ws3']},
-    'Robot'   : {'health': 40, 'atk': 20, 'wpn': 5, 'shellGlyph': '🔋','speed': 2, 'reloadSpeed':  5, 'distance':2, 'drop':['g4','g5','ws2','ws3']},
-    'Crap'    : {'health': 40, 'atk': 10, 'wpn': 5, 'shellGlyph': '🚽','speed': 4, 'reloadSpeed':  5, 'distance':6, 'drop':['g6','g7','ws2','ws3','wt2']},
-    'SI'      : {'health': 60, 'atk': 15, 'wpn': 6, 'shellGlyph': '🍕','speed': 7, 'reloadSpeed':  5, 'distance':2, 'drop':['g6','g7','ws2','ws3','wt2']},
-    'Alien'   : {'health': 70, 'atk': 15, 'wpn': 6, 'shellGlyph': '💥','speed': 8, 'reloadSpeed':  5, 'distance':2, 'drop':['g7','g8','ws3','ws4','wt3']},
-    'Dragon'  : {'health': 80, 'atk': 30, 'wpn':10, 'shellGlyph': '🥦','speed': 5, 'reloadSpeed':  5, 'distance':6, 'drop':['g7','g8','ws3','ws4','wt3']},
-    'TRex'    : {'health': 90, 'atk': 30, 'wpn': 0, 'shellGlyph': '🥦','speed': 8, 'reloadSpeed':  5, 'distance':2, 'drop':['g7','g8','ws3','ws4','wt3']},
-    'Nose'    : {'health':150, 'atk': 35, 'wpn':15, 'shellGlyph': '💥','speed': 8, 'reloadSpeed':  5, 'distance':2, 'drop':['KY']},
-    'Snake'   : {'health':  1, 'atk':  0, 'wpn': 0, 'shellGlyph': '  ','speed': 1, 'reloadSpeed':  0, 'distance':2, 'drop':[]},
+    'Zombie'  : {'health':  5, 'atk':  5, 'wpn': 0, 'shellGlyph': '💥','speed':  7, 'reloadSpeed':  0, 'distance':2, 'drop':['af1','g1','g2','g1','g2','ws1','ws2']},
+    'Vampire' : {'health': 10, 'atk': 10, 'wpn': 3, 'shellGlyph': '🪓','speed':  7, 'reloadSpeed':  5, 'distance':6, 'drop':['ah1','g1','g2','g1','g2','ws1','ws2']},
+    'Ghost'   : {'health': 15, 'atk': 10, 'wpn': 4, 'shellGlyph': '🌪️','speed':  4, 'reloadSpeed':  0, 'distance':2, 'drop':['ab1','g2','g3','g2','g3','ws1','ws2']},
+    'Skeleton': {'health': 15, 'atk': 10, 'wpn': 4, 'shellGlyph': '👻','speed':  4, 'reloadSpeed':  3, 'distance':6, 'drop':['ab1','g2','g3','g2','g3','ws1','ws2']},
+    'Pumpkin' : {'health': 20, 'atk': 15, 'wpn': 5, 'shellGlyph': '🥮','speed':  6, 'reloadSpeed':  3, 'distance':2, 'drop':['al1','g2','g3','g2','g3','ws1','ws2']},
+    'Imp'     : {'health': 25, 'atk': 15, 'wpn': 5, 'shellGlyph': '💥','speed':  7, 'reloadSpeed':  3, 'distance':2, 'drop':['af2','g4','g5','g4','g5','ws2','ws3']},
+    'Robot'   : {'health': 40, 'atk': 20, 'wpn': 5, 'shellGlyph': '🔋','speed':  2, 'reloadSpeed':  3, 'distance':2, 'drop':['ah2','g4','g5','g4','g5','ws2','ws3']},
+    'Crap'    : {'health': 40, 'atk': 10, 'wpn': 5, 'shellGlyph': '🚽','speed':  4, 'reloadSpeed':  3, 'distance':6, 'drop':['ab2','g6','g7','g6','g7','ws4','ws4','wt4']},
+    'SI'      : {'health': 60, 'atk': 15, 'wpn': 6, 'shellGlyph': '🍕','speed':  7, 'reloadSpeed':  3, 'distance':2, 'drop':['al2','g6','g7','g6','g7','ws2','ws3','wt2']},
+    'Alien'   : {'health': 70, 'atk': 15, 'wpn': 6, 'shellGlyph': '💥','speed':  8, 'reloadSpeed':  3, 'distance':2, 'drop':['af3','ah3','g7','g8','g7','g8','ws3','ws4','wt3']},
+    'Dragon'  : {'health': 80, 'atk': 30, 'wpn':10, 'shellGlyph': '🥦','speed':  5, 'reloadSpeed':  3, 'distance':6, 'drop':['ab3','ab4','g7','g8','g7','g8','ws3','ws4','wt3']},
+    'TRex'    : {'health': 90, 'atk': 30, 'wpn': 0, 'shellGlyph': '🥦','speed':  8, 'reloadSpeed':  3, 'distance':2, 'drop':['al3','af4','g7','g8','g7','g8','ws3','ws4','wt3']},
+    'Nose'    : {'health':150, 'atk': 35, 'wpn':15, 'shellGlyph': '💥','speed':  8, 'reloadSpeed':  3, 'distance':2, 'drop':['KY']},
+    'Snake'   : {'health':  1, 'atk':  0, 'wpn': 0, 'shellGlyph': '  ','speed':  0, 'reloadSpeed':  0, 'distance':2, 'drop':[]},
 }
 
 
@@ -285,13 +286,15 @@ class Foe():
     def drop(self):
         drop = []
         if self._drop:
-            for _ in range(random.randint(1,len(self._drop))):
+            for _ in range(random.randint(1,3)):
                 drop.append(random.choice(self._drop))
         return drop
 
     def getActions(self) -> list[bool,bool]: # return move or shot
         self.time += 1
-        return (self.time*self.speed)%10<=self.speed, (self.time*self.reloadSpeed)%10<self.reloadSpeed,
+        move = False if not self.speed       else 0 == (self.time)%(10-self.speed)
+        shot = False if not self.reloadSpeed else 0 == (self.time)%(10-self.reloadSpeed)
+        return move, shot
 
 class Snake(Foe):
     pass

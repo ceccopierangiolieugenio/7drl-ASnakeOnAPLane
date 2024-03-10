@@ -294,6 +294,7 @@ class Dungeon(DungeonPrime):
         dataMap = self._dataFloor
         foes  = self._foes
         foe.health -= amount
+        if foe not in foes: return
         x,y = foe.pos
         if foe.health <= 0: # the foe is dead
             if type(foe) == Snake:
@@ -340,6 +341,40 @@ class Dungeon(DungeonPrime):
             _crapStep((_cx  ,_cy-1),_step-1)
         _crapStep((_x,_y),size)
 
+    def _areaShot(self, pos, size):
+        hx,hy = self._heroPos
+        dw,dh=self.size()
+        _x,_y = pos
+        _dt = self._dataType
+        _df = self._dataFloor
+        dfoes = self._dataFoes
+        player:Player = glbls.player
+        _shotTiles = []
+        def _crapStep(_pos,_step):
+            _cx,_cy = _pos
+            if not (0<=_cx<dw and 0<=_cy<dh):return
+            _shotTiles.append((_cx,_cy))
+            if _df[_cy][_cx] not in (' ','d','>'): return
+            if _step<0: return
+            _crapStep((_cx+1,_cy  ),_step-1)
+            _crapStep((_cx-1,_cy  ),_step-1)
+            _crapStep((_cx  ,_cy+1),_step-1)
+            _crapStep((_cx  ,_cy-1),_step-1)
+        _crapStep((_x,_y),size)
+        for p in _shotTiles:
+            nx,ny = p
+            shell = {'pos':p,'glyph':Tiles['HIT']}
+            self._oneOff.append(shell)
+            if foe:=dfoes[ny][nx]:
+                if type(foe) == Snake:
+                    glbls.endGame.emit()
+                else:
+                    self.hitFoe(foe,player.wpn,False)
+            if p == self._heroPos:
+                player.hit(player.wpn, [f"You burned your ARSE to death!!!","DumbASS"])
+
+
+
     def shotWeapon(self,x,y):
         self._mouseLine = []
         self._mouseVisibleLine = []
@@ -362,6 +397,8 @@ class Dungeon(DungeonPrime):
             def _endingCallback():
                 if player.weaponHeld == 'wt4': # Add a pool of crap
                     self._poolOfCrap((x,y),2)
+                if player.weaponHeld == 'wr4': # Add a pool of crap
+                    self._areaShot((x,y),2)
                 # if player.weaponHeld == 'wt4': # Add a pool of crap
                 #     self._poolOfCrap((x,y),2)
                 self.hitFoe(foe,player.wpn,False)
@@ -385,7 +422,7 @@ class Dungeon(DungeonPrime):
         for foe in self._foes:
             # ttk.TTkLog.debug(foe.name)
             x,y = foe.pos
-            if dt[hy][hx] == 5: # Foe is on a sea of crap
+            if dt[hy][hx] == 5 and foe.name != 'Crap': # Foe is on a sea of crap
                 self.hitFoe(foe,3,True)
             if rn==visMap[y][x]: foe.active = True
             if abs(x-hx)>40 or abs(y-hy)>15: foe.active = False
@@ -413,7 +450,6 @@ class Dungeon(DungeonPrime):
 
             def _shotAction(_foe=foe):
                 # ttk.TTkLog.debug(f"shot {foe.name}")
-
                 if not _foe.wpn: return
                 line, visible, hitPos, hit = self.getRays((x,y),self._heroPos)
                 if hit:
@@ -422,6 +458,15 @@ class Dungeon(DungeonPrime):
                         # ttk.TTkLog.debug(f"shot cb {_foe.name}")
                         if _foe.name == 'Crap': # Add a pool of crap
                             self._poolOfCrap(self._heroPos,1)
+                        if _foe.name == 'Skeleton':
+                            for gx in range(hx-1,hx+2):
+                                for gy in range(hy-1,hy+2):
+                                    if not df[gy][gx]:
+                                        newFoe = Foe(pos=(gx,gy),name='Ghost', **FOELIST['Ghost'])
+                                        df[gy][gx] = newFoe
+                                        self._foes.append(newFoe)
+                                        return
+
                     self.animShot((x,y),self._heroPos,visible,foe.shellGlyph(),_endingCallback)
             if shot:
                 _shotAction()

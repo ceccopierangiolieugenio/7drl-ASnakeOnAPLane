@@ -649,12 +649,12 @@ class DungeonPrime():
 
         # Based on the level [1,5] define the planes placement area
         foesList = [
-            'Zombie','Vampire','Ghost',
-            'Zombie','Vampire','Ghost',
-            'Zombie','Vampire','Ghost',
-            'Pumpkin','Imp','Imp',
-            'Pumpkin','Imp','Imp',
-            'Pumpkin','Imp','Imp',
+            'Zombie','Zombie','Vampire',
+            'Zombie','Zombie','Vampire',
+            'Zombie','Zombie','Vampire',
+            'Pumpkin','Imp','Skeleton',
+            'Pumpkin','Imp','Skeleton',
+            'Pumpkin','Imp','Skeleton',
             'Robot','Robot','Crap',
             'Robot','Robot','Crap',
             'Robot','Robot','Crap',

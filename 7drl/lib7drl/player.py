@@ -108,7 +108,7 @@ MeleeParams = {'wm0':10,'wm1':15,'wm2':20,'wm3':25,'wm4':30}
 ShellsParam = {'wr1':5 ,'wr2':5 ,'wr3': 3,'wr4': 3,
                'ws1':15,'ws2':15,'ws3': 5,'ws4': 5,
                'wt1':3 ,'wt2':2 ,'wt3': 1,'wt4': 3}
-AttackParam = {'wr1':5 ,'wr2':10,'wr3':20,'wr4':25,
+AttackParam = {'wr1':5 ,'wr2':10,'wr3':20,'wr4':15,
                'wt1':20,'wt2':30,'wt3':40,'wt4':30}
 MaxShells =   {'ws1':100,'ws2':100,'ws3':30,'ws4': 20,
                'wt1': 20,'wt2': 20,'wt3':20,'wt4': 10}
@@ -144,18 +144,31 @@ class Player():
         self.maxHealth:  int = 200
         self.meleeHeld:  str  = 'wm0'
         self.weaponHeld: str  = 'wr1'
-        self.weapons:    list = ['wr1','wr3','wr4']
+        self.weapons:    list = ['wr1']
         self.maxArmor = self.body.maxArmor
-        self.shells = {
-            'ws1' : 20,
-            'ws2' : 0,
-            'ws3' : 0,
-            'ws4' : 0,}
-        self.throwables = {
-            'wt1' : 1,
-            'wt2' : 0,
-            'wt3' : 0,
-            'wt4' : 0,}
+        if glbls.debug:
+            self.weapons:    list = ['wr1','wr2','wr3','wr4']
+            self.shells = {
+                'ws1' : 20,
+                'ws2' : 20,
+                'ws3' : 20,
+                'ws4' : 20,}
+            self.throwables = {
+                'wt1' : 21,
+                'wt2' : 20,
+                'wt3' : 20,
+                'wt4' : 20,}
+        else:
+            self.shells = {
+                'ws1' : 20,
+                'ws2' : 0,
+                'ws3' : 0,
+                'ws4' : 0,}
+            self.throwables = {
+                'wt1' : 1,
+                'wt2' : 0,
+                'wt3' : 0,
+                'wt4' : 0,}
 
     def shellGlyph(self):
         return Tiles[self._weaponParams[self.weaponHeld][1]]
