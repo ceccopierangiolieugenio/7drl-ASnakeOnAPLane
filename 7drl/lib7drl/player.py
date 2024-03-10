@@ -107,7 +107,7 @@ class Body():
 MeleeParams = {'wm0':10,'wm1':15,'wm2':20,'wm3':25,'wm4':30}
 ShellsParam = {'wr1':5 ,'wr2':5 ,'wr3': 3,'wr4': 3,
                'ws1':15,'ws2':15,'ws3': 5,'ws4': 5,
-               'wt1':3 ,'wt2':2 ,'wt3': 1,'wt4': 1}
+               'wt1':3 ,'wt2':2 ,'wt3': 1,'wt4': 3}
 AttackParam = {'wr1':5 ,'wr2':10,'wr3':20,'wr4':25,
                'wt1':20,'wt2':30,'wt3':40,'wt4':30}
 MaxShells =   {'ws1':100,'ws2':100,'ws3':30,'ws4': 20,
@@ -119,16 +119,7 @@ class Player():
         self.updated = ttk.pyTTkSignal()
         self.moneyUpdated = ttk.pyTTkSignal(int)
 
-        self.shells = {
-            'ws1' : 20,
-            'ws2' : 0,
-            'ws3' : 0,
-            'ws4' : 0,}
-        self.throwables = {
-            'wt1' : 1,
-            'wt2' : 0,
-            'wt3' : 1,
-            'wt4' : 2,}
+        self.resetStats()
 
         self._weaponParams = {
             'wr1': (self.shells    , 'ws1'),
@@ -139,7 +130,6 @@ class Player():
             'wt2': (self.throwables, 'wt2'),
             'wt3': (self.throwables, 'wt3'),
             'wt4': (self.throwables, 'wt4')}
-        self.resetStats()
 
     def resetKeys(self):
         self.keys = []
@@ -156,6 +146,16 @@ class Player():
         self.weaponHeld: str  = 'wr1'
         self.weapons:    list = ['wr1','wr3','wr4']
         self.maxArmor = self.body.maxArmor
+        self.shells = {
+            'ws1' : 20,
+            'ws2' : 0,
+            'ws3' : 0,
+            'ws4' : 0,}
+        self.throwables = {
+            'wt1' : 1,
+            'wt2' : 0,
+            'wt3' : 0,
+            'wt4' : 0,}
 
     def shellGlyph(self):
         return Tiles[self._weaponParams[self.weaponHeld][1]]
