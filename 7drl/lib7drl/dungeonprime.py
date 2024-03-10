@@ -84,10 +84,19 @@ class DungeonPrime():
         self._plf  = plf  = Layer(PLANE_FRONT)
         self._plb  = plb  = Layer(PLANE_BACK)
         self._plb1 = plb1 = Layer(PLANE_BODY_1)
+        self._exp  = exp = Layer(EXPLOSION)
+        self._expPos = (100,100)
+
         wplf,hplf = plf.size()
         wplb,hplb = plb.size()
-        self._layerPlane = [{'layer':plf,'pos':(wplb-27,-1)},
-                            {'layer':plb,'pos':(-18,-7)}]
+        self._layerPlane = [
+                    {'layer':plf,'pos':(wplb-27,-1)},
+                    {'layer':plb,'pos':(-18,-7)}]
+        wexp,hexp = exp.size()
+        self._layerExplosion = [
+                    {'layer':exp,'pos':(0,4)},
+                    {'layer':exp,'pos':(wexp//2+10,2)},
+                    {'layer':exp,'pos':(wexp//2,0)}]
 
         self._dataFloor = STARTING_FLOOR
         self._dataType  = STARTING_TYPE
@@ -95,6 +104,7 @@ class DungeonPrime():
         renamedFoes     = [[(f if f!='z' else 'Zombie') for f in row] for row  in STARTING_FOES]
         self._dataFoes  = [[(Foe(pos=(x,y),name=f,**FOELIST[f]) if f else None) for x,f in enumerate(row)] for y,row in enumerate(renamedFoes)]
         self._heatMap  = [[0]*len(STARTING_FLOOR[0]) for _ in STARTING_FLOOR]
+        self._dataHazard= [[0]*len(STARTING_FLOOR[0]) for _ in STARTING_FLOOR]
         self._foes:list[Foe] = []
         for row in self._dataFoes: self._foes += [f for f in row if f]
         self._tmpData = {}
@@ -889,7 +899,8 @@ class DungeonPrime():
         self._layerPlane = self._tmpData['layer']
         self._foes = self._tmpData['foes']
         self._size = (len(self._dataFloor[0]),len(self._dataFloor))
-        self._heatMap  = [[0]*self._size[0] for _ in range(self._size[1])]
+        self._heatMap    = [[0]*self._size[0] for _ in range(self._size[1])]
+        self._dataHazard = [[0]*len(STARTING_FLOOR[0]) for _ in STARTING_FLOOR]
 
         # for y,row in enumerate(self._tmpData['heatMap']):
         # def _printMap(_map):

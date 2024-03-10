@@ -43,6 +43,22 @@ class Layer():
     def getColor(self,x,y):
         return self._imageData['colors'][y][x]
 
+    def forceColor(self,color):
+        for sls in self._data['opaque']:
+            for sl in sls[0]:
+                a,b = sl[0]
+                sl[2] = [color]*(b-a)
+            for sl in sls[1]:
+                a = sl[0]
+                sl[2] = color
+        for sls in self._data['transparent']:
+            for sl in sls[0]:
+                a,b = sl[0]
+                sl[2] = [color]*(b-a)
+            for sl in sls[1]:
+                a = sl[0]
+                sl[2] = color
+
     def processData(self, imageData):
         # Trying to extract for each line the slices that can be copied and the slices that are transparent (nobg is defined)
         data = imageData['data']

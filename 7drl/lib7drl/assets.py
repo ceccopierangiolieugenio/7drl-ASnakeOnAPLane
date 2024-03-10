@@ -25,6 +25,7 @@ __all__ = ['HouseBG_1_1','HouseBG_1_2',
            'HouseBG_3_1',
            'CLOUD_1','CLOUD_2',
            'PLANE_FRONT','PLANE_BACK','PLANE_BODY_1',
+           'YOU_DIED','EXPLOSION',
            'TEST_TILES','Tiles' ]
 
 import sys, os
@@ -139,6 +140,17 @@ PLANE_BODY_1 = TTkUtil.base64_deflate_2_obj(
     "QYCAgaV8SGdFSrSCZaBcdP6ofN+UN5ufa7z2FogtgqICdox7PARbCYQUUP4jt0Ymuv62qWnyoq+ojTpKIgqofJ99loMbkvxdnQxTLx1nIYht/e3d0+KtTATFBL6L9qqn" +
     "RSzFgTZoDl+78ewgBAiyAGK8xX+0qaN3Wv03btA6yN4maHr7aABYm6y2hyA5EAM15YdPmd8CQY+heMAkmz8isC21iU2WIciDfXxruaiL+jSrcfbqDu+vJqo=")
 
+YOU_DIED = TTkUtil.base64_deflate_2_obj(
+    "eJxrYJnqzMkABrVTNHpYUhJLEqfETtGIBXE+zF+7eAqYmgKhGqb0MCpAmN0Qaj6EmjGlh/nR9EUgcloDlMzgBUIekPjiKRnsYGUQBR1ALhwKgCWmw4UgCqAmCIMgWMFU" +
+    "iD29YGrNfpiBQJOFoA4AahaCaABDdhS+CKruVKD3oCYsgxg8AWZiK4Q/ewrMKUhuVUAi2THYQgg22IilU6BCQujSOJVD3AUVmAZxyUoItXAKDsuJcA6aG/C4BMRDccSy" +
+    "KRkK8AChlv3Q2NUCQ7xuQDKTLJvBTu8iOiIydNC83w71/po9YO+DEvNScOJsgZIZRkBoCBJfgqQiwxAsDpTJMEa2CarHFATB5rdAIncehJoFS4Qd0GS9Zi8kWZvCITsy" +
+    "H2pEhjlUd2pqD1tyfk5+UTE0C/v5tU0Z7jh11J/DCo/6c3jhEePP1FI9AK8SrdU=")
+
+EXPLOSION = TTkUtil.base64_deflate_2_obj(
+    "eJztlE0KwjAQhRWrYqVewI3gpisRvIc3cCHakIUg+LMURNRVlqMHdOctTNNU26Ct0YIhTl+FfNP01fZNsnVO13ZJHBvwmTMdr8YwAp+frNwB6kRilct5B7QaKhzvgdYi" +
+    "hXQEWk9JXovmczmxAu4b++0h5e3SRqywcgDaVHS/zue60rGRdFXkRpLP8qgnfVtCnpCco977wvEDoRM6GeoUsNpkPpsvlnLBD4dHUH+s3iWkzw9A+Biefdgg8cHTkx+U" +
+    "BWJMyGAAWP2vqk6DqB2Y7Lont4pnFQByTAhg9dfVgpKN+0RtpJxmzHLnfxThW8jLSw0PgzMECgzu7fX8+7e2AHS3SxEcrjZTQWcdYpRGQwFR4lZqBuhsshil0YBRWgMY" +
+    "pTWAUVoDWlEG694NTsDdwg==")
 
 # Glyphs:
 # 🍝🍜🔑🗝️🪪💳📓🎁📔📒📕📗📘📙

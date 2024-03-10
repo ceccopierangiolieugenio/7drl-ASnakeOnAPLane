@@ -52,8 +52,8 @@ class Dungeon(DungeonPrime):
         self._heroBouncing = (0,0)
         self._mouseLine        = []
         self._mouseVisibleLine = []
-        self._mouseColor        = ttk.TTkColor.fg('#008800')+ttk.TTkColor.bg('#888800')
-        self._mouseColorVisible = ttk.TTkColor.fg('#00FF00')+ttk.TTkColor.bg('#FFFF00')
+        self._mouseColor        = ttk.TTkColor.fg('#88BB88')+ttk.TTkColor.bg('#BBBB88')
+        self._mouseColorVisible = ttk.TTkColor.fg('#00FF00')+ttk.TTkColor.bg('#FFFF88')
         # self._mouseIcon = ttk.TTkString("🔆",self._mouseColor)
         self._mouseIcon = ttk.TTkString("🔆")
         self._floor = [
@@ -66,7 +66,10 @@ class Dungeon(DungeonPrime):
                 [[ttk.TTkColor.bg('#ffdddd'),ttk.TTkColor.bg('#ddaaaa')],
                  [ttk.TTkColor.bg('#dddddd'),ttk.TTkColor.bg('#cccccc')]], # Red
                 [[ttk.TTkColor.bg('#ffffdd'),ttk.TTkColor.bg('#ddddaa')],
-                 [ttk.TTkColor.bg('#ffffdd'),ttk.TTkColor.bg('#ddddaa')]]] # Yellow
+                 [ttk.TTkColor.bg('#ffffdd'),ttk.TTkColor.bg('#ddddaa')]], # Yellow
+                [[ttk.TTkColor.bg('#DAA06D'),ttk.TTkColor.bg('#B87333')],
+                 [ttk.TTkColor.bg('#D2B48C'),ttk.TTkColor.bg('#C19A6B')]], # Crap
+            ]
         self._makeRayMap()
         dw,dh = self.size()
         self._rayNum = 1
@@ -187,20 +190,25 @@ class Dungeon(DungeonPrime):
     def getRays(self, fr, to) -> list[list,list,bool]:
         hx,hy = fr
         x,y   = to
+        dw,dh = self.size()
         dataMap = self._dataFloor
         rim = self._ratInvMap
         dx,dy=x-hx,y-hy
         line = []
         if (dx,dy) in reversed(rim):
             line = [(hx+_x,hy+_y) for _x,_y in rim[(dx,dy)]]
+        if 0<=x<dw and 0<=y<dh:
+            line += [to]
 
+        # ttk.TTkLog.debug(f"{fr=} {to=}")
+        # ttk.TTkLog.debug(line)
         visibleLine = []
         hitPos = (hx,hy)
         for a,b in zip(line,line[1:]+[(x,y)]):
             dx,dy=a
             bx,by=b
             visibleLine.append(a)
-            if dataMap[dy][dx  ] not in (' ','d','>'):
+            if dataMap[dy][dx] not in (' ','d','>'):
                 hitPos=(dx,dy)
                 break
             _T = dataMap[dy+1][dx  ] not in (' ','d','>')
@@ -242,8 +250,18 @@ class Dungeon(DungeonPrime):
         if self._ongoingAnimation: return
         line, visible, _,__ = self.getRays(self._heroPos,(x,y))
         self._mousePos = (x,y)
-        self._mouseLine = line
-        self._mouseVisibleLine = visible
+        self._mouseLine = []
+        self._mouseVisibleLine = []
+        dataFloor = self._dataFloor
+        dataFoes  = self._dataFoes
+        dataObjs  = self._dataObjs
+        visMap    = self._visibilityMap
+        dw,dh=self.size()
+        if 0<=x<dw and 0<=y<dh:
+            if ((visMap[y][x] and dataFoes[y][x]) or
+                ((obj:=dataObjs[y][x])  and obj in ObjInfo)):
+                self._mouseLine = line
+                self._mouseVisibleLine = visible
 
     def hitFoe(self, foe:Foe, amount, suicide=False):
         dfoes = self._dataFoes
@@ -267,9 +285,9 @@ class Dungeon(DungeonPrime):
             if suicide:
                 Message.add(
                     ttk.TTkString(f"{foe.fullName} {foe.picture}",ttk.TTkColor.fg("FFFF00")) +
-                    ttk.TTkString(f" Died"))
+                    ttk.TTkString(f" Died in a pool of crap"))
                 Message.add(
-                    ttk.TTkString(f" And this is your fault"))
+                    ttk.TTkString(f" Surely it's your fault"))
             else:
                 Message.add(
                     ttk.TTkString(f"You Killed ") +
@@ -277,6 +295,23 @@ class Dungeon(DungeonPrime):
         else:
             Message.add(ttk.TTkString(f"You Hit ") +
                     ttk.TTkString(f"{foe.fullName} {foe.picture}",ttk.TTkColor.fg("FFFF00")))
+
+    def _poolOfCrap(self, pos, size):
+        dw,dh=self.size()
+        _x,_y = pos
+        _dt = self._dataType
+        _df = self._dataFloor
+        def _crapStep(_pos,_step):
+            _cx,_cy = _pos
+            if not (0<=_cx<dw and 0<=_cy<dh):return
+            _dt[_cy][_cx] = 5
+            if _df[_cy][_cx] not in (' ','d','>'): return
+            if _step<0: return
+            _crapStep((_cx+1,_cy  ),_step-1)
+            _crapStep((_cx-1,_cy  ),_step-1)
+            _crapStep((_cx  ,_cy+1),_step-1)
+            _crapStep((_cx  ,_cy-1),_step-1)
+        _crapStep((_x,_y),size)
 
     def shotWeapon(self,x,y):
         self._mouseLine = []
@@ -298,6 +333,10 @@ class Dungeon(DungeonPrime):
                 Message.add(ttk.TTkString(" - You have no ammo - ",ttk.TTkColor.bg('#0000AA')+ttk.TTkColor.fg('#FFFF00')))
                 return
             def _endingCallback():
+                if player.weaponHeld == 'wt4': # Add a pool of crap
+                    self._poolOfCrap((x,y),2)
+                # if player.weaponHeld == 'wt4': # Add a pool of crap
+                #     self._poolOfCrap((x,y),2)
                 self.hitFoe(foe,player.wpn,False)
                 self.foesAction()
             self.animShot(self._heroPos,hitPos,visible,player.shellGlyph(),_endingCallback)
@@ -309,11 +348,18 @@ class Dungeon(DungeonPrime):
         dm = self._dataFloor
         df = self._dataFoes
         hm = self._heatMap
+        dt = self._dataType
         player:Player = glbls.player
         hx,hy = self._heroPos
         if self._ongoingAnimation: return
+        # Check hazards:
+        if dt[hy][hx] == 5: # Player is on shit
+            player.hit(3)
         for foe in self._foes:
+            # ttk.TTkLog.debug(foe.name)
             x,y = foe.pos
+            if dt[hy][hx] == 5: # Foe is on a sea of crap
+                self.hitFoe(foe,3,True)
             if rn==visMap[y][x]: foe.active = True
             if abs(x-hx)>40 or abs(y-hy)>15: foe.active = False
             if not foe.active: continue
@@ -338,12 +384,17 @@ class Dungeon(DungeonPrime):
                         foe.pos = (_rx,_ry)
                         df[y][x],df[_ry][_rx] = df[_ry][_rx],df[y][x]
 
-            def _shotAction():
-                if not foe.wpn: return
+            def _shotAction(_foe=foe):
+                # ttk.TTkLog.debug(f"shot {foe.name}")
+
+                if not _foe.wpn: return
                 line, visible, hitPos, hit = self.getRays((x,y),self._heroPos)
                 if hit:
-                    def _endingCallback():
-                        player.hit(foe.wpn)
+                    def _endingCallback(_foe=_foe):
+                        player.hit(_foe.wpn)
+                        # ttk.TTkLog.debug(f"shot cb {_foe.name}")
+                        if _foe.name == 'Crap': # Add a pool of crap
+                            self._poolOfCrap(self._heroPos,1)
                     self.animShot((x,y),self._heroPos,visible,foe.shellGlyph(),_endingCallback)
             if shot:
                 _shotAction()
@@ -361,7 +412,6 @@ class Dungeon(DungeonPrime):
                 dataObjs[hy][hx] = ''
         elif dataFloor[hy][hx] == '>':
             glbls.nextLevel.emit()
-
 
     def moveHero(self, direction):
         self._mouseLine = []
@@ -413,6 +463,9 @@ class Dungeon(DungeonPrime):
     def setFading(self, fading):
         self._fading = fading
 
+    def setExplosionPos(self, x,y):
+        self._expPos = (int(x),int(y))
+
     def setBouncingHero(self, x,y):
         self._heroBouncing = (int(x),int(y))
 
@@ -437,6 +490,7 @@ class Dungeon(DungeonPrime):
         rn        = self._rayNum
         # Draw the plane:
         self._drawLayer(self._layerPlane, pos, canvas)
+        self._drawLayer(self._layerExplosion, self._expPos, canvas)
 
         # Draw the Dungeon:
         fd = self._fading
@@ -489,7 +543,7 @@ class Dungeon(DungeonPrime):
         if self._mousePos:
             mpx,mpy = self._mousePos
             if 0<=mpx<dw and 0<=mpy<dh and visMap[mpy][mpx]:
-                canvas.drawTTkString(pos=(x+mpx*2,y+mpy),text=self._mouseIcon,color=color)
+                # canvas.drawTTkString(pos=(x+mpx*2,y+mpy),text=self._mouseIcon,color=color)
 
                 def _drawInfo(info,y=y,x=x):
                     iw,ih = max(l.termWidth() for l in info), len(info)

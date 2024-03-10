@@ -10,3 +10,4 @@ from .player       import *
 from .foe          import *
 from .messages     import *
 from .objinfo      import *
+from .youdiedscreen import *

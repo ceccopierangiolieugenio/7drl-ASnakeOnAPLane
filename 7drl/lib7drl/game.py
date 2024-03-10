@@ -35,6 +35,7 @@ from .glbls    import *
 from .statwin  import *
 from .player   import *
 from .messages import *
+from .youdiedscreen import *
 
 from wblib    import WBWindow
 
@@ -72,6 +73,8 @@ class Game(ttk.TTk):
         self._parallax = Parallax(pos=(0,0), size=(83,30))
         self._dungeon = Dungeon()
         self._dungeonPos = (0,0)
+
+        self._youDiedWidget = YouDiedWidget(parent=self, visible=False)
 
         self._parallaxTimer = ttk.TTkTimer()
         self._parallaxTimer.timeout.connect(self.update)
@@ -147,8 +150,7 @@ class Game(ttk.TTk):
         pass
     @ttk.pyTTkSlot()
     def _death(self):
-        pass
-
+        self.deathAnim([self._youDiedScreen])
 
     @ttk.pyTTkSlot()
     def _testGame(self):
@@ -157,49 +159,62 @@ class Game(ttk.TTk):
         te.setText(TEST_TILES)
         ttk.TTkHelper.overlay(None, win, 0,0)
 
+    @ttk.pyTTkSlot()
+    def _youDiedScreen(self):
+        self._youDiedWidget.setGeometry(0,0,109,30)
+        self._youDiedWidget.raiseWidget()
+        _anim = ttk.TTkPropertyAnimation(self._youDiedWidget,self._youDiedWidget.setFading)
+        _anim.setStartValue(0  )
+        _anim.setEndValue(  100)
+        _anim.setDuration(2)
+        _anim.setEasingCurve(ttk.TTkEasingCurve.InOutQuad)
+        # _anim.finished.connect(__animHero)
+        _anim.start()
+        self._youDiedWidget.show()
+
     def landingAnim(self):
         self._dungeon.setFading(0)
-        self._dungeon.setBouncingHero(-5,-20)
+        # self._dungeon.setBouncingHero(-5,-20)
 
-        def _animBouncingHero():
+        def __animHero():
         # Dungeon Animation
-            animBouncing = ttk.TTkPropertyAnimation(self._dungeon,self._dungeon.setBouncingHero)
-            animBouncing.setStartValue((-5,-20))
-            animBouncing.setEndValue(  (  0,  0))
-            animBouncing.setDuration(1.5)
-            animBouncing.setEasingCurve(ttk.TTkEasingCurve.OutBounce)
-            animBouncing.start()
+            _anim = ttk.TTkPropertyAnimation(self._dungeon,self._dungeon.setBouncingHero)
+            _anim.setStartValue((-5,-20))
+            _anim.setEndValue(  (  0,  0))
+            _anim.setDuration(1.5)
+            _anim.setEasingCurve(ttk.TTkEasingCurve.OutBounce)
+            _anim.start()
 
-        def _animFading():
+        def __anim():
         # Dungeon Animation
-            animFading = ttk.TTkPropertyAnimation(self._dungeon,self._dungeon.setFading)
-            animFading.setStartValue(0)
-            animFading.setEndValue(  1)
-            animFading.setDuration(1)
-            animFading.setEasingCurve(ttk.TTkEasingCurve.InOutQuad)
-            animFading.finished.connect(_animBouncingHero)
-            animFading.start()
+            _anim = ttk.TTkPropertyAnimation(self._dungeon,self._dungeon.setFading)
+            _anim.setStartValue(0)
+            _anim.setEndValue(  1)
+            _anim.setDuration(1)
+            _anim.setEasingCurve(ttk.TTkEasingCurve.InOutQuad)
+            # _anim.finished.connect(__animHero)
+            _anim.start()
 
         def _parallaxAnim():
             # Entering the Parallax
-            animVPos = ttk.TTkPropertyAnimation(self._parallax, self._parallax.setVPos)
-            animVPos.setStartValue(50)
-            animVPos.setEndValue(   0)
-            animVPos.setDuration(2)
-            animVPos.setEasingCurve(ttk.TTkEasingCurve.OutQuint)
-            animVPos.start()
+            _anim = ttk.TTkPropertyAnimation(self._parallax, self._parallax.setVPos)
+            _anim.setStartValue(50)
+            _anim.setEndValue(   0)
+            _anim.setDuration(2)
+            _anim.setEasingCurve(ttk.TTkEasingCurve.OutQuint)
+            _anim.start()
 
         def _dungeonAnim():
             Message.add(ttk.TTkString(f"- Phase {glbls.level} -"))
             Message.add(ttk.TTkString(f"Entering {random.choice(funny_plane_names)}"))
             # Dungeon Animation
-            animPlane = ttk.TTkPropertyAnimation(self,self.setDungeonPos)
-            animPlane.setStartValue((-150,-30))
-            animPlane.setEndValue(  ( 100//2, 30//2))
-            animPlane.setDuration(2)
-            animPlane.setEasingCurve(ttk.TTkEasingCurve.OutBack)
-            animPlane.finished.connect(_animFading)
-            animPlane.start()
+            _anim = ttk.TTkPropertyAnimation(self,self.setDungeonPos)
+            _anim.setStartValue((-150,-30))
+            _anim.setEndValue(  ( 100//2, 30//2))
+            _anim.setDuration(2)
+            _anim.setEasingCurve(ttk.TTkEasingCurve.OutBack)
+            _anim.finished.connect(__anim)
+            _anim.start()
 
         _parallaxAnim()
         _dungeonAnim()
@@ -209,36 +224,77 @@ class Game(ttk.TTk):
 
         def _parallaxAnim():
             # Entering the Parallax
-            animVPos = ttk.TTkPropertyAnimation(self._parallax, self._parallax.setVPos)
-            animVPos.setStartValue( 0)
-            animVPos.setEndValue(  50)
-            animVPos.setDuration(2)
-            animVPos.setEasingCurve(ttk.TTkEasingCurve.InQuint)
-            animVPos.start()
+            _anim = ttk.TTkPropertyAnimation(self._parallax, self._parallax.setVPos)
+            _anim.setStartValue( 0)
+            _anim.setEndValue(  50)
+            _anim.setDuration(2)
+            _anim.setEasingCurve(ttk.TTkEasingCurve.InQuint)
+            _anim.start()
 
         def _dungeonAnim():
             # Dungeon Animation
-            animPlane = ttk.TTkPropertyAnimation(self,self.setDungeonPos)
-            animPlane.setStartValue(  ( 100//2, 30//2))
-            animPlane.setEndValue(    ( 150,-30))
-            animPlane.setDuration(2)
-            animPlane.setEasingCurve(ttk.TTkEasingCurve.InBack)
+            _anim = ttk.TTkPropertyAnimation(self,self.setDungeonPos)
+            _anim.setStartValue(  ( 100//2, 30//2))
+            _anim.setEndValue(    ( 150,-30))
+            _anim.setDuration(2)
+            _anim.setEasingCurve(ttk.TTkEasingCurve.InBack)
             for n in next:
-                animPlane.finished.connect(n)
-            animPlane.start()
+                _anim.finished.connect(n)
+            _anim.start()
 
-        def _animFading():
+        def __anim():
         # Dungeon Animation
-            animFading = ttk.TTkPropertyAnimation(self._dungeon,self._dungeon.setFading)
-            animFading.setStartValue(1)
-            animFading.setEndValue(  0)
-            animFading.setDuration(1)
-            animFading.setEasingCurve(ttk.TTkEasingCurve.OutQuint)
-            animFading.start()
-            animFading.finished.connect(_dungeonAnim)
-            animFading.finished.connect(_parallaxAnim)
+            _anim = ttk.TTkPropertyAnimation(self._dungeon,self._dungeon.setFading)
+            _anim.setStartValue(1)
+            _anim.setEndValue(  0)
+            _anim.setDuration(1)
+            _anim.setEasingCurve(ttk.TTkEasingCurve.OutQuint)
+            _anim.start()
+            _anim.finished.connect(_dungeonAnim)
+            _anim.finished.connect(_parallaxAnim)
 
-        _animFading()
+        __anim()
+
+    def deathAnim(self,next):
+        self._dungeon.setFading(1)
+
+        def _explosionAnim():
+            _anim = ttk.TTkPropertyAnimation(self._dungeon,self._dungeon.setExplosionPos)
+            _anim.setStartValue((100,30))
+            _anim.setEndValue(  (-65,15))
+            _anim.setDuration(1)
+            _anim.setEasingCurve(ttk.TTkEasingCurve.OutQuad)
+            for n in next:
+                _anim.finished.connect(n)
+            _anim.start()
+
+        def _dungeonAnim():
+            hpx,hpy = self._dungeon.heroPos()
+            dw,dh = self._dungeon.size()
+            dpx,dpy = self._dungeonPos
+            # Dungeon Animation
+            dx,dy = self._dungeonPos
+            _anim = ttk.TTkPropertyAnimation(self,self.setDungeonPos)
+            _anim.setStartValue(  ( 100//2, 30//2))
+            # _anim.setEndValue(    ( 100//2+50, hpy))
+            _anim.setEndValue(    ( 100//2+50, 40+hpy))
+            _anim.setDuration(1.5)
+            _anim.setEasingCurve(ttk.TTkEasingCurve.OutQuart)
+            _anim.finished.connect(_explosionAnim)
+
+            _anim.start()
+
+        def __anim():
+        # Dungeon Animation
+            _anim = ttk.TTkPropertyAnimation(self._dungeon,self._dungeon.setFading)
+            _anim.setStartValue(1)
+            _anim.setEndValue(  0)
+            _anim.setDuration(1)
+            _anim.setEasingCurve(ttk.TTkEasingCurve.OutQuint)
+            _anim.start()
+
+        __anim()
+        _dungeonAnim()
 
     def setDungeonPos(self, x,y):
         self._dungeonPos = (int(x),int(y))
@@ -247,14 +303,13 @@ class Game(ttk.TTk):
     def checkGameProgress(self):
         player:Player = glbls.player
         if player.health <= 0:
-            Message.add(ttk.TTkString(f"            ",ttk.TTkColor.fg("FF0000")+ttk.TTkColor.bg("000000")))
-            Message.add(ttk.TTkString(f"  You Died  ",ttk.TTkColor.fg("FF0000")+ttk.TTkColor.bg("000000")))
-            Message.add(ttk.TTkString(f"            ",ttk.TTkColor.fg("FF0000")+ttk.TTkColor.bg("000000")))
+            glbls.death.emit()
 
     def keyEvent(self, evt) -> bool:
         d = self._dungeon
         if evt.type != ttk.TTkK.SpecialKey:
             if glbls.debug and evt.key == 'r': self._dungeon.genDungeon()
+            elif glbls.debug and evt.key == 't': self._death()
             elif evt.key == 'w': self._dungeon.moveHero(d.UP)    ; self._dungeon.foesAction()
             elif evt.key == 's': self._dungeon.moveHero(d.DOWN)  ; self._dungeon.foesAction()
             elif evt.key == 'a': self._dungeon.moveHero(d.LEFT)  ; self._dungeon.foesAction()
