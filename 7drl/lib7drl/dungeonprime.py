@@ -666,28 +666,28 @@ class DungeonPrime():
             'Dragon','TRex','TRex']
 
         objList = [
-            'af1','ah1','ab1','al1', 'wm1','wr1', 'g1','g2','g3', 'ws1','ws1','ws1','wt1',
+            'af1','ah1','ab1','al1', 'wm2','wr2', 'g1','g2','g3', 'ws1','ws1','ws1','wt1',
             'af1','ah1','ab1','al1',              'g1','g2','g3', 'ws1','ws1','ws1','wt1',
                                                                   'ws1','ws1','ws1','wt1',
                                                                   'ws1','ws1','ws1','wt1',
 
             'af2','ah2','ab2','al2', 'wm2','wr2', 'g3','g4','g5', 'ws1','ws1','ws1','wt1',
-            'af2','ah2','ab2','al2',              'g3','g4','g5', 'ws1','ws1','ws1','wt1',
+            'af2','ah2','ab2','al2', 'wm2','wr2',  'g3','g4','g5', 'ws1','ws1','ws1','wt1',
                                                                   'ws2','ws2','ws2','wt2',
                                                                   'ws2','ws2','ws2','wt2',
 
             'af3','ah3','ab3','al3', 'wm3','wr3', 'g4','g5','g7', 'ws1','ws1','ws1','ws1','wt1',
-            'af3','ah3','ab3','al3',              'g4','g5','g7', 'ws2','ws2','ws2','ws2','wt2',
+            'af3','ah3','ab3','al3', 'wm3','wr3', 'g4','g5','g7', 'ws2','ws2','ws2','ws2','wt2',
                                                                   'ws3','ws3','ws3','ws3','wt3',
                                                                   'ws3','ws3','ws3','ws3','wt3',
 
             'af4','ah4','ab4','al3', 'wm4','wr4', 'g5','g7','g8', 'ws1','ws1','ws1','ws1','ws1','wt1',
-            'af4','ah4','ab4','al3',              'g5','g7','g8', 'ws2','ws2','ws2','ws2','ws2','wt2',
+            'af4','ah4','ab4','al3', 'wm4','wr4', 'g5','g7','g8', 'ws2','ws2','ws2','ws2','ws2','wt2',
                                                                   'ws3','ws3','ws3','ws3','ws3','wt3',
                                                                   'ws4','ws4','ws4','ws4','ws4','wt3',
 
             'af5','ah5','ab5','al3', 'wm4','wr4', 'g6','g7','g8', 'ws1','ws1','ws1','ws1','ws1','wt1','wt1',
-            'af5','ah5','ab5','al3',              'g6','g7','g8', 'ws2','ws2','ws2','ws2','ws2','wt2','wt2',
+            'af5','ah5','ab5','al3', 'wm4','wr4', 'g6','g7','g8', 'ws2','ws2','ws2','ws2','ws2','wt2','wt2',
                                                                   'ws3','ws3','ws3','ws3','ws3','wt3','wt3',
                                                                   'ws4','ws4','ws4','ws4','ws4','wt3','wt3',
         ]
@@ -938,6 +938,10 @@ class DungeonPrime():
             while toBeProcessed:
                 _x,_y = toBeProcessed.pop()
                 dataType[_y][_x] = _num
+                dataObjs[_y][_x]=''
+                if _foe := dataFoes[_y][_x]:
+                    dataFoes[_y][_x] = ''
+                    foeList.remove(_foe)
                 if _y > 0    and areaMap[_y-1][_x] and dataType[_y-1][_x]!=_num and (_x  ,_y-1) not in toBeProcessed: toBeProcessed.append((_x  ,_y-1))
                 if _y < dh-2 and areaMap[_y+1][_x] and dataType[_y+1][_x]!=_num and (_x  ,_y+1) not in toBeProcessed: toBeProcessed.append((_x  ,_y+1))
                 if _x > 0    and areaMap[_y][_x-1] and dataType[_y][_x-1]!=_num and (_x-1,_y  ) not in toBeProcessed: toBeProcessed.append((_x-1,_y  ))

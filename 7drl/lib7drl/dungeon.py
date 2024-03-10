@@ -397,7 +397,11 @@ class Dungeon(DungeonPrime):
             def _endingCallback():
                 if player.weaponHeld == 'wt4': # Add a pool of crap
                     self._poolOfCrap((x,y),2)
-                if player.weaponHeld == 'wr4': # Add a pool of crap
+                if player.weaponHeld == 'wr4':
+                    self._areaShot((x,y),2)
+                if player.weaponHeld == 'wt2':
+                    self._areaShot((x,y),1)
+                if player.weaponHeld == 'wt3':
                     self._areaShot((x,y),2)
                 # if player.weaponHeld == 'wt4': # Add a pool of crap
                 #     self._poolOfCrap((x,y),2)
@@ -461,7 +465,7 @@ class Dungeon(DungeonPrime):
                         if _foe.name == 'Skeleton':
                             for gx in range(hx-1,hx+2):
                                 for gy in range(hy-1,hy+2):
-                                    if not df[gy][gx]:
+                                    if not df[gy][gx] and df[gy][gx]==' ':
                                         newFoe = Foe(pos=(gx,gy),name='Ghost', **FOELIST['Ghost'])
                                         df[gy][gx] = newFoe
                                         self._foes.append(newFoe)

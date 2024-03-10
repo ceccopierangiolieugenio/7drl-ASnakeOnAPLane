@@ -187,10 +187,10 @@ class Player():
         ret = False
         sh = self._weaponParams.get(self.weaponHeld,None)
         if sh:
+            ret = True
             shn, sht = sh
             if shn[sht]:
                 shn[sht] = max(0,shn[sht]-1)
-                ret = True
                 self.updated.emit()
         return ret
 

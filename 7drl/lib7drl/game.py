@@ -308,7 +308,7 @@ class Game(ttk.TTk):
                     ttk.TTkString(""),
                     ttk.TTkString("################################"),
                     ttk.TTkString(""),
-                    ttk.TTkString("🥸 Hello Fluid Snake..."),
+                    ttk.TTkString("😱 Hello Fluid Snake..."),
                     ttk.TTkString(""),
                 ],
                 [
@@ -316,7 +316,7 @@ class Game(ttk.TTk):
                     ttk.TTkString("")
                 ],
                 [
-                    ttk.TTkString("🥸 No time to explain"),
+                    ttk.TTkString("😱 No time to explain"),
                     ttk.TTkString("   The world is in danger"),
                     ttk.TTkString("   There is 'A Snake on a Plane'"),
                     ttk.TTkString("   You need to find it!!!"),
@@ -327,7 +327,7 @@ class Game(ttk.TTk):
                     ttk.TTkString("")
                 ],
                 [
-                    ttk.TTkString("🥸 You are not paid to make questions"),
+                    ttk.TTkString("😱 You are not paid to make questions"),
                     ttk.TTkString("")
                 ],
             ]
@@ -360,7 +360,7 @@ class Game(ttk.TTk):
                     ttk.TTkString(""),
                     ttk.TTkString("################################"),
                     ttk.TTkString(""),
-                    ttk.TTkString("🥸 Hey Fluid Snake..."),
+                    ttk.TTkString("😱 Hey Fluid Snake..."),
                     ttk.TTkString("   How is it going?"),
                     ttk.TTkString(""),
                 ],
@@ -370,7 +370,7 @@ class Game(ttk.TTk):
                     ttk.TTkString("")
                 ],
                 [
-                    ttk.TTkString("🥸 Remember"),
+                    ttk.TTkString("😱 Remember"),
                     ttk.TTkString("   Don't harm the Snake"),
                     ttk.TTkString(""),
                 ],
@@ -405,7 +405,7 @@ class Game(ttk.TTk):
     def _endBreak(self):
         glbls.playing = False
         last_message = [
-                    ttk.TTkString( "🥸 Don't be greedy, you collected"),
+                    ttk.TTkString( "😱 Don't be greedy, you collected"),
                     ttk.TTkString(f"   {glbls.player.money}$ along the way"),
                     ttk.TTkString()]
         for ls in random.choice(LOSER_SENTENCE):
@@ -418,7 +418,7 @@ class Game(ttk.TTk):
                     ttk.TTkString(""),
                     ttk.TTkString("################################"),
                     ttk.TTkString(""),
-                    ttk.TTkString("🥸 Good Job Fluid Snake..."),
+                    ttk.TTkString("😱 Good Job Fluid Snake..."),
                     ttk.TTkString("   You saved the world"),
                     ttk.TTkString(""),
                 ],
