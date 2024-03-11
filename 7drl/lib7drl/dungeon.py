@@ -465,7 +465,7 @@ class Dungeon(DungeonPrime):
                         if _foe.name == 'Skeleton':
                             for gx in range(hx-1,hx+2):
                                 for gy in range(hy-1,hy+2):
-                                    if not df[gy][gx] and df[gy][gx]==' ':
+                                    if not df[gy][gx] and dm[gy][gx]==' ':
                                         newFoe = Foe(pos=(gx,gy),name='Ghost', **FOELIST['Ghost'])
                                         df[gy][gx] = newFoe
                                         self._foes.append(newFoe)
