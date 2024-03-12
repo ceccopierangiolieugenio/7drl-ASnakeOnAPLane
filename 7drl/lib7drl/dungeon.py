@@ -426,7 +426,7 @@ class Dungeon(DungeonPrime):
         for foe in self._foes:
             # ttk.TTkLog.debug(foe.name)
             x,y = foe.pos
-            if dt[hy][hx] == 5 and foe.name != 'Crap': # Foe is on a sea of crap
+            if dt[y][x] == 5 and foe.name != 'Crap': # Foe is on a sea of crap
                 self.hitFoe(foe,3,True)
             if rn==visMap[y][x]: foe.active = True
             if abs(x-hx)>40 or abs(y-hy)>15: foe.active = False
