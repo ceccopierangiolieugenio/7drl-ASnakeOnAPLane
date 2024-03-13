@@ -12,3 +12,11 @@ https://github.com/ceccopierangiolieugenio/7drl-ASnakeOnAPLane/assets/8876552/f0
 
 ![Peek 2024-03-11 10-19](https://github.com/ceccopierangiolieugenio/7drl-ASnakeOnAPLane/assets/8876552/3fd7cb3e-5542-4c15-99f9-21a07ff13c58)
 
+You can play it [online](https://ceccopierangiolieugenio.itch.io/a-snake-on-a-plane)
+or on a terminal:
+```bash
+# Clone the repo
+    git clone https://github.com/ceccopierangiolieugenio/7drl-ASnakeOnAPLane.git
+# Run the game
+    python3 7drl-ASnakeOnAPLane/7drl/main.py
+```
